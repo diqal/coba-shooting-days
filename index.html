@@ -769,7 +769,7 @@ function generateCallsheetTemplate(dateKey) {
     </div>
     <table><tr><th>Producer</th><th>1st AD</th><th>LP</th><th>Director</th></tr><tr contenteditable="true"><td>${CALLSHEET_MASTER.producer}</td><td>${CALLSHEET_MASTER.ad}</td><td>${CALLSHEET_MASTER.linepro}</td><td>${CALLSHEET_MASTER.director}</td></tr></table>
     <div style="display:flex; gap:12px; margin-bottom:12px;">
-        <div style="flex: 2;"><table><tr><th colspan="2">Locations & Parking</th></tr><tr contenteditable="true"><td style="font-weight:bold; width: 30%; border-right:none;">General Call Time:<br><span style="font-size:14px; color:var(--primary);">${crewCall}</span></td><<td style="border-left:none;">${CALLSHEET_MASTER.parking}</td></tr></table></div>
+        <div style="flex: 2;"><table><tr><th colspan="2">Locations & Parking</th></tr><tr contenteditable="true"><td style="font-weight:bold; width: 30%; border-right:none;">General Call Time:<br><span style="font-size:14px; color:var(--primary);">${crewCall}</span></td><td style="border-left:none;">${CALLSHEET_MASTER.parking}</td></tr></table></div>
         <div style="flex: 1.5;"><table><tr><th style="background:#fee2e2; color:#991b1b;">Nearest Hospital</th></tr><tr contenteditable="true"><td><strong>${CALLSHEET_MASTER.hospital}</strong></td></tr></table></div>
         <div style="display:flex; gap:12px; margin-bottom:12px; margin-top:12px;">
         <div style="flex: 1;"><table><tr><th>Catering & Meals Time</th></tr><tr contenteditable="true"><td><strong>${CALLSHEET_MASTER.meals || 'Breakfast: 06.00 | Lunch: 12.00 | Dinner: 18.00'}</strong></td></tr></table></div>
