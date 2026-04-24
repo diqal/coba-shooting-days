@@ -1051,7 +1051,7 @@ function openModal(dateKey) {
     const suppHtml = parseCastIds(scene.supporting).map(id=>`<span class="cast-tag" style="background:var(--bg-card);" onclick="openSingleCastPopup(${id}, false)">${id}. ${CAST_NAMES[id]||'ID '+id}</span>`).join('');
     const extraHtml = (scene.extras && scene.extras.trim()) ? `<span class="cast-tag" style="background:transparent; border-style:dashed;">${scene.extras.split('\n')[0].trim()}</span>` : '';
     html += `
-      <div class="scene-card ${isWrapped?'is-wrapped':''}" id="sceneCard-${scene.scene}">
+      <div class="scene-card ${isWrapped?'is-wrapped':'tandai selesai'}" id="sceneCard-${scene.scene}">
         <div class="scene-header">
           <div class="scene-header-top">
             <div class="scene-header-left"><div class="scene-num">SC ${scene.scene}</div><div class="scene-tags">${scene.ie ? `<span class="tag tag-${scene.ie}">${scene.ie==='I'?'INT':'EXT'}</span>` : ''}${scene.dn ? `<span class="tag tag-${scene.dn}">${scene.dn}</span>` : ''}</div></div>
