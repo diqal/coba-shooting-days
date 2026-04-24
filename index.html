@@ -252,7 +252,7 @@
         <button class="action-btn" style="background: #dc2626; color: white; border: none;" onclick="resetCallsheetHandler()">↺ Reset Tulisan Callsheet</button>
         <button class="action-btn" style="background: var(--primary); color: white;" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
     </div>
-</div><button class="action-btn" style="background: #dc2626; color: white; border: none;" onclick="resetCallsheetHandler()">↺ Reset Tulisan Callsheet</button><button class="action-btn" style="background: var(--primary); color: white;" onclick="window.print()">🖨️ Cetak / Simpan PDF</button></div></div></div>
+</div></div></div></div>
 <div class="popup-overlay" id="databasePopup" style="z-index: 4000;" onclick="closePopup('databasePopup', event)"><div class="popup-box"><div class="popup-header"><span>💾 Import Breakdown Jadwal</span><button class="popup-close" onclick="closePopupDirect('databasePopup')">✕</button></div><div class="popup-body"><p style="margin-bottom:12px; font-size:14px; color:var(--text-light);"><i>Copy</i> (Blok & Salin) baris jadwal dari file Excel / Google Sheets kamu, lalu <i>Paste</i> (Tempel) di kotak teks di bawah ini.</p><p style="margin-bottom:12px; font-size:12px; color:var(--primary); font-weight:bold;">Format Urutan Kolom Excel (Kiri ke Kanan):<br>Day | Date | Wrap | Time | Scene | Set | I/E | D/N | Pages | Desc | Main Cast (1. Nama) | Supp Cast | Extras</p><textarea id="excelPasteArea" style="width:100%; height:150px; padding:10px; border:1px solid var(--border-color); border-radius:6px; font-family:monospace; margin-bottom:16px; background:var(--bg-main); color:var(--text-main);" placeholder="Paste data Excel di sini..."></textarea><div style="display:flex; gap:10px;"><button class="btn-cast-gallery" onclick="importFromExcel()" style="width:100%; justify-content:center;">Simpan & Tambahkan Jadwal</button><button class="action-btn" onclick="resetToDefaultData()" style="background:#dc2626; color:white; border:none;">Hapus Semua & Reset Default</button></div></div></div></div>
 <div class="popup-overlay" id="floorplanPopup" onclick="closePopup('floorplanPopup', event)"><div class="popup-box"><div class="popup-header"><span>Photoboard – Scene <span id="fpSceneNum"></span></span><button class="popup-close" onclick="closePopupDirect('floorplanPopup')">✕</button></div><div class="popup-body" id="fpBody"></div></div></div>
 <div class="popup-overlay" id="wardrobePopup" onclick="closePopup('wardrobePopup', event)"><div class="popup-box"><div class="popup-header"><span>Wardrobe – Scene <span id="wmSceneNum"></span></span><button class="popup-close" onclick="closePopupDirect('wardrobePopup')">✕</button></div><div class="popup-body" id="wmBody"></div></div></div>
@@ -293,6 +293,9 @@
 
        <label style="font-size:12px; font-weight:bold; margin-top:8px;">1st AD:</label> 
        <textarea id="mc_ad" rows="2" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
+
+       <label style="font-size:12px; font-weight:bold;">Line Producer:</label> 
+       <textarea id="mc_linepro" rows="2" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
        
        <label style="font-size:12px; font-weight:bold; margin-top:8px;">Rumah Sakit Terdekat:</label> 
        <textarea id="mc_hospital" rows="3" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
@@ -1251,7 +1254,7 @@ function openMasterCallsheetPopup() {
     document.getElementById('mc_phAddress').value = CALLSHEET_MASTER.phAddress.replace(/<br>/g, '\n');
     document.getElementById('mc_producer').value = CALLSHEET_MASTER.producer.replace(/<br>/g, '\n');
     document.getElementById('mc_ad').value = CALLSHEET_MASTER.ad.replace(/<br>/g, '\n');
-    document.getElementById('mc_linepro').value = CALLSHEET_MASTER.ad.replace(/<br>/g, '\n');
+    document.getElementById('mc_linepro').value = (CALLSHEET_MASTER.linepro || "").replace(/<br>/g, '\n');
     document.getElementById('mc_director').value = CALLSHEET_MASTER.director.replace(/<br>/g, '\n');
     document.getElementById('mc_hospital').value = CALLSHEET_MASTER.hospital.replace(/<br>/g, '\n');
     document.getElementById('mc_parking').value = CALLSHEET_MASTER.parking.replace(/<br>/g, '\n');
