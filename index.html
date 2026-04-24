@@ -244,7 +244,15 @@
 <div class="stats-bar" id="statsBar"></div>
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)"><div class="modal" id="modalBox"><div class="modal-header"><div class="modal-title"><h2 id="modalDayTitle">Hari Syuting</h2><p id="modalDateSub"></p></div><div style="display: flex; gap: 12px; align-items: center;"><button id="btnOpenCallsheet" class="btn-cast-gallery" style="padding: 8px 14px; font-size: 13px;">📋 Buka Callsheet</button><button class="modal-close" onclick="closeModalDirect()">✕</button></div></div><div class="modal-crew" id="modalCrew"></div><div class="modal-body" id="modalBody"></div></div></div>
-<div class="popup-overlay" id="callsheetPopup" style="z-index: 3000;" onclick="closePopup('callsheetPopup', event)"><div class="popup-box" style="max-width: 850px; background: var(--bg-card); border-radius: 0;"><div class="popup-header no-print" style="background: var(--text-main); color: white; justify-content: space-between;"><span style="font-family: 'Inter', sans-serif; font-weight: 800;">📋 DAILY CALLSHEET</span><button class="popup-close" onclick="closePopupDirect('callsheetPopup')" style="color: white; background: transparent;">✕</button></div><div class="popup-body" id="callsheetBody" style="padding: 30px; font-family: 'Inter', sans-serif; color: var(--text-main); background: var(--bg-card);"></div><div class="no-print" style="padding: 15px 30px; background: var(--bg-main); text-align: right; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between;"><button class="action-btn" style="background: #dc2626; color: white; border: none;" onclick="resetCallsheetHandler()">↺ Reset Tulisan Callsheet</button><button class="action-btn" style="background: var(--primary); color: white;" onclick="window.print()">🖨️ Cetak / Simpan PDF</button></div></div></div>
+<div class="popup-overlay" id="callsheetPopup" style="z-index: 3000;" onclick="closePopup('callsheetPopup', event)"><div class="popup-box" style="max-width: 850px; background: var(--bg-card); border-radius: 0;"><div class="popup-header no-print" style="background: var(--text-main); color: white; justify-content: space-between;"><span style="font-family: 'Inter', sans-serif; font-weight: 800;">📋 DAILY CALLSHEET</span><button class="popup-close" onclick="closePopupDirect('callsheetPopup')" style="color: white; background: transparent;">✕</button></div><div class="popup-body" id="callsheetBody" style="padding: 30px; font-family: 'Inter', sans-serif; color: var(--text-main); background: var(--bg-card);"></div><div class="no-print" style="padding: 15px 30px; background: var(--bg-main); text-align: right; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; gap: 10px;">
+    <div>
+        <button class="action-btn" style="background: var(--secondary); color: white; border: none;" onclick="openMasterCallsheetPopup()">⚙️ Atur Master Callsheet</button>
+    </div>
+    <div>
+        <button class="action-btn" style="background: #dc2626; color: white; border: none;" onclick="resetCallsheetHandler()">↺ Reset Tulisan Callsheet</button>
+        <button class="action-btn" style="background: var(--primary); color: white;" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+    </div>
+</div><button class="action-btn" style="background: #dc2626; color: white; border: none;" onclick="resetCallsheetHandler()">↺ Reset Tulisan Callsheet</button><button class="action-btn" style="background: var(--primary); color: white;" onclick="window.print()">🖨️ Cetak / Simpan PDF</button></div></div></div>
 <div class="popup-overlay" id="databasePopup" style="z-index: 4000;" onclick="closePopup('databasePopup', event)"><div class="popup-box"><div class="popup-header"><span>💾 Import Breakdown Jadwal</span><button class="popup-close" onclick="closePopupDirect('databasePopup')">✕</button></div><div class="popup-body"><p style="margin-bottom:12px; font-size:14px; color:var(--text-light);"><i>Copy</i> (Blok & Salin) baris jadwal dari file Excel / Google Sheets kamu, lalu <i>Paste</i> (Tempel) di kotak teks di bawah ini.</p><p style="margin-bottom:12px; font-size:12px; color:var(--primary); font-weight:bold;">Format Urutan Kolom Excel (Kiri ke Kanan):<br>Day | Date | Wrap | Time | Scene | Set | I/E | D/N | Pages | Desc | Main Cast (1. Nama) | Supp Cast | Extras</p><textarea id="excelPasteArea" style="width:100%; height:150px; padding:10px; border:1px solid var(--border-color); border-radius:6px; font-family:monospace; margin-bottom:16px; background:var(--bg-main); color:var(--text-main);" placeholder="Paste data Excel di sini..."></textarea><div style="display:flex; gap:10px;"><button class="btn-cast-gallery" onclick="importFromExcel()" style="width:100%; justify-content:center;">Simpan & Tambahkan Jadwal</button><button class="action-btn" onclick="resetToDefaultData()" style="background:#dc2626; color:white; border:none;">Hapus Semua & Reset Default</button></div></div></div></div>
 <div class="popup-overlay" id="floorplanPopup" onclick="closePopup('floorplanPopup', event)"><div class="popup-box"><div class="popup-header"><span>Photoboard – Scene <span id="fpSceneNum"></span></span><button class="popup-close" onclick="closePopupDirect('floorplanPopup')">✕</button></div><div class="popup-body" id="fpBody"></div></div></div>
 <div class="popup-overlay" id="wardrobePopup" onclick="closePopup('wardrobePopup', event)"><div class="popup-box"><div class="popup-header"><span>Wardrobe – Scene <span id="wmSceneNum"></span></span><button class="popup-close" onclick="closePopupDirect('wardrobePopup')">✕</button></div><div class="popup-body" id="wmBody"></div></div></div>
@@ -257,6 +265,50 @@
 <div class="popup-overlay" id="singleCastPopup" onclick="closePopup('singleCastPopup', event)"><div class="popup-box" style="max-width: 420px;"><div class="popup-header"><span>Profil Pemain</span><button class="popup-close" onclick="closePopupDirect('singleCastPopup')">✕</button></div><div class="popup-body" style="text-align: center; padding: 32px 20px;"><img id="singleCastImg" src="" alt="Cast" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid var(--border-color); margin-bottom: 8px;"><h3 id="singleCastName">Nama Karakter</h3><div id="singleCastActor" style="margin-bottom: 16px; font-size: 14px; color: var(--secondary);"></div><div id="singleCastId">ID</div><button id="btnCastWrap" class="btn-cast-wrap">Tandai Selesai</button><button class="btn-cast-gallery" id="btnFilterCast" onclick="triggerFilterCast()" style="width: 100%; justify-content: center; margin-bottom: 16px; background: var(--bg-main); color: var(--text-main); border: 1px solid var(--border-color);">Lihat Jadwal di Kalender</button><div id="singleCastSchedule" style="text-align: left; padding-top: 16px; border-top: 1px solid var(--border-color);"><div style="font-size: 13px; font-weight: 700; color: var(--text-light); margin-bottom: 12px; text-transform: uppercase;">Jadwal Hari Syuting</div><div id="singleCastDays" style="display: flex; flex-direction: column; gap: 8px;"></div></div></div></div></div>
 <div class="popup-overlay" id="allScenesPopup" style="z-index: 1500;" onclick="closePopup('allScenesPopup', event)"><div class="popup-box"><div class="popup-header"><span id="allScenesHeaderTitle">🎬 Daftar Semua Scene</span><button class="popup-close" onclick="closePopupDirect('allScenesPopup')">✕</button></div><div class="popup-body"><div id="allScenesGrid"></div></div></div></div>
 <div class="popup-overlay" id="singleScenePopup" style="z-index: 1600;" onclick="closePopup('singleScenePopup', event)"><div class="popup-box" style="max-width: 700px;"><div class="popup-header"><span>📋 Detail Scene Card</span><button class="popup-close" onclick="closePopupDirect('singleScenePopup')">✕</button></div><div class="popup-body" id="singleSceneBody"></div></div></div>
+<div class="popup-overlay" id="masterCallsheetPopup" style="z-index: 5000;" onclick="closePopup('masterCallsheetPopup', event)">
+  <div class="popup-box" style="max-width: 500px;">
+    <div class="popup-header">
+      <span>⚙️ Master Data Callsheet</span>
+      <button class="popup-close" onclick="closePopupDirect('masterCallsheetPopup')">✕</button>
+    </div>
+    <div class="popup-body" style="display:flex; flex-direction:column; gap:12px;">
+       <p style="font-size:12px; color:var(--text-light); margin-bottom:8px;">Data ini akan otomatis disalin ke setiap Callsheet BARU yang belum pernah diedit.</p>
+       
+       <label style="font-size:12px; font-weight:bold;">Nama PH:</label> 
+       <input type="text" id="mc_phName" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
+       
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Alamat PH:</label> 
+       <textarea id="mc_phAddress" rows="2" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
+       
+       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:8px;">
+           <div>
+               <label style="font-size:12px; font-weight:bold;">Sutradara:</label> 
+               <textarea id="mc_director" rows="2" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
+           </div>
+           <div>
+               <label style="font-size:12px; font-weight:bold;">Produser:</label> 
+               <textarea id="mc_producer" rows="2" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
+           </div>
+       </div>
+
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">1st AD:</label> 
+       <textarea id="mc_ad" rows="2" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
+       
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Rumah Sakit Terdekat:</label> 
+       <textarea id="mc_hospital" rows="3" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
+       
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Info Parkir / Basecamp Default:</label> 
+       <textarea id="mc_parking" rows="2" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Waktu Makan (Breakfast/Lunch/Dinner):</label> 
+       <input type="text" id="mc_meals" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
+       
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Aturan Syuting:</label> 
+       <textarea id="mc_rules" rows="3" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
+       
+      <button class="btn-cast-gallery" onclick="saveMasterCallsheet()" style="justify-content:center; margin-top:16px; padding:12px; font-size:14px;">💾 Simpan Master Data</button>
+    </div>
+  </div>
+</div>  
 
 <script>
 // =========================================================================
@@ -293,6 +345,18 @@ let activeFilterCastId = null;
 let activeFilterLocation = null;
 let currentViewCastId = null;
 let currentViewLocName = null;
+let CALLSHEET_MASTER = {
+    phName: "[NAMA PRODUCTION HOUSE]",
+    phAddress: "[Alamat Kantor / Basecamp Utama]\n[Kota, Kode Pos, Negara]",
+    producer: "[Nama Produser]\n[call time]",
+    ad: "[Nama 1st AD]\n[call time]",
+    linepro: "[Nama LP]\n[call time]",
+    director: "[Nama Sutradara]\n[call time]",
+    hospital: "[Nama Rumah Sakit Terdekat]\n[Alamat Lengkap RS]\n[No. Telepon UGD]",
+    parking: "[Instruksi lokasi Basecamp di sini]\n[Instruksi tempat parkir kru di sini]",
+    meals: "Breakfast: 06.00 | Lunch: 12.00 | Dinner: 18.00",
+    rules: "1. Selalu gunakan ID Card kru.<br>2. Dilarang foto/video di set tanpa izin.<br>3. Jaga kebersihan lokasi."
+};
 
 const DEFAULT_SCHEDULE = {
   "days": [
@@ -318,6 +382,7 @@ syncRef.on('value', (snapshot) => {
     WRAPPED_CASTS = data.wrappedCasts ? JSON.parse(data.wrappedCasts) : [];
     IMAGE_CACHE = data.images || {};
     
+    if(data.callsheetMaster) CALLSHEET_MASTER = JSON.parse(data.callsheetMaster);
     if(data.headerTitle) document.getElementById('headerTitle').innerText = data.headerTitle;
     if(data.headerSub) document.getElementById('headerSub').innerText = data.headerSub;
     if(data.headerDate) document.getElementById('headerDate').innerText = data.headerDate;
@@ -686,8 +751,8 @@ function generateCallsheetTemplate(dateKey) {
   let html = `
     <div style="display:flex; justify-content:space-between; border-bottom:2px solid black; padding-bottom:12px; margin-bottom:16px;">
         <div style="width:33%; font-size:10px; line-height:1.4;">
-            <h2 contenteditable="true" style="margin:0; font-size:16px;">[NAMA PRODUCTION HOUSE]</h2>
-            <div contenteditable="true">[Alamat Kantor / Basecamp Utama]<br>[Kota, Kode Pos, Negara]</div>
+            <h2 contenteditable="true" style="margin:0; font-size:16px;">${CALLSHEET_MASTER.phName}</h2>
+            <div contenteditable="true">${CALLSHEET_MASTER.phAddress}</div>
         </div>
         <div style="width:34%; text-align:center;">
             <h1 contenteditable="true" style="margin:0; font-size:18px; text-transform:uppercase;">${projTitle}: Day ${sd.day}</h1>
@@ -699,10 +764,14 @@ function generateCallsheetTemplate(dateKey) {
             <div contenteditable="true">Sunrise [Waktu] Sunset [Waktu]</div>
         </div>
     </div>
-    <table><tr><th>Producer</th><th>1st AD</th><th>Director</th></tr><tr contenteditable="true"><td>[Nama Produser]<br>[No. HP]</td><td>[Nama 1st AD]<br>[No. HP]</td><td>[Nama Sutradara]<br>[No. HP]</td></tr></table>
+    <table><tr><th>Producer</th><th>1st AD</th><th>LP</th><th>Director</th></tr><tr contenteditable="true"><td>${CALLSHEET_MASTER.producer}</td><td>${CALLSHEET_MASTER.ad}</td><td>${CALLSHEET_MASTER.linepro}</td><td>${CALLSHEET_MASTER.director}</td></tr></table>
     <div style="display:flex; gap:12px; margin-bottom:12px;">
-        <div style="flex: 2;"><table><tr><th colspan="2">Locations & Parking</th></tr><tr contenteditable="true"><td style="font-weight:bold; width: 30%; border-right:none;">General Call Time:<br><span style="font-size:14px; color:var(--primary);">${crewCall}</span></td><td style="border-left:none;">[Instruksi lokasi Basecamp di sini]<br>[Instruksi tempat parkir kru di sini]</td></tr></table></div>
-        <div style="flex: 1.5;"><table><tr><th style="background:#fee2e2; color:#991b1b;">Nearest Hospital</th></tr><tr contenteditable="true"><td><strong>[Nama Rumah Sakit Terdekat]</strong><br>[Alamat Lengkap RS]<br>[No. Telepon UGD]</td></tr></table></div>
+        <div style="flex: 2;"><table><tr><th colspan="2">Locations & Parking</th></tr><tr contenteditable="true"><td style="font-weight:bold; width: 30%; border-right:none;">General Call Time:<br><span style="font-size:14px; color:var(--primary);">${crewCall}</span></td><<td style="border-left:none;">${CALLSHEET_MASTER.parking}</td></tr></table></div>
+        <div style="flex: 1.5;"><table><tr><th style="background:#fee2e2; color:#991b1b;">Nearest Hospital</th></tr><tr contenteditable="true"><td><strong>${CALLSHEET_MASTER.hospital}</strong></td></tr></table></div>
+        <div style="display:flex; gap:12px; margin-bottom:12px; margin-top:12px;">
+        <div style="flex: 1;"><table><tr><th>Catering & Meals Time</th></tr><tr contenteditable="true"><td><strong>${CALLSHEET_MASTER.meals || 'Breakfast: 06.00 | Lunch: 12.00 | Dinner: 18.00'}</strong></td></tr></table></div>
+        <div style="flex: 2;"><table><tr><th style="background:#fef3c7; color:#92400e;">Shooting Rules & Notes</th></tr><tr contenteditable="true"><td style="font-size:11px;">${CALLSHEET_MASTER.rules || '1. Disiplin waktu<br>2. Jaga kebersihan lokasi'}</td></tr></table></div>
+    </div>
     </div>
     <div style="font-size:12px; font-weight:bold; margin-bottom:6px; text-transform:uppercase;">Schedule – Day ${sd.day}</div>
     <table><tr><th style="width: 8%; text-align:center;">START</th><th style="width: 5%; text-align:center;">SC</th><th style="width: 38%;">DESCRIPTION</th><th style="width: 5%; text-align:center;">D/N</th><th style="width: 10%; text-align:center;">CAST</th><th style="width: 20%;">LOCATION</th><th style="width: 6%; text-align:center;">PAGES</th><th style="width: 8%; text-align:center;">EST (H)</th></tr>${scheduleHtml}</table>
@@ -712,12 +781,31 @@ function generateCallsheetTemplate(dateKey) {
     </table>
     <div style="font-size:12px; font-weight:bold; margin-bottom:6px; text-transform:uppercase; margin-top: 16px;">Atmosphere / Extras</div>
     <table><tr><th style="width:10%; text-align:center;">QTY</th><th style="width:50%;">CHARACTER / INFO</th><th style="width:20%; text-align:center;">CALL</th><th style="width:20%; text-align:center;">ON SET</th></tr><tr contenteditable="true"><td style="text-align:center; font-weight:bold;">[Jml]</td><td>[Peran Extras / Detail]</td><td style="text-align:center;">[Waktu]</td><td style="text-align:center;">[Waktu]</td></tr></table>
-    <div style="font-size:12px; font-weight:bold; margin-bottom:6px; text-transform:uppercase; margin-top: 16px;">Department Notes</div>
-    <table><tr><th style="width: 25%;">DEPARTMENT</th><th style="width: 75%;">NOTES</th></tr><tbody contenteditable="true"><tr><td><strong>SET DRESSING</strong></td><td>[Catatan / notes untuk tim Set Dressing]</td></tr><tr><td><strong>PROPS</strong></td><td>[Daftar barang khusus untuk tim Props]</td></tr><tr><td><strong>SOUND</strong></td><td>[Catatan untuk tim Sound]</td></tr><tr><td><strong>COSTUMES</strong></td><td>[Catatan spesifik untuk tim Costumes/Wardrobe]</td></tr></tbody></table>
-    <div style="font-size:12px; font-weight:bold; margin-bottom:6px; text-transform:uppercase; margin-top: 16px;">Advance Schedule – ${nextDay ? 'Day ' + nextDay.day + ' (' + nextDay.date + ')' : 'Next Day'}</div>
-    <table><tr><th style="width: 8%; text-align:center;">START</th><th style="width: 5%; text-align:center;">SC</th><th style="width: 38%;">DESCRIPTION</th><th style="width: 5%; text-align:center;">D/N</th><th style="width: 10%; text-align:center;">CAST</th><th style="width: 20%;">LOCATION</th><th style="width: 6%; text-align:center;">PAGES</th><th style="width: 8%; text-align:center;">EST (H)</th></tr>${advanceHtml}</table>
-    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px; margin-top: 16px;"><div style="font-size:12px; font-weight:bold; text-transform:uppercase;">Crew</div><div style="font-size:10px; font-weight:bold; background:#e5e7eb; padding:4px 8px; border-radius:4px; border:1px solid #d1d5db;" contenteditable="true">Walkie Channels - 1: Production | 2: Open | 3: Transpo | 4: Art</div></div>
-    <table><tr><th style="width: 35%;">NAME / DEPT</th><th style="width: 15%; text-align:center;">CALL</th><th style="width: 35%;">NAME / DEPT</th><th style="width: 15%; text-align:center;">CALL</th></tr><tbody contenteditable="true"><tr><td><strong>[Nama]</strong> (Director)</td><td style="text-align:center;">[Waktu]</td><td><strong>[Nama]</strong> (Key Grip)</td><td style="text-align:center;">[Waktu]</td></tr><tr><td><strong>[Nama]</strong> (Script/Continuity)</td><td style="text-align:center;">[Waktu]</td><td><strong>[Nama]</strong> (Art Director)</td><td style="text-align:center;">[Waktu]</td></tr><tr><td><strong>[Nama]</strong> (Key MU)</td><td style="text-align:center;">[Waktu]</td><td><strong>[Nama]</strong> (Wardrobe)</td><td style="text-align:center;">[Waktu]</td></tr></tbody></table>
+    <div style="font-size:12px; font-weight:bold; margin-bottom:6px; text-transform:uppercase; margin-top: 16px;">Department Notes & Special Equipment</div>
+    <table><tr><th style="width: 25%;">DEPARTMENT</th><th style="width: 75%;">NOTES / EQUIPMENT</th></tr>
+    <tbody contenteditable="true">
+        <tr><td style="background:#f3f4f6;"><strong>SPECIAL EQUIPMENT</strong></td><td style="background:#f3f4f6; color:var(--primary); font-weight:bold;">[Tulis alat khusus di sini: Crane, Dolly, Rain Machine, Drone, dll]</td></tr>
+        <tr><td><strong>SET DRESSING</strong></td><td>[Catatan / notes untuk tim Set Dressing]</td></tr>
+        <tr><td><strong>PROPS</strong></td><td>[Daftar barang khusus untuk tim Props]</td></tr>
+        <tr><td><strong>SOUND</strong></td><td>[Catatan untuk tim Sound]</td></tr>
+        <tr><td><strong>WARDROBE & MU</strong></td><td>[Catatan spesifik untuk tim Costumes/Make Up]</td></tr>
+    </tbody></table>
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px; margin-top: 16px;">
+        <div style="font-size:12px; font-weight:bold; text-transform:uppercase;">Full Crew List</div>
+        <div style="font-size:10px; font-weight:bold; background:#e5e7eb; padding:4px 8px; border-radius:4px; border:1px solid #d1d5db;" contenteditable="true">Walkie Channels - 1: Production | 2: Open | 3: Transpo | 4: Art</div>
+    </div>
+    <table>
+        <tr><th>DEPARTMENT / POSITIONS & NAMES (ISI SEMUA KRU DI SINI)</th></tr>
+        <tr>
+            <td contenteditable="true" style="height: 120px; vertical-align: top; font-size: 11px; line-height: 1.5;">
+                <strong>DIRECTING:</strong> [Nama] (Director), [Nama] (Script/Cont) <br>
+                <strong>CAMERA:</strong> [Nama] (DOP), [Nama] (Cam Op), [Nama] (1st AC) <br>
+                <strong>LIGHTING & GRIP:</strong> [Nama] (Gaffer), [Nama] (Best Boy), [Nama] (Key Grip) <br>
+                <strong>ART:</strong> [Nama] (Art Dir), [Nama] (Set Dresser) <br>
+                <span style="color:#9ca3af;">[... Lanjutkan / Paste Semua Nama Kru Di Sini ...]</span>
+            </td>
+        </tr>
+    </table>
   `;
   
   document.getElementById('callsheetBody').innerHTML = html;
@@ -1158,7 +1246,40 @@ function closeModal(e) { if (e.target===document.getElementById('modalOverlay'))
 function closePopup(id, e) { if (e.target===document.getElementById(id)) closePopupDirect(id); }
 function closeModalDirect() { document.getElementById('modalOverlay').classList.remove('open'); document.body.style.overflow=''; }
 function closePopupDirect(id) { document.getElementById(id).classList.remove('open'); if (document.querySelectorAll('.popup-overlay.open').length===0) document.body.style.overflow=''; }
+function openMasterCallsheetPopup() {
+    document.getElementById('mc_phName').value = CALLSHEET_MASTER.phName;
+    document.getElementById('mc_phAddress').value = CALLSHEET_MASTER.phAddress.replace(/<br>/g, '\n');
+    document.getElementById('mc_producer').value = CALLSHEET_MASTER.producer.replace(/<br>/g, '\n');
+    document.getElementById('mc_ad').value = CALLSHEET_MASTER.ad.replace(/<br>/g, '\n');
+    document.getElementById('mc_linepro').value = CALLSHEET_MASTER.ad.replace(/<br>/g, '\n');
+    document.getElementById('mc_director').value = CALLSHEET_MASTER.director.replace(/<br>/g, '\n');
+    document.getElementById('mc_hospital').value = CALLSHEET_MASTER.hospital.replace(/<br>/g, '\n');
+    document.getElementById('mc_parking').value = CALLSHEET_MASTER.parking.replace(/<br>/g, '\n');
+    document.getElementById('mc_meals').value = CALLSHEET_MASTER.meals || "Breakfast: 06.00 | Lunch: 12.00 | Dinner: 18.00";
+    document.getElementById('mc_rules').value = (CALLSHEET_MASTER.rules || "").replace(/<br>/g, '\n');
+    
+    document.getElementById('masterCallsheetPopup').classList.add('open');
+}
 
+function saveMasterCallsheet() {
+    const newData = {
+        phName: document.getElementById('mc_phName').value,
+        phAddress: document.getElementById('mc_phAddress').value.replace(/\n/g, '<br>'),
+        producer: document.getElementById('mc_producer').value.replace(/\n/g, '<br>'),
+        ad: document.getElementById('mc_ad').value.replace(/\n/g, '<br>'),
+        linepro: document.getElementById('mc_linepro').value.replace(/\n/g, '<br>'),
+        director: document.getElementById('mc_director').value.replace(/\n/g, '<br>'),
+        hospital: document.getElementById('mc_hospital').value.replace(/\n/g, '<br>'),
+        parking: document.getElementById('mc_parking').value.replace(/\n/g, '<br>'),
+        meals: document.getElementById('mc_meals').value,
+        rules: document.getElementById('mc_rules').value.replace(/\n/g, '<br>')
+    };
+    syncRef.update({ callsheetMaster: JSON.stringify(newData) }).then(() => {
+        alert('Master Data berhasil disimpan! Data ini akan dipakai saat reset callsheet atau buka callsheet baru.');
+        closePopupDirect('masterCallsheetPopup');
+    });
+}
+  
 initLogin();
 </script>
 </body>
