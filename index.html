@@ -502,7 +502,22 @@ function importFromExcel() {
     if(!text.trim()) { alert('Kolom masih kosong!'); return; }
     const rows = text.split('\n'); let successCount = 0; const months = ["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
     
-    const daysMap = {}; SCHEDULE_DATA.days.forEach(d => daysMap[d.day] = d);
+    const daysMap = {}; 
+    
+    // 1. Cek apakah data yang ada saat ini cuma template default
+    let isTemplate = false;
+    if (SCHEDULE_DATA.days.length === 1 && 
+        SCHEDULE_DATA.days[0].scenes && 
+        SCHEDULE_DATA.days[0].scenes.length === 1 && 
+        SCHEDULE_DATA.days[0].scenes[0].desc === "[Data Default Firebase...]") {
+        isTemplate = true;
+    }
+
+    // 2. Jika BUKAN template, simpan data lama agar tidak hilang (untuk update jadwal).
+    // Jika itu template, abaikan saja agar terhapus dan diganti full oleh data Excel.
+    if (!isTemplate) {
+        SCHEDULE_DATA.days.forEach(d => daysMap[d.day] = d);
+    }
     
     rows.forEach(row => {
         const cols = row.split('\t'); if(cols.length < 5) return; 
