@@ -488,6 +488,16 @@ function saveActorName(id, val) {
     syncRef.update({ actorNames: JSON.stringify(ACTOR_NAMES) }); 
 }
 
+function openDatabaseManager() {
+  const role = getCurrentRole();
+  if (!role || (role.type !== 'ad' && role.type !== 'line_producer')) {
+    alert('Fitur Import Data hanya bisa diakses oleh AD atau Line Producer.');
+    return;
+  }
+  document.getElementById('excelPasteArea').value = ''; // Kosongkan kotak teks
+  document.getElementById('databasePopup').classList.add('open'); 
+} 
+  
 function importFromExcel() {
     const text = document.getElementById('excelPasteArea').value;
     if(!text.trim()) { alert('Kolom masih kosong!'); return; }
