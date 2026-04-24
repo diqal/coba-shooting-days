@@ -246,7 +246,7 @@
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)"><div class="modal" id="modalBox"><div class="modal-header"><div class="modal-title"><h2 id="modalDayTitle">Hari Syuting</h2><p id="modalDateSub"></p></div><div style="display: flex; gap: 12px; align-items: center;"><button id="btnOpenCallsheet" class="btn-cast-gallery" style="padding: 8px 14px; font-size: 13px;">📋 Buka Callsheet</button><button class="modal-close" onclick="closeModalDirect()">✕</button></div></div><div class="modal-crew" id="modalCrew"></div><div class="modal-body" id="modalBody"></div></div></div>
 <div class="popup-overlay" id="callsheetPopup" style="z-index: 3000;" onclick="closePopup('callsheetPopup', event)"><div class="popup-box" style="max-width: 850px; background: var(--bg-card); border-radius: 0;"><div class="popup-header no-print" style="background: var(--text-main); color: white; justify-content: space-between;"><span style="font-family: 'Inter', sans-serif; font-weight: 800;">📋 DAILY CALLSHEET</span><button class="popup-close" onclick="closePopupDirect('callsheetPopup')" style="color: white; background: transparent;">✕</button></div><div class="popup-body" id="callsheetBody" style="padding: 30px; font-family: 'Inter', sans-serif; color: var(--text-main); background: var(--bg-card);"></div><div class="no-print" style="padding: 15px 30px; background: var(--bg-main); text-align: right; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; gap: 10px;">
     <div>
-        <button class="action-btn" style="background: var(--secondary); color: white; border: none;" onclick="openMasterCallsheetPopup()">⚙️ Atur Master Callsheet</button>
+        <button id="btnMasterSettings" class="action-btn" style="background: var(--secondary); color: white; border: none;" onclick="openMasterCallsheetPopup()">⚙️ Atur Master Callsheet</button>
     </div>
     <div>
         <button class="action-btn" style="background: #dc2626; color: white; border: none;" onclick="resetCallsheetHandler()">↺ Reset Tulisan Callsheet</button>
@@ -688,6 +688,8 @@ function openCallsheet(dateKey) {
       document.querySelectorAll('#callsheetBody [contenteditable]').forEach(el => el.setAttribute('contenteditable', canEditAdmin));
       const btnReset = document.querySelector('button[onclick="resetCallsheetHandler()"]');
       if (btnReset) btnReset.style.display = canEditAdmin ? 'inline-block' : 'none';
+      const btnMaster = document.getElementById('btnMasterSettings');
+      if (btnMaster) btnMaster.style.display = canEditAdmin ? 'inline-block' : 'none';
   };
 
   db.ref('production_data/callsheets/' + dateKey).once('value').then(snapshot => {
