@@ -451,12 +451,7 @@ syncRef.on('value', (snapshot) => {
     rebuildShootDays();
     if(currentPhase === 'shoot') renderCalendar();
     if(currentPhase === 'prepro') renderPrePro();
-
-  setTimeout(() => {
-        const loader = document.getElementById('loadingScreen');
-        if(loader) loader.style.display = 'none';
-    }, 3000);
-  
+    
     document.getElementById('loadingScreen').style.display = 'none';
     
     if (document.getElementById('castGalleryPopup').classList.contains('open')) openCastGallery();
@@ -536,7 +531,7 @@ const provider = new firebase.auth.GoogleAuthProvider();
 
 function loginWithGoogle() {
   document.getElementById('loginError').style.display = 'none';
-  firebase.auth().signInWithRedirect(provider).then((result) => {
+  firebase.auth().signInWithPopup(provider).then((result) => {
     const user = result.user; const userEmail = user.email.toLowerCase(); 
     if (WHITELIST[userEmail]) {
       const roleData = WHITELIST[userEmail];
@@ -576,7 +571,6 @@ function applyRoleAndClose(roleKey) {
       renderCalendar();
     }, 50);
   }
-  document.getElementById('loadingScreen').style.display = 'none';
 }
 
 function doLogout() {
@@ -638,12 +632,8 @@ function switchPhase(phase) {
   
 function initLogin() {
   const role = getCurrentRole();
-  if (role) {
-      applyRoleAndClose(role.type === 'ad' || role.type === 'line_producer' ? role.type : role.type === 'hod' ? role.dept : role.type === 'cast' ? 'cast' : 'crew');
-  } else {
-      document.getElementById('loginOverlay').classList.remove('hidden');
-      document.getElementById('loadingScreen').style.display = 'none'; 
-  }
+  if (role) applyRoleAndClose(role.type === 'ad' || role.type === 'line_producer' ? role.type : role.type === 'hod' ? role.dept : role.type === 'cast' ? 'cast' : 'crew');
+  else document.getElementById('loginOverlay').classList.remove('hidden');
 }
 
 // =========================================================================
