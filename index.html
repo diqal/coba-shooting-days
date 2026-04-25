@@ -232,45 +232,47 @@
   <button class="nav-btn" id="btnPrePro" onclick="switchPhase('prepro')">📝 PRA-PRODUKSI</button>
 </nav>
 
-<div class="hero">
-  <h1 id="headerTitle" contenteditable="true" onblur="saveHeaderData()">[JUDUL PROYEK FILM]</h1>
-  <div id="headerSub" class="hero-sub" contenteditable="true" onblur="saveHeaderData()">[JENIS PRODUKSI]</div>
-  <div id="headerDate" class="hero-dates" contenteditable="true" onblur="saveHeaderData()">[Bulan Tahun Produksi]</div>
-</div>
-
-<div class="legend-bar">
-  <button class="btn-cast-gallery" onclick="openCastGallery()">👥 Daftar Pemain</button>
-  <button class="btn-cast-gallery" style="background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color);" onclick="openLocationGallery()">📍 Lokasi</button>
-  <button class="btn-cast-gallery" style="background: var(--success);" onclick="openDatabaseManager()">💾 Import Data Excel</button>
-  <button class="btn-cast-gallery" style="background: var(--text-main); color: var(--bg-main);" onclick="toggleDarkMode()">🌙 Mode</button>
-</div>
-
-<div class="calendar-section">
-  <div class="calendar-title">Kalender Syuting</div>
-  <div class="month-nav">
-    <button class="month-btn" onclick="prevMonth()">‹</button>
-    <div class="month-label" id="monthLabel">Bulan Tahun</div>
-    <button class="month-btn" onclick="nextMonth()">›</button>
-  </div>
-  <div id="filterBanner" class="filter-banner"></div>
-  <div class="cal-grid">
-    <div class="cal-headers">
-      <div class="cal-header-cell">MIN</div>
-      <div class="cal-header-cell">SEN</div>
-      <div class="cal-header-cell">SEL</div>
-      <div class="cal-header-cell">RAB</div>
-      <div class="cal-header-cell">KAM</div>
-      <div class="cal-header-cell">JUM</div>
-      <div class="cal-header-cell">SAB</div>
+<div id="sectionShoot" class="section active">
+    <div class="hero">
+        <h1 id="headerTitle" contenteditable="true" onblur="saveHeaderData()">[JUDUL PROYEK FILM]</h1>
+        <div id="headerSub" class="hero-sub" contenteditable="true" onblur="saveHeaderData()">[JENIS PRODUKSI]</div>
+        <div id="headerDate" class="hero-dates" contenteditable="true" onblur="saveHeaderData()">[Bulan Tahun Produksi]</div>
     </div>
-    <div class="cal-body" id="calBody"></div>
-  </div>
-</div>
 
-<div class="stats-bar" id="statsBar"></div>
+    <div class="legend-bar">
+        <button class="btn-cast-gallery" onclick="openCastGallery()">👥 Daftar Pemain</button>
+        <button class="btn-cast-gallery" style="background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color);" onclick="openLocationGallery()">📍 Lokasi</button>
+        <button class="btn-cast-gallery" style="background: var(--success);" onclick="openDatabaseManager()">💾 Import Data Excel</button>
+        <button class="btn-cast-gallery" style="background: var(--text-main); color: var(--bg-main);" onclick="toggleDarkMode()">🌙 Mode</button>
+    </div>
 
-<div id="sectionPrePro" class="section">
-    <div style="display:flex; justify-content:center; gap:10px; margin-bottom:20px;">
+    <div class="calendar-section">
+        <div class="calendar-title">Kalender Syuting</div>
+        <div class="month-nav">
+            <button class="month-btn" onclick="prevMonth()">‹</button>
+            <div class="month-label" id="monthLabel">Bulan Tahun</div>
+            <button class="month-btn" onclick="nextMonth()">›</button>
+        </div>
+
+      <div id="filterBanner" class="filter-banner"></div>
+        <div class="cal-grid">
+            <div class="cal-headers">
+                <div class="cal-header-cell">MIN</div>
+                <div class="cal-header-cell">SEN</div>
+                <div class="cal-header-cell">SEL</div>
+                <div class="cal-header-cell">RAB</div>
+                <div class="cal-header-cell">KAM</div>
+                <div class="cal-header-cell">JUM</div>
+                <div class="cal-header-cell">SAB</div>
+            </div>
+            <div class="cal-body" id="calBody"></div>
+        </div>
+    </div>
+
+    <div class="stats-bar" id="statsBar"></div>
+
+</div> <div id="sectionPrePro" class="section"> 
+  <div style="display:flex; justify-content:center; gap:10px; margin-bottom:20px;">
         <button class="v-btn active" id="vKanban" onclick="setPreProView('kanban')">📋 Kanban</button>
         <button class="v-btn" id="vTimeline" onclick="setPreProView('timeline')">⏳ Timeline</button>
         <button class="v-btn" id="vCalendar" onclick="setPreProView('calendar')">📅 Kalender</button>
