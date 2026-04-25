@@ -424,7 +424,7 @@ const DEFAULT_SCHEDULE = {
 const MASTER_CHECKLIST = [
   { cat: "Creative", tasks: ["Creative Meeting", "Skenario Development", "Script Breakdown", "Storyboarding", "Script Lock"] },
   { cat: "Technical", tasks: ["Equipment Test", "Location Scouting", "Technical Recce", "Camera & Lens Test"] },
-  { cat: "Art", tasks: ["Moodboard Art", "Properti Hunting", "Foto Props", "Video Props", "Wardrobe Fitting"] },
+  { cat: "Art", tasks: ["Moodboard Art", "Properti Hunting", "Foto Props", "Video Props", "Wardrobe Fitting", "Make Up & Hair Test"] },
   { cat: "Casting", tasks: ["Casting Call", "Callback", "Cast Lock", "Reading", "Rehearsal", "Workshop"] },
   { cat: "Meeting", tasks: ["Pre-Production Meeting", "Technical Meeting", "Post-Pro Meeting", "Safety Briefing"] }
 ];
@@ -1273,7 +1273,7 @@ function openTemplateLibrary() {
     alert('Hanya AD dan Line Producer yang bisa melakukan ini.');
     return;
   }
- let html = `<h3>Gudang Checklist</h3>`;
+ let html = `<h3>Checklist</h3>`;
     MASTER_CHECKLIST.forEach(group => { html += `<div style="font-weight:800; color:var(--primary); font-size:11px; margin-top:10px;">${group.cat}</div>`; group.tasks.forEach(task => { html += `<button class="v-btn" style="margin:5px 5px 0 0;" onclick="addTask('${task}', '${group.cat}')">+ ${task}</button>`; }); });
     showGeneralModal(html);
 }
@@ -1294,8 +1294,10 @@ function editTask(id) {
         <option value="Done" ${t.status==='Done'?'selected':''}>Done</option>
     </select>
     <label>Tanggal:</label><input type="date" id="e_date" value="${t.date || ''}" class="v-btn">
-    
     <label>Jam:</label><input type="time" id="e_time" value="${t.time || ''}" class="v-btn">
+
+    <label>Lokasi:</label><input type="text" id="e_loc" value="${t.loc || ''}" class="v-btn" placeholder="Contoh: Basecamp / Studio">
+    <label>Link Maps:</label><input type="text" id="e_maps" value="${t.maps || ''}" class="v-btn" placeholder="Paste link Google Maps di sini">
     
     <label>Kru Terlibat:</label><input type="text" id="e_crew" value="${t.crew || ''}" class="v-btn">
     <label>Cast ID (Koma):</label><input type="text" id="e_casts" value="${t.casts || ''}" class="v-btn">
@@ -1310,6 +1312,8 @@ function updateTask(id) {
     PREPRO_DATA[idx].priority = document.getElementById('e_priority').value;
     PREPRO_DATA[idx].date = document.getElementById('e_date').value;
     PREPRO_DATA[idx].time = document.getElementById('e_time').value;
+    PREPRO_DATA[idx].loc = document.getElementById('e_loc').value; 
+    PREPRO_DATA[idx].maps = document.getElementById('e_maps').value;
     PREPRO_DATA[idx].crew = document.getElementById('e_crew').value; 
     PREPRO_DATA[idx].casts = document.getElementById('e_casts').value; 
 
