@@ -1185,7 +1185,7 @@ function renderPrePro() {
             
         });
 
-        container.innerHTML = html + `</div>`;
+        container.innerHTML = html;
 
     } else if (preproView === 'timeline') {
         let html = `<table class="timeline-table"><tr><th>Kegiatan</th><th>Kategori</th><th>Tanggal</th><th>Jam</th><th>Lokasi</th><th>Status</th></tr>`;
@@ -1196,6 +1196,20 @@ function renderPrePro() {
     } else if (preproView === 'calendar') {
         renderPreProCalendar(container, isAdmin);
     }
+}
+
+  function setPreProView(view) {
+    preproView = view;
+    // Update status aktif tombol
+    document.querySelectorAll('#sectionPrePro .v-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('v' + view.charAt(0).toUpperCase() + view.slice(1));
+    if (btn) btn.classList.add('active');
+    
+    // Tampilkan nav bulan hanya jika di kalender
+    const calNav = document.getElementById('preproCalNav');
+    if (calNav) calNav.style.display = (view === 'calendar') ? 'flex' : 'none';
+    
+    renderPrePro();
 }
   
 function renderPreProCalendar(container, isAdmin) {
@@ -1281,11 +1295,30 @@ function editTask(id) {
         <option value="Done" ${t.status==='Done'?'selected':''}>Done</option>
     </select>
     <label>Tanggal:</label><input type="date" id="e_date" value="${t.date || ''}" class="v-btn">
+    
+    <label>Jam:</label><input type="time" id="e_time" value="${t.time || ''}" class="v-btn">
+    
     <label>Kru Terlibat:</label><input type="text" id="e_crew" value="${t.crew || ''}" class="v-btn">
     <label>Cast ID (Koma):</label><input type="text" id="e_casts" value="${t.casts || ''}" class="v-btn">
     <button class="nav-btn active" onclick="updateTask('${id}')">💾 Simpan</button>
     <button class="v-btn" style="color:red;" onclick="deleteTask('${id}')">🗑️ Hapus</button></div>`;
     showGeneralModal(html);
+}
+
+function updateTask(id) { 
+    const idx = PREPRO_DATA.findIndex(x => x.id === id); 
+    PREPRO_DATA[idx].status = document.getElementById('e_status').value; 
+    PREPRO_DATA[idx].priority = document.getElementById('e_priority').value;
+    PREPRO_DATA[idx].date = document.getElementById('e_date').value; 
+    
+    // SIMPAN NILAI JAM
+    PREPRO_DATA[idx].time = document.getElementById('e_time').value; 
+    
+    PREPRO_DATA[idx].crew = document.getElementById('e_crew').value; 
+    PREPRO_DATA[idx].casts = document.getElementById('e_casts').value; 
+
+    syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) }); 
+    closeGeneralModal(); 
 }
 
   function updateTask(id) { 
