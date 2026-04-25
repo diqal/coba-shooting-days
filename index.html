@@ -531,7 +531,7 @@ const provider = new firebase.auth.GoogleAuthProvider();
 
 function loginWithGoogle() {
   document.getElementById('loginError').style.display = 'none';
-  firebase.auth().signInWithPopup(provider).then((result) => {
+  firebase.auth().signInWithRedirect(provider).then((result) => {
     const user = result.user; const userEmail = user.email.toLowerCase(); 
     if (WHITELIST[userEmail]) {
       const roleData = WHITELIST[userEmail];
