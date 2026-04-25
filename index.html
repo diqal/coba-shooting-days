@@ -649,14 +649,13 @@ function toggleWrap(sceneNum) {
   }
   
   let wrapped = getWrappedScenes(); 
-  // Gunakan findIndex dan String() agar aman untuk angka maupun teks (1A)
   const idx = wrapped.findIndex(s => String(s) === String(sceneNum)); 
   let isNowWrapped = false;
   
   if (idx > -1) { 
       wrapped.splice(idx, 1); 
   } else { 
-      wrapped.push(sceneNum); // Masukkan sesuai input aslinya
+      wrapped.push(sceneNum);
       isNowWrapped = true;
   }
   
@@ -673,7 +672,6 @@ function toggleWrap(sceneNum) {
               btn.innerHTML = 'Tandai Selesai';
           }
       }
-      
       if (card) {
           if (isNowWrapped) card.classList.add('is-wrapped');
           else card.classList.remove('is-wrapped');
@@ -708,7 +706,6 @@ function importFromExcel() {
     
     const daysMap = {}; 
     
-    // 1. LOGIKA HAPUS TEMPLATE OTOMATIS
     SCHEDULE_DATA.days.forEach(d => {
         const realScenes = d.scenes.filter(s => s.desc !== "[Data Default Firebase...]");
         if (realScenes.length > 0) {
@@ -729,29 +726,24 @@ function importFromExcel() {
         }
         if(!daysMap[dayNum]) { daysMap[dayNum] = { day: dayNum, date: formattedDate, wrap: cols[2]||'', scenes: [] }; }
         
-        // 2. LOGIKA PEMBACAAN NAMA PEMAIN
         [cols[10]||'', cols[11]||''].forEach(castStr => {
-            // Pisah kalau ada banyak pemain
             let items = castStr.split(/[,;\n]/);
             items.forEach(item => {
                 item = item.trim();
-                
                 let match = item.match(/^(\d+)[\.\-\s]+(.+)$/);
                 if (match) {
                     let id = parseInt(match[1]);
                     let name = match[2].trim();
-                 
-                    if (name && isNaN(name)) {
-                        CAST_NAMES[id] = name;
-                    }
+                    if (name && isNaN(name)) { CAST_NAMES[id] = name; }
                 }
             });
         });
         
+        // PERBAIKAN SCENE HURUF
         const scNum = cols[4] ? cols[4].trim() : ""; 
-const isExist = daysMap[dayNum].scenes.find(s => String(s.scene) === String(scNum));
+        const isExist = daysMap[dayNum].scenes.find(s => String(s.scene) === String(scNum));
 
-if(!isExist && scNum !== "") {
+        if(!isExist && scNum !== "") {
             daysMap[dayNum].scenes.push({ time: cols[3]||'', scene: scNum, set: cols[5]||'', ie: cols[6]||'', dn: cols[7]||'', pages: cols[8]||'', desc: cols[9]||'', main_cast: cols[10]||'', supporting: cols[11]||'', extras: cols[12]||'' });
             successCount++;
         }
@@ -1544,7 +1536,7 @@ function openModal(dateKey) {
           <button class="action-btn" onclick="openWardrobe(${scene.scene})">Wardrobe</button>
           <button class="action-btn" onclick="openMakeup(${scene.scene})">Make Up</button>
           <button class="action-btn" onclick="openProps(${scene.scene})">Props & Art</button>
-          ${role && role.type === 'ad' ? `<button class="action-btn btn-wrap ${isWrapped?'wrapped':''}" id="wrapBtn-${scene.scene}" onclick="toggleWrap(${scene.scene})">${isWrapped?'Wrapped':'Tandai Selesai'}</button>` : `<span style="font-size:12px; font-weight:bold; color:${isWrapped ? 'var(--success)' : 'var(--text-light)'}; padding: 8px;">${isWrapped ? '✅ Wrapped' : '⏳ Belum Selesai'}</span>`}
+          ${role && role.type === 'ad' ? `<button class="action-btn btn-wrap ${isWrapped?'wrapped':''}" id="wrapBtn-${scene.scene}" onclick="toggleWrap('${scene.scene}')">${isWrapped?'Wrapped':'Tandai Selesai'}</button>` : `<span style="font-size:12px; font-weight:bold; color:${isWrapped ? 'var(--success)' : 'var(--text-light)'}; padding: 8px;">${isWrapped ? '✅ Wrapped' : '⏳ Belum Selesai'}</span>`}
         </div>`}
       </div>`;
   });
