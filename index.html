@@ -451,7 +451,12 @@ syncRef.on('value', (snapshot) => {
     rebuildShootDays();
     if(currentPhase === 'shoot') renderCalendar();
     if(currentPhase === 'prepro') renderPrePro();
-    
+
+  setTimeout(() => {
+        const loader = document.getElementById('loadingScreen');
+        if(loader) loader.style.display = 'none';
+    }, 3000);
+  
     document.getElementById('loadingScreen').style.display = 'none';
     
     if (document.getElementById('castGalleryPopup').classList.contains('open')) openCastGallery();
