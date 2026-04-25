@@ -542,8 +542,15 @@ function renderCalendar() {
 function prevMonth() { curMonth--; if (curMonth<0){curMonth=11;curYear--;} renderCalendar(); }
 function nextMonth() { curMonth++; if (curMonth>11){curMonth=0;curYear++;} renderCalendar(); }
 function renderStats() {
-  const total = SCHEDULE_DATA.days.reduce((a,d) => a+d.scenes.length, 0), wrapped = getWrappedScenes().length;
-  document.getElementById('statsBar').innerHTML = `<div class="stat-card"><div class="stat-num">${SCHEDULE_DATA.days.length}</div><div class="stat-lbl">Days</div></div><div class="stat-card interactive" onclick="openAllScenesPopup(false)"><div class="stat-num">${total}</div><div class="stat-lbl">Scenes</div></div><div class="stat-card interactive" onclick="openAllScenesPopup(true)"><div class="stat-num">${wrapped}</div><div class="stat-lbl">Wrapped</div></div>`;
+  const total = SCHEDULE_DATA.days.reduce((a,d) => a+d.scenes.length, 0); const wrapped = getWrappedScenes().length;
+  const gdriveLink = "https://drive.google.com/drive/u/0/my-drive"; 
+
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${SCHEDULE_DATA.days.length}</div><div class="stat-lbl">Shoot Days</div></div>
+    <div class="stat-card interactive" onclick="openAllScenesPopup(false)"><div class="stat-num">${total}</div><div class="stat-lbl">Total Scenes</div></div>
+    <div class="stat-card interactive" onclick="openAllScenesPopup(true)"><div class="stat-num">${wrapped}/${total}</div><div class="stat-lbl">Wrapped</div></div>
+    <div class="stat-card interactive" onclick="window.open('${gdriveLink}', '_blank')"><div class="stat-num">📁</div><div class="stat-lbl">Grab Stills</div></div>
+  `;
 }
 
 // =========================================================================
@@ -872,7 +879,7 @@ function toggleWrap(n) { const r = getCurrentRole(); if (!r || r.type !== 'ad') 
 function shareToWhatsApp() { const sd = shootDays[currentCallsheetDateKey]; if(!sd) return; let t = `*DAILY CALLSHEET - ${sd.date}*\nDay ${sd.day}\nLoc: ${sd.scenes[0].set}\n\n*Scenes:* `; sd.scenes.forEach(s => t += `${s.scene}, `); window.open("https://wa.me/?text=" + encodeURIComponent(t), '_blank'); }
 
 // =========================================================================
-// FUNGSI YANG HILANG
+// FUNGSI APA
 // =========================================================================
 function openModal(dateKey) {
     const sd = shootDays[dateKey];
