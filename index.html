@@ -680,21 +680,6 @@ function toggleWrap(sceneNum) {
       }
   }); 
 }
-  
-  syncRef.update({ wrappedScenes: JSON.stringify(wrapped) }).then(() => {
-      // Tambahkan baris ini untuk update visual tombol secara instan di dalam Modal
-      const btn = document.getElementById('wrapBtn-' + sceneNum);
-      const card = document.getElementById('sceneCard-' + sceneNum);
-      
-      if (btn) {
-          if (isNowWrapped) {
-              btn.classList.add('wrapped');
-              btn.innerHTML = 'Wrapped';
-          } else {
-              btn.classList.remove('wrapped');
-              btn.innerHTML = 'Tandai Selesai';
-          }
-      }
       
       if (card) {
           if (isNowWrapped) card.classList.add('is-wrapped');
