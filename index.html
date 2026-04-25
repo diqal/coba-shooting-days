@@ -739,22 +739,230 @@ function renderFiles() {
 // =========================================================================
 // 10. HELPER & MODALS
 // =========================================================================
-function parseCastIds(str) { if(!str) return []; const ids=[]; const matches=String(str).match(/\d+/g); if(matches) matches.forEach(m=>ids.push(parseInt(m))); return [...new Set(ids)]; }
-function slugify(text) { return text.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, ''); }
-function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
-function showGeneralModal(html) { document.getElementById('generalModalContent').innerHTML = html; document.getElementById('generalModalOverlay').style.display = 'flex'; }
-function closeGeneralModal() { document.getElementById('generalModalOverlay').style.display = 'none'; }
-function closeModalDirect() { document.getElementById('modalOverlay').classList.remove('open'); document.body.style.overflow=''; }
-function closePopupDirect(id) { document.getElementById(id).classList.remove('open'); if(document.querySelectorAll('.popup-overlay.open').length===0) document.body.style.overflow=''; }
-
 function openCastGallery() { document.getElementById('castGalleryPopup').classList.add('open'); }
 function openLocationGallery() { document.getElementById('locationGalleryPopup').classList.add('open'); }
 function openDatabaseManager() { document.getElementById('databasePopup').classList.add('open'); }
 function openMasterCallsheetPopup() { document.getElementById('masterCallsheetPopup').classList.add('open'); }
-function saveHeaderData() { /* Logic simpan header lama */ }
-function openModal(dateKey) { /* Logic buka modal hari syuting lama */ }
-function shareToWhatsApp() { /* Logic share lama */ }
-function windowPrint() { window.print(); }
+
+function saveHeaderData() {
+    const role = getCurrentRole();
+    if(role && (role.type === 'ad' || role.type === 'line_producer')) {
+        syncRef.update({
+            headerTitle: document.getElementById('headerTitle').innerText,
+            headerSub: document.getElementById('headerSub').innerText,
+            headerDate: document.getElementById('headerDate').innerText
+        });
+    }
+}
+
+function shareToWhatsApp() {
+    if (!currentCallsheetDateKey) {
+        alert("Buka callsheet terlebih dahulu untuk membagikannya.");
+        return;
+    }
+    const sd = shootDays[currentCallsheetDateKey];
+    if (!sd) return;
+    let text = `*DAILY CALLSHEET - ${sd.date}*\n`;
+    text += `Day ${sd.day} of ${SCHEDULE_DATA.days.length}\n\n`;
+    let firstTime = "TBA";
+    if (sd.scenes.length > 0 && sd.scenes[0].time) {
+        firstTime = subtractMinutes(sd.scenes[0].time.split('-')[0].trim(), 60);
+    }
+    text += `*General Call:* ${firstTime}\n`;
+    text += `*Location:* ${sd.scenes.length > 0 ? sd.scenes[0].set : 'TBA'}\n\n`;
+    text += `*Scenes:* `;
+    sd.scenes.forEach(s => text += `${s.scene}, `);
+    const url = "https://wa.me/?text=" + encodeURIComponent(text);
+    window.open(url, '_blank');
+}
+
+function openModal(dateKey) {
+  const sd = shootDays[dateKey]; if (!sd) return;
+  const parts = dateKey.split('-'); if (parts.length===3) { curYear=parseInt(parts[0]); curMonth=parseInt(parts[1])-1; renderCalendar(); }
+  document.getElementById('modalDayTitle').textContent = `Hari Syuting ${sd.day}`;
+  document.getElementById('btnOpenCallsheet').onclick = function() { openCallsheet(dateKey); };
+  let crewCallCalc = "TBA"; if (sd.scenes.length > 0 && sd.scenes[0].time) crewCallCalc = subtractMinutes(sd.scenes[0].time.split('-')[0].trim(), 90);
+
+  const role = getCurrentRole(); 
+  const isCastView = role && role.type === 'cast';
+  let scenesToShow = sd.scenes; 
+
+  if (isCastView) {
+    scenesToShow = sd.scenes.filter(scene => {
+      const castList = [...parseCastIds(scene.main_cast), ...parseCastIds(scene.supporting)];
+      return castList.includes(role.castId);
+    });
+    if (scenesToShow.length === 0) { alert(`Kamu tidak ada di jadwal hari syuting ${sd.day}.`); return; }
+  }
+
+  document.getElementById('modalDateSub').textContent = sd.date + (isCastView ? ` — ${scenesToShow.length} Scene Kamu` : ` — ${sd.scenes.length} Scenes`);
+  document.getElementById('modalCrew').innerHTML = `<div class="crew-chip">Crew Call: ${crewCallCalc}</div><div class="crew-chip">${sd.wrap || 'Wrap TBA'}</div>`;
+  document.getElementById('btnOpenCallsheet').style.display = isCastView ? 'none' : '';
+  
+  let html = ''; const ws = getWrappedScenes();
+  
+  if (isCastView) {
+    html += `
+      <div class="contact-card" style="background:var(--bg-main); padding:15px; border-radius:8px; margin-bottom:15px;">
+        <h4 style="margin-bottom:12px; font-size:14px; color:var(--text-main);">📞 Kontak Penting Produksi</h4>
+        <div style="font-size:13px; margin-bottom:5px;"><strong>1st AD:</strong> ${CALLSHEET_MASTER.contactAD || '-'}</div>
+        <div style="font-size:13px; margin-bottom:5px;"><strong>Line Producer:</strong> ${CALLSHEET_MASTER.contactLP || '-'}</div>
+      </div>
+      <div style="margin-top: 20px; margin-bottom: 10px; font-weight: bold; font-size: 14px;">🎬 Scene Kamu Hari Ini:</div>
+    `;
+  }
+
+  scenesToShow.forEach(scene => {
+    const isWrapped = ws.includes(scene.scene);
+    const mainHtml = parseCastIds(scene.main_cast).map(id=>`<span class="cast-tag" onclick="openSingleCastPopup(${id}, false)">${id}. ${CAST_NAMES[id]||'ID '+id}</span>`).join('');
+    const suppHtml = parseCastIds(scene.supporting).map(id=>`<span class="cast-tag" style="background:var(--bg-card);" onclick="openSingleCastPopup(${id}, false)">${id}. ${CAST_NAMES[id]||'ID '+id}</span>`).join('');
+    const extraHtml = (scene.extras && scene.extras.trim()) ? `<span class="cast-tag" style="background:transparent; border-style:dashed;">${scene.extras.split('\n')[0].trim()}</span>` : '';
+    html += `
+      <div class="scene-card ${isWrapped?'is-wrapped':''}" id="sceneCard-${scene.scene}">
+        <div class="scene-header">
+          <div class="scene-header-top">
+            <div class="scene-header-left"><div class="scene-num">SC ${scene.scene}</div></div>
+            ${scene.time ? `<div class="scene-time">🕒 ${scene.time}</div>` : ''}
+          </div><div class="scene-set">📍 ${scene.set}</div>
+        </div>
+        <div class="scene-body">
+          ${scene.desc ? `<div class="scene-desc">${scene.desc}</div>` : ''}
+          <div class="cast-section">${mainHtml||suppHtml||extraHtml ? `<div>${mainHtml}${suppHtml}${extraHtml}</div>` : ''}</div>
+        </div>
+        ${isCastView ? '' : `<div class="scene-actions">
+          <button class="action-btn" onclick="openFloorplan(${scene.scene})">Photoboard</button>
+          ${role && role.type === 'ad' ? `<button class="action-btn btn-wrap ${isWrapped?'wrapped':''}" id="wrapBtn-${scene.scene}" onclick="toggleWrap(${scene.scene})">${isWrapped?'Wrapped':'Tandai Selesai'}</button>` : `<span style="font-size:12px; font-weight:bold; color:${isWrapped ? 'var(--success)' : 'var(--text-light)'}; padding: 8px;">${isWrapped ? '✅ Wrapped' : '⏳ Belum Selesai'}</span>`}
+        </div>`}
+      </div>`;
+  });
+  document.getElementById('modalBody').innerHTML = html; document.getElementById('modalOverlay').classList.add('open'); document.body.style.overflow = 'hidden';
+}
+
+let currentCallsheetDateKey = null;
+let callsheetSaveTimeout;
+
+function openCallsheet(dateKey) {
+  currentCallsheetDateKey = dateKey;
+  const role = getCurrentRole();
+  const canEditAdmin = role && (role.type === 'ad' || role.type === 'line_producer');
+  
+  const applyCallsheetSecurity = () => {
+      document.querySelectorAll('#callsheetBody [contenteditable]').forEach(el => el.setAttribute('contenteditable', canEditAdmin));
+      const btnReset = document.getElementById('btnResetCallsheet');
+      if (btnReset) btnReset.style.display = canEditAdmin ? 'inline-block' : 'none';
+      const btnMaster = document.getElementById('btnMasterSettings');
+      if (btnMaster) btnMaster.style.display = canEditAdmin ? 'inline-block' : 'none';
+  };
+
+  db.ref('production_data/callsheets/' + dateKey).once('value').then(snapshot => {
+      const savedHtml = snapshot.val();
+      if (savedHtml) {
+          document.getElementById('callsheetBody').innerHTML = savedHtml;
+          applyCallsheetSecurity();
+          closeModalDirect(); document.getElementById('callsheetPopup').classList.add('open');
+          attachCallsheetListener(dateKey);
+      } else {
+          generateCallsheetTemplate(dateKey); 
+      }
+  });
+}
+
+function generateCallsheetTemplate(dateKey) {
+  const sd = shootDays[dateKey]; if (!sd) return;
+  const sortedKeys = Object.keys(shootDays).sort();
+  const curIdx = sortedKeys.indexOf(dateKey);
+  const nextKey = (curIdx !== -1 && curIdx + 1 < sortedKeys.length) ? sortedKeys[curIdx + 1] : null;
+  const nextDay = nextKey ? shootDays[nextKey] : null;
+
+  let firstShot = "8:00am"; let crewCall = "7:00am";
+  if (sd.scenes.length > 0 && sd.scenes[0].time) {
+      firstShot = sd.scenes[0].time.split('-')[0].trim();
+      crewCall = subtractMinutes(firstShot, 60);
+  }
+
+  let castFirstApp = {};
+  sd.scenes.forEach(scene => {
+      const start = scene.time ? scene.time.split('-')[0].trim() : null; if (!start) return;
+      [...parseCastIds(scene.main_cast), ...parseCastIds(scene.supporting)].forEach(id => {
+          if (!castFirstApp[id]) castFirstApp[id] = start;
+      });
+  });
+  let castCallTimes = [];
+  Object.keys(castFirstApp).forEach(idStr => {
+      const id = parseInt(idStr); const start = castFirstApp[id];
+      castCallTimes.push({ id, name: CAST_NAMES[id] || 'ID ' + id, actor: ACTOR_NAMES[id] || '-', call: subtractMinutes(start, 60), ready: start });
+  });
+  castCallTimes.sort((a, b) => a.call.localeCompare(b.call));
+
+  const projTitle = document.getElementById('headerTitle').innerText || 'JUDUL PROYEK';
+
+  let scheduleHtml = ''; let prevLoc = null;
+  sd.scenes.forEach(s => {
+      const currentLoc = s.set ? s.set.split('-')[0].trim() : 'TBA';
+      if (prevLoc && currentLoc !== prevLoc) {
+          scheduleHtml += `<tr contenteditable="true" style="background:#f1f5f9; font-weight:bold;"><td style="text-align:center;">${s.time || 'TBA'}</td><td colspan="2" style="text-align:right;">Move to:</td><td colspan="5" style="color:var(--primary);">${currentLoc} ([Tulis Alamat Lengkap / Pindah Posisi Di Sini])</td></tr>`;
+      }
+      prevLoc = currentLoc;
+      scheduleHtml += `<tr contenteditable="true"><td style="text-align:center; font-weight:bold;">${s.time || 'TBA'}</td><td style="text-align:center;">${s.scene}</td><td><strong>${s.set || 'TBA'}</strong><br>${s.desc || ''}</td><td style="text-align:center;">${s.dn}</td><td style="text-align:center;">${[...parseCastIds(s.main_cast), ...parseCastIds(s.supporting)].join(', ')}</td><td>${currentLoc}</td><td style="text-align:center;">${s.pages || '-'}</td><td style="text-align:center;">1h 0m</td></tr>`;
+  });
+
+  let advanceHtml = '';
+  if (nextDay) {
+      nextDay.scenes.forEach(s => {
+          const currentLoc = s.set ? s.set.split('-')[0].trim() : 'TBA';
+          advanceHtml += `<tr contenteditable="true"><td style="text-align:center; font-weight:bold;">${s.time || 'TBA'}</td><td style="text-align:center;">${s.scene}</td><td><strong>${s.set || 'TBA'}</strong><br>${s.desc || ''}</td><td style="text-align:center;">${s.dn}</td><td style="text-align:center;">${[...parseCastIds(s.main_cast), ...parseCastIds(s.supporting)].join(', ')}</td><td>${currentLoc}</td><td style="text-align:center;">${s.pages || '-'}</td><td style="text-align:center;">-</td></tr>`;
+      });
+  } else {
+      advanceHtml = `<tr contenteditable="true"><td colspan="8" style="text-align:center; color:#9ca3af; padding: 12px;">No advance schedule available / Isi Manual</td></tr>`;
+  }
+
+  let html = `
+    <div style="display:flex; justify-content:space-between; border-bottom:2px solid black; padding-bottom:12px; margin-bottom:16px;">
+        <div style="width:33%; font-size:10px; line-height:1.4;"><h2 contenteditable="true" style="margin:0; font-size:16px;">${CALLSHEET_MASTER.phName}</h2><div contenteditable="true">${CALLSHEET_MASTER.phAddress}</div></div>
+        <div style="width:34%; text-align:center;"><h1 contenteditable="true" style="margin:0; font-size:18px; text-transform:uppercase;">${projTitle}: Day ${sd.day}</h1><div contenteditable="true" style="font-weight:bold; font-size:12px; margin-top:4px;">DAY ${sd.day} OF ${SCHEDULE_DATA.days.length}</div><div contenteditable="true" style="font-size:12px;">${sd.date}</div></div>
+        <div style="width:33%; text-align:right; font-size:10px; line-height:1.4;"><div contenteditable="true">Weather: [Suhu/Cuaca]</div><div contenteditable="true">Sunrise [Waktu] Sunset [Waktu]</div></div>
+    </div>
+    <table><tr><th>Producer</th><th>1st AD</th><th>LP</th><th>Director</th></tr><tr contenteditable="true"><td>${CALLSHEET_MASTER.producer}</td><td>${CALLSHEET_MASTER.ad}</td><td>${CALLSHEET_MASTER.linepro}</td><td>${CALLSHEET_MASTER.director}</td></tr></table>
+    <div style="display:flex; gap:12px; margin-bottom:12px;">
+        <div style="flex: 2;"><table><tr><th colspan="2">Locations & Parking</th></tr><tr contenteditable="true"><td style="font-weight:bold; width: 30%; border-right:none;">General Call Time:<br><span style="font-size:14px; color:var(--primary);">${crewCall}</span></td><td style="border-left:none;">${CALLSHEET_MASTER.parking}</td></tr></table></div>
+        <div style="flex: 1.5;"><table><tr><th style="background:#fee2e2; color:#991b1b;">Nearest Hospital</th></tr><tr contenteditable="true"><td><strong>${CALLSHEET_MASTER.hospital}</strong></td></tr></table></div>
+    </div>
+    <div style="font-size:12px; font-weight:bold; margin-bottom:6px; text-transform:uppercase;">Schedule – Day ${sd.day}</div>
+    <table><tr><th style="width: 8%; text-align:center;">START</th><th style="width: 5%; text-align:center;">SC</th><th style="width: 38%;">DESCRIPTION</th><th style="width: 5%; text-align:center;">D/N</th><th style="width: 10%; text-align:center;">CAST</th><th style="width: 20%;">LOCATION</th><th style="width: 6%; text-align:center;">PAGES</th><th style="width: 8%; text-align:center;">EST (H)</th></tr>${scheduleHtml}</table>
+    <div style="font-size:12px; font-weight:bold; margin-bottom:6px; text-transform:uppercase; margin-top: 16px;">Talent</div>
+    <table><tr><th style="width:5%; text-align:center;">ID</th><th style="width:30%;">NAME</th><th style="width:20%;">ROLE</th><th style="width:10%; text-align:center;">STATUS</th><th style="width:10%; text-align:center;">PICKUP</th><th style="width:12%; text-align:center;">CALL</th><th style="width:13%; text-align:center;">H/MU</th></tr>
+        ${castCallTimes.map(c => `<tr contenteditable="true"><td style="text-align:center; font-weight:bold;">${c.id}</td><td><strong>${c.actor}</strong></td><td>"${c.name}"</td><td style="text-align:center;">SWF</td><td style="text-align:center;">-</td><td style="text-align:center; font-weight:bold;">${c.call}</td><td style="text-align:center;">${c.ready}</td></tr>`).join('')}
+    </table>
+    <div style="font-size:12px; font-weight:bold; margin-bottom:6px; text-transform:uppercase; margin-top: 16px;">Advance Schedule – ${nextDay ? 'Day ' + nextDay.day + ' (' + nextDay.date + ')' : 'Next Day'}</div>
+    <table><tr><th style="width: 8%; text-align:center;">START</th><th style="width: 5%; text-align:center;">SC</th><th style="width: 38%;">DESCRIPTION</th><th style="width: 5%; text-align:center;">D/N</th><th style="width: 10%; text-align:center;">CAST</th><th style="width: 20%;">LOCATION</th><th style="width: 6%; text-align:center;">PAGES</th><th style="width: 8%; text-align:center;">EST (H)</th></tr>${advanceHtml}</table>
+  `;
+  
+  document.getElementById('callsheetBody').innerHTML = html;
+  
+  const role = getCurrentRole(); const canEditAdmin = role && (role.type === 'ad' || role.type === 'line_producer');
+  document.querySelectorAll('#callsheetBody [contenteditable]').forEach(el => el.setAttribute('contenteditable', canEditAdmin));
+  
+  closeModalDirect(); document.getElementById('callsheetPopup').classList.add('open');
+  attachCallsheetListener(dateKey);
+}
+
+function attachCallsheetListener(dateKey) { 
+    setTimeout(() => { 
+        const body = document.getElementById('callsheetBody'); 
+        body.oninput = function() { 
+            clearTimeout(callsheetSaveTimeout);
+            callsheetSaveTimeout = setTimeout(() => { db.ref('production_data/callsheets/' + dateKey).set(body.innerHTML); }, 1000);
+        }; 
+    }, 100); 
+}
+
+function resetCallsheetHandler() {
+    if(currentCallsheetDateKey && confirm('Yakin reset Callsheet hari ini? Editan akan hilang.')) {
+        db.ref('production_data/callsheets/' + currentCallsheetDateKey).remove().then(() => {
+            closePopupDirect('callsheetPopup'); alert("Callsheet dihapus. Buka lagi untuk memuat ulang template asli.");
+        });
+    }
+}
 
 initLogin();
 </script>
