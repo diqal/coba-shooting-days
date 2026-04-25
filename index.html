@@ -1181,8 +1181,7 @@ function renderPrePro() {
     </div>`;
 });
         container.innerHTML = html + `</div>`;
-        }
-    } else if (preproView === 'timeline') {
+        }} else if (preproView === 'timeline') {
         let html = `<table class="timeline-table"><tr><th>Kegiatan</th><th>Kategori</th><th>Tanggal</th><th>Jam</th><th>Lokasi</th><th>Status</th></tr>`;
         const sorted = [...PREPRO_DATA].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
         sorted.forEach(t => { html += `<tr><td><strong>${t.title}</strong></td><td>${t.cat}</td><td>${t.date || '-'}</td><td>${t.time||'-'}</td><td>${t.loc||'-'}</td><td>${t.status}</td></tr>`; });
