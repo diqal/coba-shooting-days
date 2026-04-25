@@ -559,7 +559,7 @@ function applyRoleAndClose(roleKey) {
   const badge = document.getElementById('roleBadge'); badge.classList.remove('hidden');
   const labelMap = { ...ROLE_LABELS }; if (role.type === 'cast') labelMap.cast = '🌟 ' + role.castName;
   document.getElementById('roleBadgeText').textContent = labelMap[roleKey] || roleKey;
-  if (isAdmin) { document.getElementById('btnDatabaseManager').style.display = 'inline-block'; document.getElementById('btnAddTask').style.display = 'inline-block'; document.getElementById('btnAddFile').style.display = 'inline-block'; }
+  if (isAdmin) { document.getElementById('btnDatabaseManager').style.display = 'inline-block'; document.getElementById('btnAddTask').style.display = 'inline-block'; }
   
   if (role.type === 'cast') {
     setTimeout(() => {
