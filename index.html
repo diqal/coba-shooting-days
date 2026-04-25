@@ -1,11 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Kalender Produksi">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Kalender Syuting – Realtime Master</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -577,7 +573,8 @@ function doLogout() {
   if (!confirm('Yakin ingin keluar dari akun?')) return;
   firebase.auth().signOut().then(() => {
     sessionStorage.removeItem('prodRole');
-    activeFilterCastId = null; activeFilterLocation = null;
+    activeFilterCastId = null; 
+    activeFilterLocation = null;
     document.getElementById('filterBanner').classList.remove('active');
     document.getElementById('roleBadge').classList.add('hidden');
     document.getElementById('loginOverlay').classList.remove('hidden');
@@ -598,7 +595,7 @@ function switchPhase(phase) {
 } else if (phase === 'prepro') {
   renderPrePro();
 }
-
+}
 function initLogin() {
   const role = getCurrentRole();
   if (role) applyRoleAndClose(role.type === 'ad' || role.type === 'line_producer' ? role.type : role.type === 'hod' ? role.dept : role.type === 'cast' ? 'cast' : 'crew');
