@@ -1146,46 +1146,53 @@ function uploadCastImg(e, id) {
 // =========================================================================
 // 9. PRA-PRODUKSI LOGIC
 // =========================================================================
-function setPreProView(view) {
-    preproView = view;
-    document.querySelectorAll('#sectionPrePro .v-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById('v' + view.charAt(0).toUpperCase() + view.slice(1));
-    if (btn) btn.classList.add('active');
-    document.getElementById('preproCalNav').style.display = (view === 'calendar') ? 'flex' : 'none';
-    renderPrePro();
-}
 function renderPrePro() {
-    const container = document.getElementById('preproContent'), role = getCurrentRole(), isAdmin = role && ['ad', 'line_producer', 'production_coordinator'].includes(role.type);
+    const container = document.getElementById('preproContent'), 
+          role = getCurrentRole(), 
+          isAdmin = role && ['ad', 'line_producer'].includes(role.type);
+
     if (preproView === 'kanban') {
         let html = `<div class="kanban-grid">`;
+        
         ['To-Do', 'In Progress', 'Done'].forEach(col => {
             const tasks = PREPRO_DATA.filter(t => t.status === col);
+            
+            // Buka elemen kolom
             html += `<div class="kanban-col"><div class="kanban-header">${col} (${tasks.length})</div>`;
+          
             tasks.forEach(t => {
-    const isUrgent = t.priority === 'Urgent';
-    const castBadges = t.casts ? t.casts.split(',').map(id => {
-        const name = CAST_NAMES[id.trim()] || 'ID ' + id;
-        return `<span style="background:var(--primary); color:white; padding:2px 5px; border-radius:3px; font-size:9px; margin-right:3px;">${name}</span>`;
-    }).join('') : '';
-    html += `
-    <div class="task-card" style="${isUrgent ? 'border-left: 5px solid #EF4444;' : ''}">
-        ${isUrgent ? `<div style="color:#EF4444; font-size:10px; font-weight:900; margin-bottom:5px;">⚠️ URGENT</div>` : ''}
-        <div class="task-title">${t.title}</div>
-        <div class="task-meta">🕒 ${t.time || 'TBA'} | 📅 ${t.date || '-'}</div>
-        <div style="margin-top:8px;">${castBadges}</div>
-        <div style="font-size:11px; margin-top:5px; color:var(--text-light);">👥 ${t.crew || '-'}</div>
-        <div style="margin-top:10px; display:flex; gap:5px;">
-            <button class="btn-wa" onclick="sharePreProWA('${t.id}')">📲 WA</button>
-            ${isAdmin ? `<button class="v-btn" onclick="editTask('${t.id}')">⚙️</button>` : ''}
-        </div>
-    </div>`;
-});
+                const isUrgent = t.priority === 'Urgent';
+                const castBadges = t.casts ? t.casts.split(',').map(id => {
+                    const name = CAST_NAMES[id.trim()] || 'ID ' + id;
+                    return `<span style="background:var(--primary); color:white; padding:2px 5px; border-radius:3px; font-size:9px; margin-right:3px;">${name}</span>`;
+                }).join('') : '';
+                
+                html += `
+                <div class="task-card" style="${isUrgent ? 'border-left: 5px solid #EF4444;' : ''}">
+                    ${isUrgent ? `<div style="color:#EF4444; font-size:10px; font-weight:900; margin-bottom:5px;">⚠️ URGENT</div>` : ''}
+                    <div class="task-title">${t.title}</div>
+                    <div class="task-meta">🕒 ${t.time || 'TBA'} | 📅 ${t.date || '-'}</div>
+                    <div style="margin-top:8px;">${castBadges}</div>
+                    <div style="font-size:11px; margin-top:5px; color:var(--text-light);">👥 ${t.crew || '-'}</div>
+                    <div style="margin-top:10px; display:flex; gap:5px;">
+                        <button class="btn-wa" onclick="sharePreProWA('${t.id}')">📲 WA</button>
+                        ${isAdmin ? `<button class="v-btn" onclick="editTask('${t.id}')">⚙️</button>` : ''}
+                    </div>
+                </div>`;
+            });
+        
+            html += `</div>`; 
+            
+        });
+
         container.innerHTML = html + `</div>`;
-        }} else if (preproView === 'timeline') {
+
+    } else if (preproView === 'timeline') {
         let html = `<table class="timeline-table"><tr><th>Kegiatan</th><th>Kategori</th><th>Tanggal</th><th>Jam</th><th>Lokasi</th><th>Status</th></tr>`;
         const sorted = [...PREPRO_DATA].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
         sorted.forEach(t => { html += `<tr><td><strong>${t.title}</strong></td><td>${t.cat}</td><td>${t.date || '-'}</td><td>${t.time||'-'}</td><td>${t.loc||'-'}</td><td>${t.status}</td></tr>`; });
         container.innerHTML = html + `</table>`;
+        
     } else if (preproView === 'calendar') {
         renderPreProCalendar(container, isAdmin);
     }
