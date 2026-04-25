@@ -489,11 +489,13 @@ function doLogout() { if (confirm('Keluar?')) firebase.auth().signOut().then(() 
 function initLogin() { const role = getCurrentRole(); if (role) applyRoleAndClose(role.type === 'ad' || role.type === 'line_producer' ? role.type : role.type === 'hod' ? role.dept : role.type === 'cast' ? 'cast' : 'crew'); else document.getElementById('loginOverlay').classList.remove('hidden'); }
 
 function switchPhase(phase) {
+    const phaseIdMap = { shoot: 'Shoot', prepro: 'PrePro', files: 'Files' };
+    const key = phaseIdMap[phase] || (phase.charAt(0).toUpperCase() + phase.slice(1));
     currentPhase = phase;
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById('btn' + phase.charAt(0).toUpperCase() + phase.slice(1)).classList.add('active');
-    document.getElementById('section' + phase.charAt(0).toUpperCase() + phase.slice(1)).classList.add('active');
+    document.getElementById('btn' + key).classList.add('active');
+    document.getElementById('section' + key).classList.add('active');
     if(phase === 'shoot') renderCalendar(); else if(phase === 'prepro') renderPrePro(); else if(phase === 'files') renderFiles();
 }
 
@@ -689,9 +691,37 @@ function renderFiles() { db.ref('production_data/files').on('value', snap => { c
 // =========================================================================
 // 10. HELPER MODALS & SYUTING UTILS
 // =========================================================================
-function openCastGallery() { document.getElementById('castGalleryPopup').classList.add('open'); }
-function openLocationGallery() { document.getElementById('locationGalleryPopup').classList.add('open'); }
-function openDatabaseManager() { document.getElementById('databasePopup').classList.add('open'); }
+function openCastGallery() {
+    const grid = document.getElementById('castGrid');
+    let html = '';
+    Object.entries(CAST_NAMES).forEach(([id, name]) => {
+        const imgSrc = IMAGE_CACHE[`img_cast_${id}`] || '';
+        const isWrapped = getWrappedCasts().includes(parseInt(id));
+        html += `<div class="cast-gallery-card" onclick="openSingleCastPopup(${id})">
+            ${isWrapped ? '<span class="cast-wrap-badge">✓ WRAP</span>' : ''}
+            <img class="cast-gallery-img" src="${imgSrc || `https://placehold.co/80x80/e2e8f0/94a3b8?text=${encodeURIComponent(name.charAt(0))}`}" onerror="this.src='https://placehold.co/80x80/e2e8f0/94a3b8?text=?'">
+            <span class="cast-gallery-id">Cast #${id}</span>
+            <div class="cast-gallery-name">${name}</div>
+            ${ACTOR_NAMES[id] ? `<div class="cast-actor-name">${ACTOR_NAMES[id]}</div>` : ''}
+        </div>`;
+    });
+    grid.innerHTML = html || '<p style="color:var(--text-light);padding:20px;">Belum ada data pemain.</p>';
+    document.getElementById('castGalleryPopup').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function openLocationGallery() {
+    const grid = document.getElementById('locationGrid');
+    const locs = {};
+    SCHEDULE_DATA.days.forEach(d => { d.scenes.forEach(s => { if(s.set) { const b = s.set.split('-')[0].trim(); if(!locs[b]) locs[b] = b; } }); });
+    let html = '';
+    Object.values(locs).forEach(name => {
+        html += `<div class="location-gallery-card" onclick="openSingleLocationPopup('${name.replace(/'/g,"\\'")}')"><div class="location-icon">📍</div><div class="location-name">${name}</div></div>`;
+    });
+    grid.innerHTML = html || '<p style="color:var(--text-light);padding:20px;">Belum ada lokasi.</p>';
+    document.getElementById('locationGalleryPopup').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function openDatabaseManager() { const r = getCurrentRole(); if(!r || (r.type !== 'ad' && r.type !== 'line_producer')) { alert('Hanya AD/Line Producer.'); return; } document.getElementById('databasePopup').classList.add('open'); }
 function openMasterCallsheetPopup() {
     document.getElementById('mc_phName').value = CALLSHEET_MASTER.phName || "";
     document.getElementById('mc_phAddress').value = (CALLSHEET_MASTER.phAddress || "").replace(/<br>/g, '\n');
@@ -709,7 +739,9 @@ function saveMasterCallsheet() {
     const d = { phName: document.getElementById('mc_phName').value, phAddress: document.getElementById('mc_phAddress').value.replace(/\n/g, '<br>'), producer: document.getElementById('mc_producer').value.replace(/\n/g, '<br>'), ad: document.getElementById('mc_ad').value.replace(/\n/g, '<br>'), linepro: document.getElementById('mc_linepro').value.replace(/\n/g, '<br>'), director: document.getElementById('mc_director').value.replace(/\n/g, '<br>'), hospital: document.getElementById('mc_hospital').value.replace(/\n/g, '<br>'), parking: document.getElementById('mc_parking').value.replace(/\n/g, '<br>'), meals: document.getElementById('mc_meals').value, rules: document.getElementById('mc_rules').value.replace(/\n/g, '<br>') };
     syncRef.update({ callsheetMaster: JSON.stringify(d) }).then(() => { alert('Saved!'); closePopupDirect('masterCallsheetPopup'); });
 }
-function saveHeaderData() { const r = getCurrentRole(); if(r && (r.type === 'ad' || r.type === 'line_producer')) syncRef.update({ headerTitle: document.getElementById('headerTitle').innerText }); }
+function saveHeaderData() { const r = getCurrentRole(); if(r && (r.type === 'ad' || r.type === 'line_producer')) syncRef.update({ headerTitle: document.getElementById('headerTitle').innerText, headerSub: document.getElementById('headerSub').innerText, headerDate: document.getElementById('headerDate').innerText }); }
+let currentCallsheetDateKey = null;
+let callsheetSaveTimeout = null;
 function toggleDarkMode() { document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); }
 function showImgPopup(prefix, popupId, folder, n) {
   const key = `img_${folder}_${n}`; const savedImg = IMAGE_CACHE[key]; 
@@ -739,9 +771,210 @@ function closeModalDirect() { document.getElementById('modalOverlay').classList.
 function closePopupDirect(id) { document.getElementById(id).classList.remove('open'); if (document.querySelectorAll('.popup-overlay.open').length===0) document.body.style.overflow=''; }
 function closeModal(e) { if (e && e.target===document.getElementById('modalOverlay')) closeModalDirect(); }
 function closePopup(id, e) { if (e && e.target===document.getElementById(id)) closePopupDirect(id); }
-function openAllScenesPopup(w) { /* Logic All Scenes lama */ }
+function openAllScenesPopup(wrappedOnly) {
+    document.getElementById('allScenesHeaderTitle').textContent = wrappedOnly ? '✅ Scene Sudah Wrap' : '🎬 Daftar Semua Scene';
+    let html = '';
+    SCHEDULE_DATA.days.forEach(d => {
+        d.scenes.forEach(s => {
+            const wrapKey = `${d.day}_${s.scene}`;
+            const isWrapped = getWrappedScenes().includes(wrapKey);
+            if (wrappedOnly && !isWrapped) return;
+            html += `<div class="task-card" style="${isWrapped ? 'opacity:0.7;background:var(--bg-main);' : ''}">
+                <div class="task-title">${isWrapped ? '✅ ' : ''}SC ${s.scene} — ${s.set || '-'}</div>
+                <div class="task-meta">📅 Day ${d.day} | ${s.ie || ''} ${s.dn || ''} | ${s.pages || ''} pgs</div>
+                <div class="task-meta" style="margin-top:4px;">📝 ${s.desc || '-'}</div>
+            </div>`;
+        });
+    });
+    document.getElementById('allScenesGrid').innerHTML = html || '<p style="color:var(--text-light);padding:20px;">Belum ada data.</p>';
+    document.getElementById('allScenesPopup').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
 function toggleWrap(n) { const r = getCurrentRole(); if (!r || r.type !== 'ad') return; let wr = getWrappedScenes(); const i = wr.indexOf(n); i > -1 ? wr.splice(i, 1) : wr.push(n); syncRef.update({ wrappedScenes: JSON.stringify(wr) }); }
 function shareToWhatsApp() { const sd = shootDays[currentCallsheetDateKey]; if(!sd) return; let t = `*DAILY CALLSHEET - ${sd.date}*\nDay ${sd.day}\nLoc: ${sd.scenes[0].set}\n\n*Scenes:* `; sd.scenes.forEach(s => t += `${s.scene}, `); window.open("https://wa.me/?text=" + encodeURIComponent(t), '_blank'); }
+
+// =========================================================================
+// FUNGSI YANG HILANG
+// =========================================================================
+function openModal(dateKey) {
+    const sd = shootDays[dateKey];
+    if (!sd) return;
+    currentCallsheetDateKey = dateKey;
+    document.getElementById('modalDayTitle').textContent = `Day ${sd.day} of ${SCHEDULE_DATA.days.length}`;
+    document.getElementById('modalDateSub').textContent = sd.date;
+    const allCastIds = [...new Set(sd.scenes.flatMap(s => [...parseCastIds(s.main_cast), ...parseCastIds(s.supporting)]))];
+    document.getElementById('modalCrew').innerHTML = allCastIds.map(id => `<div class="crew-chip">${CAST_NAMES[id] || 'Cast #' + id}</div>`).join('');
+    let html = '';
+    sd.scenes.forEach(s => {
+        const wrapKey = `${sd.day}_${s.scene}`;
+        const isWrapped = getWrappedScenes().includes(wrapKey);
+        const mainIds = parseCastIds(s.main_cast), suppIds = parseCastIds(s.supporting);
+        html += `<div class="scene-card${isWrapped ? ' is-wrapped' : ''}">
+            <div class="scene-header">
+                <div class="scene-header-top">
+                    <div class="scene-header-left">
+                        <div class="scene-num">SC ${s.scene}</div>
+                        <div class="scene-time">🕐 ${s.time || 'TBA'}</div>
+                    </div>
+                    <div class="scene-tags">
+                        <span class="tag tag-${s.ie || 'I'}">${s.ie || 'I'}</span>
+                        <span class="tag tag-${s.dn || 'D'}">${s.dn || 'D'}</span>
+                    </div>
+                </div>
+                <div class="scene-set">📍 ${s.set || '-'} ${s.pages ? `<span style="font-size:12px;color:var(--text-light);">(${s.pages} pgs)</span>` : ''}</div>
+            </div>
+            <div class="scene-body">
+                <div class="scene-desc">${s.desc || '-'}</div>
+                ${mainIds.length ? `<div class="cast-section"><span class="cast-group-label">Main Cast</span>${mainIds.map(id => `<span class="cast-tag" onclick="openSingleCastPopup(${id})">${id}. ${CAST_NAMES[id] || '?'}</span>`).join('')}</div>` : ''}
+                ${suppIds.length ? `<div class="cast-section"><span class="cast-group-label">Supporting</span>${suppIds.map(id => `<span class="cast-tag" onclick="openSingleCastPopup(${id})">${id}. ${CAST_NAMES[id] || '?'}</span>`).join('')}</div>` : ''}
+                ${s.extras ? `<div class="cast-section"><span class="cast-group-label">Extras</span><span class="cast-tag">${s.extras}</span></div>` : ''}
+            </div>
+            <div class="scene-actions">
+                <button class="action-btn" onclick="openFloorplan(${s.scene})">📸 Photoboard</button>
+                <button class="action-btn" onclick="openWardrobe(${s.scene})">👗 Wardrobe</button>
+                <button class="action-btn" onclick="openMakeup(${s.scene})">💄 MU</button>
+                <button class="action-btn" onclick="openProps(${s.scene})">🎭 Props</button>
+                <button class="action-btn" onclick="openLighting(${s.scene})">💡 Lighting</button>
+                <button class="action-btn btn-wrap ${isWrapped ? 'wrapped' : ''}" onclick="toggleWrapScene('${wrapKey}', this)">
+                    ${isWrapped ? '✓ Wrapped' : 'Wrap Scene'}
+                </button>
+            </div>
+        </div>`;
+    });
+    document.getElementById('modalBody').innerHTML = html;
+    document.getElementById('btnOpenCallsheet').onclick = () => openCallsheet(dateKey);
+    document.getElementById('modalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function toggleWrapScene(wrapKey, btn) {
+    let list = getWrappedScenes();
+    const card = btn.closest('.scene-card');
+    if (list.includes(wrapKey)) {
+        list = list.filter(x => x !== wrapKey);
+        btn.textContent = 'Wrap Scene'; btn.classList.remove('wrapped');
+        if (card) card.classList.remove('is-wrapped');
+    } else {
+        list.push(wrapKey);
+        btn.textContent = '✓ Wrapped'; btn.classList.add('wrapped');
+        if (card) card.classList.add('is-wrapped');
+    }
+    syncRef.update({ wrappedScenes: JSON.stringify(list) });
+}
+
+function openSingleCastPopup(castId) {
+    currentViewCastId = castId;
+    const name = CAST_NAMES[castId] || 'Cast #' + castId;
+    const actor = ACTOR_NAMES[castId] || '';
+    const imgSrc = IMAGE_CACHE[`img_cast_${castId}`] || '';
+    const isWrapped = getWrappedCasts().includes(parseInt(castId));
+    document.getElementById('singleCastImg').src = imgSrc || `https://placehold.co/120x120/e2e8f0/94a3b8?text=${encodeURIComponent(name.charAt(0))}`;
+    document.getElementById('singleCastName').textContent = name;
+    document.getElementById('singleCastActor').textContent = actor;
+    document.getElementById('singleCastId').textContent = `Cast #${castId}`;
+    const wrapBtn = document.getElementById('btnCastWrap');
+    wrapBtn.textContent = isWrapped ? '✓ Sudah Wrap' : 'Tandai Selesai';
+    wrapBtn.className = 'btn-cast-wrap' + (isWrapped ? ' wrapped' : '');
+    wrapBtn.onclick = () => {
+        const id = parseInt(castId);
+        let list = getWrappedCasts();
+        if (list.includes(id)) list = list.filter(x => x !== id); else list.push(id);
+        syncRef.update({ wrappedCasts: JSON.stringify(list) }).then(() => openSingleCastPopup(castId));
+    };
+    const workingDays = [];
+    for (const [dateKey, d] of Object.entries(shootDays)) {
+        for (const s of d.scenes) {
+            if ([...parseCastIds(s.main_cast), ...parseCastIds(s.supporting)].includes(parseInt(castId))) {
+                workingDays.push({ key: dateKey, day: d.day, date: d.date }); break;
+            }
+        }
+    }
+    document.getElementById('singleCastDays').innerHTML = workingDays.sort((a, b) => a.day - b.day).map(w =>
+        `<button class="schedule-btn" onclick="closePopupDirect('singleCastPopup');closePopupDirect('castGalleryPopup');openModal('${w.key}')">Day ${w.day} — ${w.date}</button>`
+    ).join('') || '<p style="color:var(--text-light);font-size:13px;">Tidak ada jadwal.</p>';
+    document.getElementById('singleCastPopup').classList.add('open');
+}
+
+function openSingleLocationPopup(rawSetName) {
+    const setName = rawSetName.split('-')[0].trim();
+    currentViewLocName = setName;
+    document.getElementById('singleLocName').textContent = setName;
+    const role = getCurrentRole(), isAdmin = role && (role.type === 'ad' || role.type === 'line_producer');
+    const slug = slugify(setName), key = `img_logistic_${slug}`, savedImg = IMAGE_CACHE[key];
+    let imgHtml = '';
+    if (savedImg) {
+        imgHtml = `<img src="${savedImg}" style="width:100%; border-radius:8px; margin-bottom:16px;">${isAdmin ? `<button class="action-btn" style="width:100%; background:#dc2626; color:white; margin-bottom:16px; border:none;" onclick="deleteLocationImage('${key}','${encodeURIComponent(rawSetName)}')">Hapus Denah</button>` : ''}`;
+    } else {
+        imgHtml = `<div style="padding:30px; text-align:center; background:var(--bg-main); border-radius:8px; border:1px dashed var(--border-color); margin-bottom:16px;">${isAdmin ? `<input type="file" accept="image/*" id="locUpload" style="display:none;" onchange="handleLocUpload(event,'${key}','${encodeURIComponent(rawSetName)}')"><label for="locUpload" class="action-btn" style="background:var(--primary); color:white; cursor:pointer; padding:8px 16px; border:none;">➕ Upload Denah</label>` : `<p style="font-size:13px; color:var(--text-light);">📍 Denah belum tersedia</p>`}</div>`;
+    }
+    document.getElementById('singleLocImgContainer').innerHTML = imgHtml;
+    const workingDays = [];
+    for (const [dateKey, d] of Object.entries(shootDays)) {
+        if (d.scenes.some(s => s.set && s.set.split('-')[0].trim().toLowerCase() === setName.toLowerCase()))
+            workingDays.push({ key: dateKey, day: d.day });
+    }
+    document.getElementById('singleLocDays').innerHTML = workingDays.map(w =>
+        `<button class="schedule-btn" onclick="closePopupDirect('singleLocationPopup');closePopupDirect('locationGalleryPopup');openModal('${w.key}')">Day ${w.day}</button>`
+    ).join('');
+    document.getElementById('singleLocationPopup').classList.add('open');
+}
+
+function triggerFilterLoc() {
+    if (!currentViewLocName) return;
+    activeFilterLocation = currentViewLocName.toLowerCase();
+    activeFilterCastId = null;
+    const banner = document.getElementById('filterBanner');
+    banner.innerHTML = `Filter Lokasi: <strong>${currentViewLocName}</strong> <button class="filter-clear" onclick="clearFilter()">✕</button>`;
+    banner.classList.add('active');
+    closePopupDirect('singleLocationPopup');
+    closePopupDirect('locationGalleryPopup');
+    switchPhase('shoot');
+}
+
+function handleLocUpload(e, key, rawEnc) {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        const img = new Image();
+        img.onload = function() {
+            const c = document.createElement('canvas'), scale = Math.min(800 / img.width, 1);
+            c.width = img.width * scale; c.height = img.height * scale;
+            c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+            syncRef.child('images').child(key).set(c.toDataURL('image/jpeg', 0.6)).then(() => openSingleLocationPopup(decodeURIComponent(rawEnc)));
+        };
+        img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+function deleteLocationImage(key, rawEnc) { syncRef.child('images').child(key).remove().then(() => openSingleLocationPopup(decodeURIComponent(rawEnc))); }
+
+function importFromExcel() {
+    const text = document.getElementById('excelPasteArea').value;
+    if (!text.trim()) { alert('Kolom kosong!'); return; }
+    const rows = text.split('\n'), months = ["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
+    const daysMap = {}; let successCount = 0;
+    SCHEDULE_DATA.days.forEach(d => { const real = d.scenes.filter(s => s.desc !== "[Data Default]"); if (real.length > 0) daysMap[d.day] = { day: d.day, date: d.date, wrap: d.wrap, scenes: [...real] }; });
+    rows.forEach(row => {
+        const cols = row.split('\t'); if (cols.length < 5) return;
+        const dayNum = parseInt(cols[0].replace(/\D/g, '')); if (isNaN(dayNum) || dayNum <= 0) return;
+        let fDate = cols[1] ? cols[1].trim() : '';
+        if (fDate.includes('/') || fDate.includes('-')) {
+            let parts = fDate.split(/[\/\-]/);
+            if (parts.length === 3) { let d2, mo, y2; if (parts[0].length === 4) { y2=parts[0]; mo=parts[1]; d2=parts[2]; } else { d2=parts[0]; mo=parts[1]; y2=parts[2]; } let mi = parseInt(mo)-1; if (mi>=0&&mi<=11) fDate = `${parseInt(d2)} ${months[mi]} ${y2}`; }
+        }
+        if (!daysMap[dayNum]) daysMap[dayNum] = { day: dayNum, date: fDate, wrap: cols[2] || '', scenes: [] };
+        const scNum = parseInt(cols[4]) || 0;
+        if (scNum > 0 && !daysMap[dayNum].scenes.find(s => s.scene === scNum)) {
+            daysMap[dayNum].scenes.push({ time: cols[3]||'', scene: scNum, set: cols[5]||'', ie: cols[6]||'', dn: cols[7]||'', pages: cols[8]||'', desc: cols[9]||'', main_cast: cols[10]||'', supporting: cols[11]||'', extras: cols[12]||'' });
+            successCount++;
+        }
+    });
+    if (Object.keys(daysMap).length > 0 && successCount > 0) {
+        syncRef.update({ schedule: JSON.stringify({ days: Object.values(daysMap) }) }).then(() => { alert(`✅ ${successCount} scene ditambahkan!`); closePopupDirect('databasePopup'); });
+    } else alert('Format tidak valid atau scene sudah ada.');
+}
+
+function resetToDefaultData() { if (confirm('Yakin reset database?')) syncRef.remove().then(() => { alert('Database direset.'); location.reload(); }); }
 
 initLogin();
 </script>
