@@ -649,15 +649,37 @@ function toggleWrap(sceneNum) {
   }
   
   let wrapped = getWrappedScenes(); 
-  const idx = wrapped.indexOf(sceneNum); 
+  // Gunakan findIndex dan String() agar aman untuk angka maupun teks (1A)
+  const idx = wrapped.findIndex(s => String(s) === String(sceneNum)); 
   let isNowWrapped = false;
   
   if (idx > -1) { 
       wrapped.splice(idx, 1); 
   } else { 
-      wrapped.push(sceneNum);
+      wrapped.push(sceneNum); // Masukkan sesuai input aslinya
       isNowWrapped = true;
   }
+  
+  syncRef.update({ wrappedScenes: JSON.stringify(wrapped) }).then(() => {
+      const btn = document.getElementById('wrapBtn-' + sceneNum);
+      const card = document.getElementById('sceneCard-' + sceneNum);
+      
+      if (btn) {
+          if (isNowWrapped) {
+              btn.classList.add('wrapped');
+              btn.innerHTML = 'Wrapped';
+          } else {
+              btn.classList.remove('wrapped');
+              btn.innerHTML = 'Tandai Selesai';
+          }
+      }
+      
+      if (card) {
+          if (isNowWrapped) card.classList.add('is-wrapped');
+          else card.classList.remove('is-wrapped');
+      }
+  }); 
+}
   
   syncRef.update({ wrappedScenes: JSON.stringify(wrapped) }).then(() => {
       // Tambahkan baris ini untuk update visual tombol secara instan di dalam Modal
@@ -748,8 +770,10 @@ function importFromExcel() {
             });
         });
         
-        const scNum = parseInt(cols[4])||0; const isExist = daysMap[dayNum].scenes.find(s => s.scene === scNum);
-        if(!isExist && scNum > 0) {
+        const scNum = cols[4] ? cols[4].trim() : ""; 
+const isExist = daysMap[dayNum].scenes.find(s => String(s.scene) === String(scNum));
+
+if(!isExist && scNum !== "") {
             daysMap[dayNum].scenes.push({ time: cols[3]||'', scene: scNum, set: cols[5]||'', ie: cols[6]||'', dn: cols[7]||'', pages: cols[8]||'', desc: cols[9]||'', main_cast: cols[10]||'', supporting: cols[11]||'', extras: cols[12]||'' });
             successCount++;
         }
@@ -1552,26 +1576,47 @@ function openModal(dateKey) {
 function openAllScenesPopup(onlyWrapped = false) {
     let allScenes = []; 
     for (let key in shootDays) { shootDays[key].scenes.forEach(s => { allScenes.push({ scene: s, dayNum: shootDays[key].day }); }); }
-    allScenes.sort((a, b) => a.scene.scene - b.scene.scene);
+    allScenes.sort((a, b) => {
+        return String(a.scene.scene).localeCompare(String(b.scene.scene), undefined, {numeric: true, sensitivity: 'base'});
+    });
     
-    const ws = getWrappedScenes(); let displayScenes = allScenes;
-    
-    if (onlyWrapped) { displayScenes = allScenes.filter(item => ws.includes(item.scene.scene)); document.getElementById('allScenesHeaderTitle').innerHTML = '🎬 Daftar Scene Wrapped'; } 
-    else { document.getElementById('allScenesHeaderTitle').innerHTML = '🎬 Daftar Semua Scene'; }
+    const ws = getWrappedScenes(); 
+    let displayScenes = allScenes;
+    let headerTitle = '🎬 Daftar Semua Scene';
+    let emptyMsg = 'Belum ada jadwal scene yang diinput.';
+
+    // Jika yang diminta hanya yang sudah selesai (Wrapped)
+    if (onlyWrapped) { 
+        displayScenes = allScenes.filter(item => ws.map(String).includes(String(item.scene.scene))); 
+        headerTitle = '🎬 Daftar Scene Wrapped'; 
+        emptyMsg = 'Belum ada scene yang ditandai selesai (Wrapped).';
+    } 
+
+    document.getElementById('allScenesHeaderTitle').innerHTML = headerTitle;
 
     let html = '<div style="display:flex; flex-direction:column; gap:8px; text-align:left; width:100%;">'; 
-    if (displayScenes.length === 0) { html += '<div style="text-align:center; padding:20px; color:var(--text-light);">Belum ada scene yang di-wrap.</div>'; } 
+    
+    if (displayScenes.length === 0) { 
+        html += `<div style="text-align:center; padding:20px; color:var(--text-light);">${emptyMsg}</div>`; 
+    } 
     else {
         displayScenes.forEach(item => { 
-            const isW = ws.includes(item.scene.scene); 
+            const isW = ws.map(String).includes(String(item.scene.scene)); 
             html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--bg-main); border:1px solid var(--border-color); border-radius:6px;">
-                <div style="cursor:pointer;" onclick="openSingleSceneCard(${item.scene.scene})"><strong style="color:var(--primary); font-size:15px;">SC ${item.scene.scene}</strong> <span style="font-size:12px; color:var(--text-light);"> - Day ${item.dayNum}</span><br><span style="font-size:12px; font-weight:600;">📍 ${item.scene.set}</span></div>
-                ${getCurrentRole() && getCurrentRole().type === 'ad' ? `<button class="action-btn ${isW ? 'wrapped' : ''}" id="allScenesWrapBtn-${item.scene.scene}" onclick="toggleWrapFromAllScenes(${item.scene.scene}, ${onlyWrapped})" style="min-width:85px;">${isW ? 'Wrapped' : 'Tandai Wrap'}</button>` : `<span style="font-size:12px; font-weight:bold; color:${isW ? 'var(--success)' : 'var(--text-light)'}">${isW ? '✅ Wrapped' : '⏳ Belum Selesai'}</span>`}
+                <div style="cursor:pointer;" onclick="openSingleSceneCard('${item.scene.scene}')">
+                    <strong style="color:var(--primary); font-size:15px;">SC ${item.scene.scene}</strong> 
+                    <span style="font-size:12px; color:var(--text-light);"> - Day ${item.dayNum}</span><br>
+                    <span style="font-size:12px; font-weight:600;">📍 ${item.scene.set}</span>
+                </div>
+                ${getCurrentRole() && getCurrentRole().type === 'ad' ? 
+                  `<button class="action-btn ${isW ? 'wrapped' : ''}" id="allScenesWrapBtn-${item.scene.scene}" onclick="toggleWrapFromAllScenes('${item.scene.scene}', ${onlyWrapped})" style="min-width:85px;">${isW ? 'Wrapped' : 'Tandai Wrap'}</button>` : 
+                  `<span style="font-size:12px; font-weight:bold; color:${isW ? 'var(--success)' : 'var(--text-light)'}">${isW ? '✅ Wrapped' : '⏳ Belum Selesai'}</span>`}
             </div>`;
         });
     }
     html += '</div>';
-    document.getElementById('allScenesGrid').innerHTML = html; document.getElementById('allScenesPopup').classList.add('open');
+    document.getElementById('allScenesGrid').innerHTML = html; 
+    document.getElementById('allScenesPopup').classList.add('open');
 }
 
 function toggleWrapFromAllScenes(sceneNum, isWrappedView) {
