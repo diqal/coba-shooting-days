@@ -1308,11 +1308,8 @@ function updateTask(id) {
     const idx = PREPRO_DATA.findIndex(x => x.id === id); 
     PREPRO_DATA[idx].status = document.getElementById('e_status').value; 
     PREPRO_DATA[idx].priority = document.getElementById('e_priority').value;
-    PREPRO_DATA[idx].date = document.getElementById('e_date').value; 
-    
-    // SIMPAN NILAI JAM
-    PREPRO_DATA[idx].time = document.getElementById('e_time').value; 
-    
+    PREPRO_DATA[idx].date = document.getElementById('e_date').value;
+    PREPRO_DATA[idx].time = document.getElementById('e_time').value;
     PREPRO_DATA[idx].crew = document.getElementById('e_crew').value; 
     PREPRO_DATA[idx].casts = document.getElementById('e_casts').value; 
 
@@ -1320,18 +1317,7 @@ function updateTask(id) {
     closeGeneralModal(); 
 }
 
-  function updateTask(id) { 
-    const idx = PREPRO_DATA.findIndex(x => x.id === id); 
-    PREPRO_DATA[idx].status = document.getElementById('e_status').value; 
-    PREPRO_DATA[idx].priority = document.getElementById('e_priority').value;
-    PREPRO_DATA[idx].date = document.getElementById('e_date').value; 
-    PREPRO_DATA[idx].crew = document.getElementById('e_crew').value; 
-    PREPRO_DATA[idx].casts = document.getElementById('e_casts').value; 
-
-    syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) }); 
-    closeGeneralModal(); 
-}
-function deleteTask(id) { if(confirm('Hapus?')) { PREPRO_DATA = PREPRO_DATA.filter(x => x.id !== id); syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) }); closeGeneralModal(); } }
+  function deleteTask(id) { if(confirm('Hapus?')) { PREPRO_DATA = PREPRO_DATA.filter(x => x.id !== id); syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) }); closeGeneralModal(); } }
 function sharePreProWA(id) { 
     const t = PREPRO_DATA.find(x => x.id === id); 
     let msg = `*📢 REMINDER PREPRO*\nAcara: ${t.title}\nWaktu: ${t.time || 'TBA'}\nLokasi: ${t.loc || 'TBA'}\nMaps: ${t.maps || '-'}`; 
