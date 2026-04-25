@@ -276,7 +276,7 @@
         <button class="v-btn active" id="vKanban" onclick="setPreProView('kanban')">📋 Kanban</button>
         <button class="v-btn" id="vTimeline" onclick="setPreProView('timeline')">⏳ Timeline</button>
         <button class="v-btn" id="vCalendar" onclick="setPreProView('calendar')">📅 Kalender</button>
-        <button class="v-btn" id="btnAddTask" style="background: var(--success); color: white; display:none;" onclick="openTemplateLibrary()">➕ Tambah Tugas</button>
+        <button class="v-btn" id="btnAddTask" onclick="openTemplateLibrary()">➕ Tambah Tugas</button>
     </div>
     <div id="preproCalNav" style="display:none; justify-content:center; align-items:center; gap:20px; margin-bottom:20px;">
         <button class="month-btn" onclick="preproMonth--; if(preproMonth<0){preproMonth=11;preproYear--;} renderPrePro()">‹</button>
@@ -1203,13 +1203,18 @@ function renderPreProCalendar(container, isAdmin) {
     container.innerHTML = html;
 }
 
-
 function openTemplateLibrary() {
-    let html = `<h3>Gudang Checklist</h3>`;
+    const role = getCurrentRole();
+  if (!role || (role.type !== 'ad' && role.type !== 'line_producer')) {
+    alert('Hanya AD dan Line Producer yang bisa melakukan ini.');
+    return;
+  }
+ let html = `<h3>Gudang Checklist</h3>`;
     MASTER_CHECKLIST.forEach(group => { html += `<div style="font-weight:800; color:var(--primary); font-size:11px; margin-top:10px;">${group.cat}</div>`; group.tasks.forEach(task => { html += `<button class="v-btn" style="margin:5px 5px 0 0;" onclick="addTask('${task}', '${group.cat}')">+ ${task}</button>`; }); });
     showGeneralModal(html);
 }
-function addTask(title, cat) { const id = 'task_' + Date.now(); PREPRO_DATA.push({ id, title, cat, status: 'To-Do', time: '', loc: '', maps: '', reportUrl: '' }); syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) }); closeGeneralModal(); editTask(id); }
+
+  function addTask(title, cat) { const id = 'task_' + Date.now(); PREPRO_DATA.push({ id, title, cat, status: 'To-Do', time: '', loc: '', maps: '', reportUrl: '' }); syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) }); closeGeneralModal(); editTask(id); }
 function editTask(id) {
     const t = PREPRO_DATA.find(x => x.id === id);
     let html = `<h3>Edit: ${t.title}</h3><div class="profile-form">
