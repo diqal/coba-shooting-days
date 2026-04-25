@@ -404,7 +404,8 @@ let CALLSHEET_MASTER = {
     linepro: "[Line Producer]", 
     director: "[Sutradara]",
     hospital: "[RS Terdekat]", 
-    parking: "[Info Parkir]", 
+    parking: "[Info Parkir]",
+    basecamp: "[Info Basecamp]",
     meals: "Breakfast: 06.00 | Lunch: 12.00 | Dinner: 18.00", 
     rules: "Selalu gunakan ID Card."
 };
@@ -425,7 +426,7 @@ const MASTER_CHECKLIST = [
   { cat: "Technical", tasks: ["Equipment Test", "Location Scouting", "Technical Recce", "Camera & Lens Test"] },
   { cat: "Art", tasks: ["Moodboard Art", "Properti Hunting", "Foto Props", "Video Props", "Wardrobe Fitting"] },
   { cat: "Casting", tasks: ["Casting Call", "Callback", "Cast Lock", "Reading", "Rehearsal", "Workshop"] },
-  { cat: "Meeting", tasks: ["PPM", "Technical Meeting", "Post-Pro Meeting", "Safety Briefing"] }
+  { cat: "Meeting", tasks: ["Pre-Production Meeting", "Technical Meeting", "Post-Pro Meeting", "Safety Briefing"] }
 ];
 
 // =========================================================================
@@ -435,7 +436,7 @@ syncRef.on('value', (snapshot) => {
     const data = snapshot.val() || {};
     
     SCHEDULE_DATA = data.schedule ? JSON.parse(data.schedule) : DEFAULT_SCHEDULE;
-    CAST_NAMES = data.castNames ? JSON.parse(data.castNames) : { 1: "Pemain 1" };
+    CAST_NAMES = data.castNames ? JSON.parse(data.castNames) : { 1: "Pemain 1" 2: "Pemain 2" };
     ACTOR_NAMES = data.actorNames ? JSON.parse(data.actorNames) : {};
     PREPRO_DATA = data.prepro ? JSON.parse(data.prepro) : [];
     WRAPPED_SCENES = data.wrappedScenes ? JSON.parse(data.wrappedScenes) : [];
