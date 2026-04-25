@@ -244,6 +244,7 @@
         <button class="btn-cast-gallery" style="background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color);" onclick="openLocationGallery()">📍 Lokasi</button>
         <button class="btn-cast-gallery" style="background: var(--success);" onclick="openDatabaseManager()">💾 Import Data Excel</button>
         <button class="btn-cast-gallery" style="background: var(--text-main); color: var(--bg-main);" onclick="toggleDarkMode()">🌙 Mode</button>
+        <button class="btn-cast-gallery" style="background: #F59E0B; color: white;" onclick="gotoToday()">📅 Hari Ini</button>
     </div>
 
     <div class="calendar-section">
@@ -598,6 +599,36 @@ function switchPhase(phase) {
   renderPrePro();
 }
 }
+
+  function gotoToday() {
+    const now = new Date();
+    // Format tanggal hari ini: YYYY-MM-DD
+    const isoDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+    if (currentPhase === 'shoot') {
+        // --- LOGIKA SYUTING ---
+        if (shootDays[isoDate]) {
+            openModal(isoDate);
+        } else {
+            alert("Tidak ada jadwal syuting untuk hari ini.");
+        }
+    } else if (currentPhase === 'prepro') {
+        // --- LOGIKA PREPRO ---
+        // 1. Pastikan kalender prepro pindah ke bulan & tahun sekarang
+        preproMonth = now.getMonth();
+        preproYear = now.getFullYear();
+        
+        // 2. Pindahkan view ke Kalender agar user bisa melihat agenda hari ini
+        setPreProView('calendar');
+        
+        // 3. Cek apakah ada agenda hari ini (opsional: untuk pemberitahuan)
+        const agendaHariIni = PREPRO_DATA.filter(t => t.date === isoDate);
+        if (agendaHariIni.length === 0) {
+            alert("Tidak ada agenda pra-produksi untuk hari ini.");
+        }
+    }
+}
+  
 function initLogin() {
   const role = getCurrentRole();
   if (role) applyRoleAndClose(role.type === 'ad' || role.type === 'line_producer' ? role.type : role.type === 'hod' ? role.dept : role.type === 'cast' ? 'cast' : 'crew');
@@ -1130,17 +1161,24 @@ function renderPrePro() {
             const tasks = PREPRO_DATA.filter(t => t.status === col);
             html += `<div class="kanban-col"><div class="kanban-header">${col} (${tasks.length})</div>`;
             tasks.forEach(t => {
-    html += `<div class="task-card"><div class="task-title">${t.title}</div>
-    <div class="task-meta">🕒 ${t.time || 'TBA'} | 📅 ${t.date || 'Belum dijadwal'} | 📍 ${t.loc || 'TBA'}</div>
-    ${t.maps ? `<a href="${t.maps}" target="_blank" class="maps-link">📍 Maps</a>` : ''}
-    
-    ${t.crew ? `<div style="font-size:11px; margin-top:10px; color:var(--text-light); line-height:1.4;">👥 <b>Kru:</b> ${t.crew}</div>` : ''}
-    ${t.casts ? `<div style="font-size:11px; margin-top:4px; color:var(--primary); font-weight:700;">🌟 <b>Cast ID:</b> ${t.casts}</div>` : ''}
-
-    <div style="margin-top:10px; display:flex; gap:5px;"><button class="btn-wa" onclick="sharePreProWA('${t.id}')">📲 WA</button>${isAdmin ? `<button class="v-btn" onclick="editTask('${t.id}')">⚙️</button>` : ''}</div></div>`;
+    const isUrgent = t.priority === 'Urgent';
+    const castBadges = t.casts ? t.casts.split(',').map(id => {
+        const name = CAST_NAMES[id.trim()] || 'ID ' + id;
+        return `<span style="background:var(--primary); color:white; padding:2px 5px; border-radius:3px; font-size:9px; margin-right:3px;">${name}</span>`;
+    }).join('') : '';
+    html += `
+    <div class="task-card" style="${isUrgent ? 'border-left: 5px solid #EF4444;' : ''}">
+        ${isUrgent ? `<div style="color:#EF4444; font-size:10px; font-weight:900; margin-bottom:5px;">⚠️ URGENT</div>` : ''}
+        <div class="task-title">${t.title}</div>
+        <div class="task-meta">🕒 ${t.time || 'TBA'} | 📅 ${t.date || '-'}</div>
+        <div style="margin-top:8px;">${castBadges}</div>
+        <div style="font-size:11px; margin-top:5px; color:var(--text-light);">👥 ${t.crew || '-'}</div>
+        <div style="margin-top:10px; display:flex; gap:5px;">
+            <button class="btn-wa" onclick="sharePreProWA('${t.id}')">📲 WA</button>
+            ${isAdmin ? `<button class="v-btn" onclick="editTask('${t.id}')">⚙️</button>` : ''}
+        </div>
+    </div>`;
 });
-            html += `</div>`;
-        });
         container.innerHTML = html + `</div>`;
     } else if (preproView === 'timeline') {
         let html = `<table class="timeline-table"><tr><th>Kegiatan</th><th>Kategori</th><th>Tanggal</th><th>Jam</th><th>Lokasi</th><th>Status</th></tr>`;
@@ -1222,20 +1260,36 @@ function openTemplateLibrary() {
 function editTask(id) {
     const t = PREPRO_DATA.find(x => x.id === id);
     let html = `<h3>Edit: ${t.title}</h3><div class="profile-form">
-    <label>Status:</label><select id="e_status" class="v-btn"><option value="To-Do" ${t.status==='To-Do'?'selected':''}>To-Do</option><option value="In Progress" ${t.status==='In Progress'?'selected':''}>In Progress</option><option value="Done" ${t.status==='Done'?'selected':''}>Done</option></select>
+    <label>Prioritas:</label>
+    <select id="e_priority" class="v-btn">
+        <option value="Normal" ${t.priority==='Normal'?'selected':''}>🟢 Normal</option>
+        <option value="Urgent" ${t.priority==='Urgent'?'selected':''}>🔴 Urgent</option>
+    </select>
+    <label>Status:</label>
+    <select id="e_status" class="v-btn">
+        <option value="To-Do" ${t.status==='To-Do'?'selected':''}>To-Do</option>
+        <option value="In Progress" ${t.status==='In Progress'?'selected':''}>In Progress</option>
+        <option value="Done" ${t.status==='Done'?'selected':''}>Done</option>
+    </select>
     <label>Tanggal:</label><input type="date" id="e_date" value="${t.date || ''}" class="v-btn">
-    <label>Jam:</label><input type="text" id="e_time" value="${t.time}" class="v-btn" placeholder="09.00">
-    <label>Lokasi:</label><input type="text" id="e_loc" value="${t.loc}" class="v-btn">
-    <label>Maps Link:</label><input type="text" id="e_maps" value="${t.maps}" class="v-btn">
-    <label>Kru Terlibat (Director, AD, dll):</label>
-    <input type="text" id="e_crew" value="${t.crew || ''}" class="v-btn" placeholder="Director, AD, DOP...">
-    <label>Cast ID (Pisahkan dengan koma):</label>
-    <input type="text" id="e_casts" value="${t.casts || ''}" class="v-btn" placeholder="1, 2, 5...">
+    <label>Kru Terlibat:</label><input type="text" id="e_crew" value="${t.crew || ''}" class="v-btn">
+    <label>Cast ID (Koma):</label><input type="text" id="e_casts" value="${t.casts || ''}" class="v-btn">
     <button class="nav-btn active" onclick="updateTask('${id}')">💾 Simpan</button>
     <button class="v-btn" style="color:red;" onclick="deleteTask('${id}')">🗑️ Hapus</button></div>`;
     showGeneralModal(html);
 }
-function updateTask(id) { const idx = PREPRO_DATA.findIndex(x => x.id === id); PREPRO_DATA[idx].status = document.getElementById('e_status').value; PREPRO_DATA[idx].date = document.getElementById('e_date').value; PREPRO_DATA[idx].time = document.getElementById('e_time').value; PREPRO_DATA[idx].loc = document.getElementById('e_loc').value; PREPRO_DATA[idx].maps = document.getElementById('e_maps').value; PREPRO_DATA[idx].crew = document.getElementById('e_crew').value; PREPRO_DATA[idx].casts = document.getElementById('e_casts').value; syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) }); closeGeneralModal(); }
+
+  function updateTask(id) { 
+    const idx = PREPRO_DATA.findIndex(x => x.id === id); 
+    PREPRO_DATA[idx].status = document.getElementById('e_status').value; 
+    PREPRO_DATA[idx].priority = document.getElementById('e_priority').value;
+    PREPRO_DATA[idx].date = document.getElementById('e_date').value; 
+    PREPRO_DATA[idx].crew = document.getElementById('e_crew').value; 
+    PREPRO_DATA[idx].casts = document.getElementById('e_casts').value; 
+
+    syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) }); 
+    closeGeneralModal(); 
+}
 function deleteTask(id) { if(confirm('Hapus?')) { PREPRO_DATA = PREPRO_DATA.filter(x => x.id !== id); syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) }); closeGeneralModal(); } }
 function sharePreProWA(id) { 
     const t = PREPRO_DATA.find(x => x.id === id); 
