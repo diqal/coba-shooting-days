@@ -268,7 +268,13 @@
     <div style="display:flex; justify-content:center; gap:10px; margin-bottom:20px;">
         <button class="v-btn active" id="vKanban" onclick="setPreProView('kanban')">📋 Kanban</button>
         <button class="v-btn" id="vTimeline" onclick="setPreProView('timeline')">⏳ Timeline</button>
+        <button class="v-btn" id="vCalendar" onclick="setPreProView('calendar')">📅 Kalender</button>
         <button class="v-btn" id="btnAddTask" style="background: var(--success); color: white; display:none;" onclick="openTemplateLibrary()">➕ Tambah Tugas</button>
+    </div>
+    <div id="preproCalNav" style="display:none; justify-content:center; align-items:center; gap:20px; margin-bottom:20px;">
+        <button class="month-btn" onclick="preproMonth--; if(preproMonth<0){preproMonth=11;preproYear--;} renderPrePro()">‹</button>
+        <div class="month-label" id="preproMonthLabel">Bulan Tahun</div>
+        <button class="month-btn" onclick="preproMonth++; if(preproMonth>11){preproMonth=0;preproYear++;} renderPrePro()">›</button>
     </div>
     <div id="preproContent"></div>
   </div>
@@ -358,6 +364,7 @@ let currentViewCastId = null, currentViewLocName = null;
 let currentPhase = 'shoot';
 let preproView = 'kanban';
 let PREPRO_DATA = [];
+let preproYear = new Date().getFullYear(), preproMonth = new Date().getMonth();
 
 let CALLSHEET_MASTER = {
     phName: "[NAMA PH]", phAddress: "[Alamat]", producer: "[Produser]", ad: "[1st AD]", linepro: "[Line Producer]", director: "[Sutradara]",
@@ -370,7 +377,7 @@ const MASTER_CHECKLIST = [
   { cat: "Creative", tasks: ["Creative Meeting", "Skenario Development", "Script Breakdown", "Storyboarding", "Script Lock"] },
   { cat: "Technical", tasks: ["Equipment Test", "Location Scouting", "Technical Recce", "Camera & Lens Test"] },
   { cat: "Art", tasks: ["Moodboard Art", "Properti Hunting", "Foto Props", "Video Props", "Wardrobe Fitting"] },
-  { cat: "Casting", tasks: ["Casting Call", "Callback", "Cast Lock", "Reading Day 1"] },
+  { cat: "Casting", tasks: ["Casting Call", "Callback", "Cast Lock", "Reading", "Rehearsal", "Workshop"] },
   { cat: "Meeting", tasks: ["PPM", "Technical Meeting", "Post-Pro Meeting", "Safety Briefing"] }
 ];
 
@@ -410,6 +417,8 @@ const ROLE_LABELS = {
   hod_artdept: "🎭 Art Department", hod_casting: "🎪 Casting", crew: "👥 Kru Umum", cast: null
 };
 
+
+  
 const FOLDER_TO_DEPT = { 'photoboard': 'hod_cinematography', 'lighting': 'hod_gaffer', 'wardrobe': 'hod_wardrobe', 'make up': 'hod_makeup', 'props': 'hod_artdept' };
 
 function getCurrentRole() { try { return JSON.parse(sessionStorage.getItem('prodRole')); } catch(e) { return null; } }
@@ -540,7 +549,14 @@ function renderStats() {
 // =========================================================================
 // 7. PRA-PRODUKSI LOGIC
 // =========================================================================
-function setPreProView(view) { preproView = view; document.querySelectorAll('#sectionPrePro .v-btn').forEach(b => b.classList.remove('active')); document.getElementById('v' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active'); renderPrePro(); }
+function setPreProView(view) {
+    preproView = view;
+    document.querySelectorAll('#sectionPrePro .v-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('v' + view.charAt(0).toUpperCase() + view.slice(1));
+    if (btn) btn.classList.add('active');
+    document.getElementById('preproCalNav').style.display = (view === 'calendar') ? 'flex' : 'none';
+    renderPrePro();
+}
 function renderPrePro() {
     const container = document.getElementById('preproContent'), role = getCurrentRole(), isAdmin = role && ['ad', 'line_producer', 'production_coordinator'].includes(role.type);
     if (preproView === 'kanban') {
@@ -549,19 +565,80 @@ function renderPrePro() {
             const tasks = PREPRO_DATA.filter(t => t.status === col);
             html += `<div class="kanban-col"><div class="kanban-header">${col} (${tasks.length})</div>`;
             tasks.forEach(t => {
-                html += `<div class="task-card"><div class="task-title">${t.title}</div><div class="task-meta">🕒 ${t.time || 'TBA'} | 📍 ${t.loc || 'TBA'}</div>
+                html += `<div class="task-card"><div class="task-title">${t.title}</div>
+                <div class="task-meta">🕒 ${t.time || 'TBA'} | 📅 ${t.date || 'Belum dijadwal'} | 📍 ${t.loc || 'TBA'}</div>
                 ${t.maps ? `<a href="${t.maps}" target="_blank" class="maps-link">📍 Maps</a>` : ''}
                 <div style="margin-top:10px; display:flex; gap:5px;"><button class="btn-wa" onclick="sharePreProWA('${t.id}')">📲 WA</button>${isAdmin ? `<button class="v-btn" onclick="editTask('${t.id}')">⚙️</button>` : ''}</div></div>`;
             });
             html += `</div>`;
         });
         container.innerHTML = html + `</div>`;
-    } else {
-        let html = `<table class="timeline-table"><tr><th>Kegiatan</th><th>Kategori</th><th>Jam</th><th>Lokasi</th><th>Status</th></tr>`;
-        PREPRO_DATA.forEach(t => { html += `<tr><td><strong>${t.title}</strong></td><td>${t.cat}</td><td>${t.time||'-'}</td><td>${t.loc||'-'}</td><td>${t.status}</td></tr>`; });
+    } else if (preproView === 'timeline') {
+        let html = `<table class="timeline-table"><tr><th>Kegiatan</th><th>Kategori</th><th>Tanggal</th><th>Jam</th><th>Lokasi</th><th>Status</th></tr>`;
+        const sorted = [...PREPRO_DATA].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+        sorted.forEach(t => { html += `<tr><td><strong>${t.title}</strong></td><td>${t.cat}</td><td>${t.date || '-'}</td><td>${t.time||'-'}</td><td>${t.loc||'-'}</td><td>${t.status}</td></tr>`; });
         container.innerHTML = html + `</table>`;
+    } else if (preproView === 'calendar') {
+        renderPreProCalendar(container, isAdmin);
     }
 }
+function renderPreProCalendar(container, isAdmin) {
+    const monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    document.getElementById('preproMonthLabel').textContent = `${monthNames[preproMonth]} ${preproYear}`;
+
+    const STATUS_COLOR = { 'Done': '#10B981', 'In Progress': '#F59E0B', 'To-Do': '#3B82F6' };
+    const firstDay = new Date(preproYear, preproMonth, 1).getDay();
+    const daysInMonth = new Date(preproYear, preproMonth + 1, 0).getDate();
+    const daysInPrev = new Date(preproYear, preproMonth, 0).getDate();
+    const today = new Date();
+    const cells = [];
+    for (let i = firstDay - 1; i >= 0; i--) cells.push({ day: daysInPrev - i, other: true });
+    for (let d = 1; d <= daysInMonth; d++) cells.push({ day: d, other: false });
+    const remaining = 42 - cells.length;
+    for (let d = 1; d <= remaining; d++) cells.push({ day: d, other: true });
+
+    let html = `<div style="background:var(--bg-card); border-radius:8px; overflow:hidden; border:1px solid var(--border-color);">
+        <div style="display:grid; grid-template-columns:repeat(7,1fr); background:var(--border-color); border-bottom:1px solid var(--border-color);">
+            ${['MIN','SEN','SEL','RAB','KAM','JUM','SAB'].map(d => `<div class="cal-header-cell">${d}</div>`).join('')}
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:1px; background:var(--border-color);">`;
+
+    cells.forEach(cell => {
+        const isToday = !cell.other && cell.day === today.getDate() && preproMonth === today.getMonth() && preproYear === today.getFullYear();
+        const dateStr = cell.other ? null : `${preproYear}-${String(preproMonth + 1).padStart(2, '0')}-${String(cell.day).padStart(2, '0')}`;
+        const dayTasks = dateStr ? PREPRO_DATA.filter(t => t.date === dateStr) : [];
+
+        html += `<div style="background:var(--bg-card); min-height:110px; padding:10px; position:relative; ${cell.other ? 'opacity:0.4;' : ''} ${isToday ? 'box-shadow:inset 0 0 0 2px var(--primary);' : ''}">
+            <span style="font-size:15px; font-weight:600; color:${cell.other ? 'var(--secondary)' : 'var(--text-main)'}; display:block; margin-bottom:6px;">${cell.day}</span>`;
+
+        dayTasks.forEach(t => {
+            const color = STATUS_COLOR[t.status] || '#64748B';
+            html += `<div onclick="${isAdmin ? `editTask('${t.id}')` : ''}" style="background:${color}18; border-left:3px solid ${color}; border-radius:3px; padding:3px 6px; margin-bottom:4px; font-size:10px; font-weight:700; color:${color}; cursor:${isAdmin ? 'pointer' : 'default'}; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;" title="${t.title}">
+                ${t.time ? `<span style="opacity:0.8;">${t.time}</span> ` : ''}${t.title}
+            </div>`;
+        });
+
+        html += `</div>`;
+    });
+
+    html += `</div></div>`;
+
+    // Legend
+    html += `<div style="display:flex; gap:16px; justify-content:center; margin-top:16px; flex-wrap:wrap;">`;
+    Object.entries(STATUS_COLOR).forEach(([label, color]) => {
+        const count = PREPRO_DATA.filter(t => t.status === label && t.date && t.date.startsWith(`${preproYear}-${String(preproMonth + 1).padStart(2, '0')}`)).length;
+        html += `<div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--text-light);">
+            <div style="width:12px; height:12px; border-radius:2px; background:${color};"></div> ${label} <span style="background:var(--bg-main); padding:1px 6px; border-radius:10px;">${count}</span>
+        </div>`;
+    });
+    const noDate = PREPRO_DATA.filter(t => !t.date).length;
+    if (noDate > 0) html += `<div style="font-size:12px; font-weight:700; color:var(--text-light);">⚠️ Belum dijadwal: ${noDate} tugas</div>`;
+    html += `</div>`;
+
+    container.innerHTML = html;
+}
+
+
 function openTemplateLibrary() {
     let html = `<h3>Gudang Checklist</h3>`;
     MASTER_CHECKLIST.forEach(group => { html += `<div style="font-weight:800; color:var(--primary); font-size:11px; margin-top:10px;">${group.cat}</div>`; group.tasks.forEach(task => { html += `<button class="v-btn" style="margin:5px 5px 0 0;" onclick="addTask('${task}', '${group.cat}')">+ ${task}</button>`; }); });
@@ -572,14 +649,15 @@ function editTask(id) {
     const t = PREPRO_DATA.find(x => x.id === id);
     let html = `<h3>Edit: ${t.title}</h3><div class="profile-form">
     <label>Status:</label><select id="e_status" class="v-btn"><option value="To-Do" ${t.status==='To-Do'?'selected':''}>To-Do</option><option value="In Progress" ${t.status==='In Progress'?'selected':''}>In Progress</option><option value="Done" ${t.status==='Done'?'selected':''}>Done</option></select>
-    <label>Jam:</label><input type="text" id="e_time" value="${t.time}" class="v-btn">
+    <label>Tanggal:</label><input type="date" id="e_date" value="${t.date || ''}" class="v-btn">
+    <label>Jam:</label><input type="text" id="e_time" value="${t.time}" class="v-btn" placeholder="09.00">
     <label>Lokasi:</label><input type="text" id="e_loc" value="${t.loc}" class="v-btn">
     <label>Maps Link:</label><input type="text" id="e_maps" value="${t.maps}" class="v-btn">
     <button class="nav-btn active" onclick="updateTask('${id}')">💾 Simpan</button>
     <button class="v-btn" style="color:red;" onclick="deleteTask('${id}')">🗑️ Hapus</button></div>`;
     showGeneralModal(html);
 }
-function updateTask(id) { const idx = PREPRO_DATA.findIndex(x => x.id === id); PREPRO_DATA[idx].status = document.getElementById('e_status').value; PREPRO_DATA[idx].time = document.getElementById('e_time').value; PREPRO_DATA[idx].loc = document.getElementById('e_loc').value; PREPRO_DATA[idx].maps = document.getElementById('e_maps').value; syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) }); closeGeneralModal(); }
+function updateTask(id) { const idx = PREPRO_DATA.findIndex(x => x.id === id); PREPRO_DATA[idx].status = document.getElementById('e_status').value; PREPRO_DATA[idx].date = document.getElementById('e_date').value; PREPRO_DATA[idx].time = document.getElementById('e_time').value; PREPRO_DATA[idx].loc = document.getElementById('e_loc').value; PREPRO_DATA[idx].maps = document.getElementById('e_maps').value; syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) }); closeGeneralModal(); }
 function deleteTask(id) { if(confirm('Hapus?')) { PREPRO_DATA = PREPRO_DATA.filter(x => x.id !== id); syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) }); closeGeneralModal(); } }
 function sharePreProWA(id) { const t = PREPRO_DATA.find(x => x.id === id); let msg = `*📢 REMINDER*\nAcara: ${t.title}\nWaktu: ${t.time || 'TBA'}\nLokasi: ${t.loc || 'TBA'}\nMaps: ${t.maps || '-'}`; window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank'); }
 
