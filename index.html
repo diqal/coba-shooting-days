@@ -370,7 +370,22 @@ let activeFilterCastId = null;
 let activeFilterLocation = null;
 let currentViewCastId = null;
 let currentViewLocName = null;
-  
+
+let CALLSHEET_MASTER = {
+    phName: "[NAMA PRODUCTION HOUSE]",
+    phAddress: "[Alamat Kantor]",
+    producer: "[Nama Produser]",
+    ad: "[Nama 1st AD]",
+    linepro: "[Nama LP]",
+    director: "[Nama Sutradara]",
+    contactAD: "Nama AD - 0812xxxx",
+    contactLP: "Nama LP - 0813xxxx",
+    contactCasting: "Nama Casting Dir - 0814xxxx",
+    contactTalentCoord: "Nama Talent Coord - 0815xxxx",
+    hospital: "[Nama Rumah Sakit Terdekat]",
+    parking: "[Info Parkir Kru]",
+    meals: "Breakfast: 06.00 | Lunch: 12.00 | Dinner: 18.00",
+    rules: "1. Selalu gunakan ID Card.<br>2. Dilarang menyebarkan informasi mengenai syuting.",
 };
 
 const DEFAULT_SCHEDULE = {
@@ -464,27 +479,6 @@ const WHITELIST = {
   "postpro.crew@gmail.com": { type: "crew" }, 
   "edwardraing@gmail.com": { type: "crew" },
   "husainfadhullah052005@gmail.com": { type: "crew" },
-};
-
-// --- 2. UPDATE CALLSHEET_MASTER (Data Kontak Awal) ---
-let CALLSHEET_MASTER = {
-    phName: "[NAMA PRODUCTION HOUSE]",
-    phAddress: "[Alamat Kantor]",
-    producer: "[Nama Produser]",
-    ad: "[Nama 1st AD]",
-    linepro: "[Nama LP]",
-    director: "[Nama Sutradara]",
-    
-    // Kontak untuk Tampilan Pemain
-    contactAD: "Nama AD - 0812xxxx",
-    contactLP: "Nama LP - 0813xxxx",
-    contactCasting: "Nama Casting Dir - 0814xxxx",
-    contactTalentCoord: "Nama Talent Coord - 0815xxxx",
-    
-    hospital: "[Nama Rumah Sakit Terdekat]",
-    parking: "[Info Parkir Kru]",
-    meals: "Breakfast: 06.00 | Lunch: 12.00 | Dinner: 18.00",
-    rules: "1. Selalu gunakan ID Card.<br>2. Dilarang menyebarkan informasi mengenai syuting.",
 };
 
 const ROLE_LABELS = {
