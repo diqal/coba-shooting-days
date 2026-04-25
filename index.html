@@ -1017,6 +1017,55 @@ function openAllScenesPopup(onlyWrapped = false) {
     html += '</div>'; document.getElementById('allScenesGrid').innerHTML = html; document.getElementById('allScenesPopup').classList.add('open');
 }
 
+<div class="popup-overlay" id="masterCallsheetPopup" style="z-index: 5000;" onclick="closePopup('masterCallsheetPopup', event)">
+  <div class="popup-box" style="max-width: 500px;">
+    <div class="popup-header">
+      <span>⚙️ Master Data Callsheet</span>
+      <button class="popup-close" onclick="closePopupDirect('masterCallsheetPopup')">✕</button>
+    </div>
+    <div class="popup-body" style="display:flex; flex-direction:column; gap:12px;">
+       <p style="font-size:12px; color:var(--text-light); margin-bottom:8px;">Data ini akan otomatis disalin ke setiap Callsheet BARU yang belum pernah diedit.</p>
+       
+       <label style="font-size:12px; font-weight:bold;">Nama PH:</label> 
+       <input type="text" id="mc_phName" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
+       
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Alamat PH:</label> 
+       <textarea id="mc_phAddress" rows="2" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
+       
+       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:8px;">
+           <div>
+               <label style="font-size:12px; font-weight:bold;">Sutradara:</label> 
+               <textarea id="mc_director" rows="2" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
+           </div>
+           <div>
+               <label style="font-size:12px; font-weight:bold;">Produser:</label> 
+               <textarea id="mc_producer" rows="2" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
+           </div>
+       </div>
+
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Nama 1st AD:</label> 
+       <input type="text" id="mc_ad" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
+
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Nama Line Producer:</label> 
+       <input type="text" id="mc_linepro" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
+
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Kontak 1st AD (WA):</label> 
+       <input type="text" id="mc_contactAD" placeholder="Contoh: Budi - 0812xxx" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
+
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Rumah Sakit Terdekat:</label> 
+       <textarea id="mc_hospital" rows="2" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
+       
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Info Parkir / Basecamp:</label> 
+       <textarea id="mc_parking" rows="2" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
+       
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Waktu Makan:</label> 
+       <input type="text" id="mc_meals" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
+
+       <button class="btn-cast-gallery" onclick="saveMasterCallsheet()" style="justify-content:center; margin-top:16px; padding:12px; font-size:14px;">💾 Simpan Master Data</button>
+    </div>
+  </div>
+</div>  
+  
 function toggleWrapFromAllScenes(sceneNum, isWrappedView) {
     toggleWrap(sceneNum); 
     if (isWrappedView) openAllScenesPopup(true);
