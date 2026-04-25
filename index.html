@@ -54,7 +54,7 @@
   .btn-wa { background: #25D366 !important; color: white !important; border: none; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; }
 
   /* --- SYUTING LAMA --- */
-  .hero { background: var(--text-main); padding: 40px 20px; text-align: center; border-bottom: 4px solid var(--primary); transition: background 0.3s; }
+  .hero { background: var(--text-main); padding: 60px 20px; text-align: center; border-bottom: 4px solid var(--primary); transition: background 0.3s; }
   body.dark-mode .hero { background: #020617; }
   .hero h1 { font-size: clamp(28px, 6vw, 48px); color: #fff; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 2px; outline: none; }
   .hero-sub { font-size: 16px; font-weight: 600; color: #94A3B8; margin-bottom: 16px; outline: none; }
@@ -154,7 +154,7 @@
   .schedule-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 16px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; width: 100%; text-align: left; margin-bottom: 8px; }
   .schedule-btn:hover { background: var(--bg-main); border-color: var(--secondary); }
   #singleCastName { color: var(--text-main); font-size: 24px; font-weight: 800; margin-bottom: 4px; }
-  #singleCastId { color: var(--text-main); background: var(--bg-main); border: 1px solid var(--border-color); display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-bottom: 24px; }
+  #singleCastId { color: var(--text-main); background: var(--bg-main); border: 1px solid var(--border-color); display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-bottom: 24px; } 
   
   /* --- CALLSHEET STYLES --- */
   #callsheetBody table { border-collapse: collapse; width: 100%; margin-bottom: 12px; font-size: 10px; border: 1px solid #d1d5db; }
@@ -201,12 +201,12 @@
 </head>
 <body>
 
-<div id="loadingScreen">🎬 Sinkronisasi dengan Database Server...</div>
+<div id="loadingScreen">Tunggu Sebentar, ya...</div>
 
 <div id="loginOverlay" class="hidden">
   <div class="login-box">
     <div class="login-logo">
-      <h2>🎬 Production Calendar</h2>
+      <h2>🎬 Shooting Calendar</h2>
       <p>Login di sini untuk masuk</p>
     </div>
     <div style="text-align: center;">
@@ -371,7 +371,12 @@ let CALLSHEET_MASTER = {
     hospital: "[RS Terdekat]", parking: "[Info Parkir]", meals: "Breakfast: 06.00 | Lunch: 12.00 | Dinner: 18.00", rules: "Selalu gunakan ID Card."
 };
 
-const DEFAULT_SCHEDULE = { "days": [{ "day": 1, "date": "Senin, 1 Jan 2024", "wrap": "18.00", "scenes": [{ "time": "07.00", "scene": 1, "set": "Lokasi Utama A", "ie": "I", "dn": "DAY", "pages": "1/8", "desc": "[Data Default]", "main_cast": "1" }]}]};
+const DEFAULT_SCHEDULE = {
+  "days": [
+    {
+      "day": 1, "date": "Senin, 1 Jan 2024", "wrap": "18.00",
+      "scenes": [
+        { "time": "07.00", "scene": 1, "set": "Lokasi Utama A - Area 1", "ie": "I", "dn": "DAY", "pages": "1/8", "desc": "[Data Default Firebase...]", "main_cast": "1, 2" };
 
 const MASTER_CHECKLIST = [
   { cat: "Creative", tasks: ["Creative Meeting", "Skenario Development", "Script Breakdown", "Storyboarding", "Script Lock"] },
