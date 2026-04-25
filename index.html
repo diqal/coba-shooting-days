@@ -459,6 +459,8 @@ syncRef.on('value', (snapshot) => {
     if (document.getElementById('castGalleryPopup').classList.contains('open')) openCastGallery();
 });
 
+let isFirstLoad = true;
+
 function rebuildShootDays() {
     shootDays = {};
     SCHEDULE_DATA.days.forEach(d => {
@@ -475,13 +477,9 @@ function rebuildShootDays() {
       } else shootDays[`2099-01-${String(d.day).padStart(2,'0')}`] = d;
     });
     
-    const availableDates = Object.keys(shootDays).sort();
-    if (availableDates.length > 0 && !availableDates[0].startsWith('2099')) {
-        const firstDateParts = availableDates[0].split('-');
-        curYear = parseInt(firstDateParts[0]); curMonth = parseInt(firstDateParts[1]) - 1;
-    }
-}
-
+    if (isFirstLoad) {
+        const availableDates = Object.keys(shootDays).sort();
+     }
 function getWrappedScenes() { return WRAPPED_SCENES; }
 function getWrappedCasts() { return WRAPPED_CASTS; }
 
@@ -658,26 +656,6 @@ function toggleWrap(sceneNum) {
       wrapped.push(sceneNum);
       isNowWrapped = true;
   }
-  
-  syncRef.update({ wrappedScenes: JSON.stringify(wrapped) }).then(() => {
-      const btn = document.getElementById('wrapBtn-' + sceneNum);
-      const card = document.getElementById('sceneCard-' + sceneNum);
-      
-      if (btn) {
-          if (isNowWrapped) {
-              btn.classList.add('wrapped');
-              btn.innerHTML = 'Wrapped';
-          } else {
-              btn.classList.remove('wrapped');
-              btn.innerHTML = 'Tandai Selesai';
-          }
-      }
-      if (card) {
-          if (isNowWrapped) card.classList.add('is-wrapped');
-          else card.classList.remove('is-wrapped');
-      }
-  }); 
-}
     
 function toggleCastWrap(id) {
   const role = getCurrentRole(); if (!role || role.type !== 'ad') { alert('Hanya AD yang bisa menandai Wrap Pemain.'); return; }
@@ -702,62 +680,35 @@ function openDatabaseManager() {
 function importFromExcel() {
     const text = document.getElementById('excelPasteArea').value;
     if(!text.trim()) { alert('Kolom masih kosong!'); return; }
-    const rows = text.split('\n'); let successCount = 0; const months = ["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
-    
+    const rows = text.split('\n'); let successCount = 0;
     const daysMap = {}; 
-    
-    SCHEDULE_DATA.days.forEach(d => {
-        const realScenes = d.scenes.filter(s => s.desc !== "[Data Default Firebase...]");
-        if (realScenes.length > 0) {
-            daysMap[d.day] = { day: d.day, date: d.date, wrap: d.wrap, scenes: [...realScenes] };
-        }
-    });
-    
+
     rows.forEach(row => {
         const cols = row.split('\t'); if(cols.length < 5) return; 
-        let dayStr = cols[0].replace(/\D/g, ''); const dayNum = parseInt(dayStr); if(isNaN(dayNum) || dayNum <= 0) return;
+        let dayNum = parseInt(cols[0].replace(/\D/g, '')); if(isNaN(dayNum)) return;
         let formattedDate = cols[1] ? cols[1].trim() : '';
-        if (formattedDate.includes('/') || formattedDate.includes('-')) {
-            let parts = formattedDate.split(/[\/\-]/);
-            if (parts.length === 3) {
-                let d, m, y; if (parts[0].length === 4) { y = parts[0]; m = parts[1]; d = parts[2]; } else { d = parts[0]; m = parts[1]; y = parts[2]; }
-                let monthIdx = parseInt(m) - 1; if (monthIdx >= 0 && monthIdx <= 11) { formattedDate = `${parseInt(d)} ${months[monthIdx]} ${y}`; }
-            }
-        }
         if(!daysMap[dayNum]) { daysMap[dayNum] = { day: dayNum, date: formattedDate, wrap: cols[2]||'', scenes: [] }; }
         
-        [cols[10]||'', cols[11]||''].forEach(castStr => {
-            let items = castStr.split(/[,;\n]/);
-            items.forEach(item => {
-                item = item.trim();
-                let match = item.match(/^(\d+)[\.\-\s]+(.+)$/);
-                if (match) {
-                    let id = parseInt(match[1]);
-                    let name = match[2].trim();
-                    if (name && isNaN(name)) { CAST_NAMES[id] = name; }
-                }
-            });
-        });
-        
-        // PERBAIKAN SCENE HURUF
+        // PERBAIKAN: Gunakan teks (trim), jangan diubah jadi angka (parseInt)
         const scNum = cols[4] ? cols[4].trim() : ""; 
         const isExist = daysMap[dayNum].scenes.find(s => String(s.scene) === String(scNum));
 
         if(!isExist && scNum !== "") {
-            daysMap[dayNum].scenes.push({ time: cols[3]||'', scene: scNum, set: cols[5]||'', ie: cols[6]||'', dn: cols[7]||'', pages: cols[8]||'', desc: cols[9]||'', main_cast: cols[10]||'', supporting: cols[11]||'', extras: cols[12]||'' });
+            daysMap[dayNum].scenes.push({ 
+                time: cols[3]||'', scene: scNum, set: cols[5]||'', ie: cols[6]||'', 
+                dn: cols[7]||'', pages: cols[8]||'', desc: cols[9]||'', 
+                main_cast: cols[10]||'', supporting: cols[11]||'', extras: cols[12]||'' 
+            });
             successCount++;
         }
     });
 
-    if(Object.keys(daysMap).length > 0 && successCount > 0) {
-        syncRef.update({
-            schedule: JSON.stringify({ days: Object.values(daysMap) }),
-            castNames: JSON.stringify(CAST_NAMES)
-        }).then(() => {
-            alert(`BERHASIL! ${successCount} Scene baru ditambahkan.`);
+    if(successCount > 0) {
+        syncRef.update({ schedule: JSON.stringify({ days: Object.values(daysMap) }) }).then(() => {
+            alert(`BERHASIL! ${successCount} Scene masuk.`);
             closePopupDirect('databasePopup');
         });
-    } else alert('Format tidak valid atau scene sudah ada.');
+    } else alert('Gagal! Cek format Excel atau scene sudah ada.');
 }
 
 function resetToDefaultData() {
