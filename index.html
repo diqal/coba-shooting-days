@@ -457,17 +457,52 @@ function getWrappedCasts() { return WRAPPED_CASTS; }
 // 4. ROLE-BASED ACCESS CONTROL (RBAC) & GOOGLE AUTH
 // =========================================================================
 const WHITELIST = {
+  // TIM PRODUKSI (ADMIN)
   "diqalkhr@gmail.com": { type: "ad" },
+  "putraadnan118@gmail.com": { type: "ad" },
   "lineproducer.film@gmail.com": { type: "line_producer" },
+  
+  // HOD PRA-PRO & SYUTING
   "szulfadhilah@gmail.com": { type: "hod", dept: "hod_makeup" },
   "palagunaa@gmail.com": { type: "hod", dept: "hod_cinematography" },
   "alifwijaya1908@gmail.com": { type: "hod", dept: "hod_wardrobe" },
   "milikandie123@gmail.com": { type: "hod", dept: "hod_artdept" },
+  
+  // TIM POST-PRO (Bisa akses data terkait)
+  "editor.film@gmail.com": { type: "hod", dept: "post_editor" },
+  "colorist.film@gmail.com": { type: "hod", dept: "post_colorist" },
+  "vfx.film@gmail.com": { type: "hod", dept: "post_vfx" },
+  "sound.post@gmail.com": { type: "hod", dept: "post_sound" },
+  "music.director@gmail.com": { type: "hod", dept: "post_music" },
+  
+  // PEMAIN
   "aktor.utama1@gmail.com": { type: "cast", castId: 1, castName: "Karakter Utama 1" },
+  
+  // KRU UMUM & POST-PRO CREW (VIEW ONLY)
+  "postpro.crew@gmail.com": { type: "crew" }, 
   "edwardraing@gmail.com": { type: "crew" },
-  "supir.transpo@gmail.com": { type: "crew" },
-  "pembantu.umum@gmail.com": { type: "crew" },
   "husainfadhullah052005@gmail.com": { type: "crew" },
+};
+
+// --- 2. UPDATE CALLSHEET_MASTER (Data Kontak Awal) ---
+let CALLSHEET_MASTER = {
+    phName: "[NAMA PRODUCTION HOUSE]",
+    phAddress: "[Alamat Kantor]",
+    producer: "[Nama Produser]",
+    ad: "[Nama 1st AD]",
+    linepro: "[Nama LP]",
+    director: "[Nama Sutradara]",
+    
+    // Kontak untuk Tampilan Pemain
+    contactAD: "Nama AD - 0812xxxx",
+    contactLP: "Nama LP - 0813xxxx",
+    contactCasting: "Nama Casting Dir - 0814xxxx",
+    contactTalentCoord: "Nama Talent Coord - 0815xxxx",
+    
+    hospital: "[Nama Rumah Sakit Terdekat]",
+    parking: "[Info Parkir Kru]",
+    meals: "Breakfast: 06.00 | Lunch: 12.00 | Dinner: 18.00",
+    rules: "1. Selalu gunakan ID Card.<br>2. Dilarang menyebarkan informasi mengenai syuting."
 };
 
 const ROLE_LABELS = {
