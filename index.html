@@ -777,7 +777,20 @@ function generateCallsheetTemplate(dateKey) {
     <div style="font-size:12px; font-weight:bold; margin-bottom:6px; text-transform:uppercase; margin-top: 16px;">Advance Schedule – ${nextDay ? 'Day ' + nextDay.day + ' (' + nextDay.date + ')' : 'Next Day'}</div>
     <table><tr><th style="width: 8%; text-align:center;">START</th><th style="width: 5%; text-align:center;">SC</th><th style="width: 38%;">DESCRIPTION</th><th style="width: 5%; text-align:center;">D/N</th><th style="width: 10%; text-align:center;">CAST</th><th style="width: 20%;">LOCATION</th><th style="width: 6%; text-align:center;">PAGES</th><th style="width: 8%; text-align:center;">EST (H)</th></tr>${advanceHtml}</table>
     <div style="font-size:12px; font-weight:bold; text-transform:uppercase; margin-top: 16px;">Full Crew List</div>
-    <table><tr><th>DEPARTMENT / POSITIONS & NAMES</th></tr><tr><td contenteditable="true" style="height: 120px; vertical-align: top; font-size: 11px; line-height: 1.5;"><strong>DIRECTING:</strong> [Nama] (2nd AD) <span style="color:#9ca3af;">[... Lanjutkan / Paste Semua Nama Kru Di Sini ...]</span></td></tr></table>
+    <table>
+        <tr><th>DEPARTMENT / POSITIONS & NAMES</th></tr>
+        <tr>
+            <td contenteditable="true" style="height: 120px; vertical-align: top; font-size: 11px; line-height: 1.5;">
+                <strong>DIRECTING:</strong> [Nama] (2nd AD), [Nama] (Script/Cont), [Nama] (Casting) <br>
+                <strong>PRODUCTION:</strong> [Nama] (Production Manager), [Nama] (Location Manager), [Nama] (Production Coordinator), [Nama] (Transpo Captain) <br>
+                <strong>CAMERA:</strong> [Nama] (DOP), [Nama] (Cam Op), [Nama] (1st AC) <br>
+                <strong>LIGHTING & GRIP:</strong> [Nama] (Gaffer), [Nama] (Best Boy), [Nama] (Key Grip) <br>
+                <strong>ART:</strong> [Nama] (Art Dir), [Nama] (Set Dresser), [Nama] (Wardrobe), [Nama] (Key Make Up), [Nama] (Key Hair) <br>
+                <strong>POST:</strong> [Nama] (Editor), [Nama] (Colorist), [Nama] (Sound Post), [Nama] (Music Director) <br>
+                <span style="color:#9ca3af;">[... Lanjutkan / Paste Semua Nama Kru Di Sini ...]</span>
+            </td>
+        </tr>
+    </table>
   `;
   
   document.getElementById('callsheetBody').innerHTML = html;
