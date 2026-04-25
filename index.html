@@ -1464,6 +1464,18 @@ function closeModal(e) { if (e.target===document.getElementById('modalOverlay'))
 function closePopup(id, e) { if (e.target===document.getElementById(id)) closePopupDirect(id); }
 function closeModalDirect() { document.getElementById('modalOverlay').classList.remove('open'); document.body.style.overflow=''; }
 function closePopupDirect(id) { document.getElementById(id).classList.remove('open'); if (document.querySelectorAll('.popup-overlay.open').length===0) document.body.style.overflow=''; }
+function showGeneralModal(htmlContent) {
+    document.getElementById('modalDayTitle').textContent = "Detail Kegiatan";
+    document.getElementById('modalDateSub').textContent = "";
+    document.getElementById('modalCrew').innerHTML = "";
+    document.getElementById('modalBody').innerHTML = htmlContent;
+    document.getElementById('btnOpenCallsheet').style.display = 'none';
+    document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeGeneralModal() {
+    closeModalDirect();
+}  
 function openMasterCallsheetPopup() {
     document.getElementById('mc_phName').value = CALLSHEET_MASTER.phName;
     document.getElementById('mc_phAddress').value = CALLSHEET_MASTER.phAddress.replace(/<br>/g, '\n');
