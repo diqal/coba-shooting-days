@@ -288,7 +288,7 @@
       <button class="popup-close" onclick="closePopupDirect('masterCallsheetPopup')">✕</button>
     </div>
     <div class="popup-body" style="display:flex; flex-direction:column; gap:12px;">
-       <p style="font-size:12px; color:var(--text-light); margin-bottom:8px;">Data ini akan otomatis disalin ke setiap Callsheet BARU yang belum pernah diedit.</p>
+       <p style="font-size:12px; color:var(--text-light); margin-bottom:8px;">Data ini akan otomatis disalin ke setiap Callsheet BARU.</p>
        
        <label style="font-size:12px; font-weight:bold;">Nama PH:</label> 
        <input type="text" id="mc_phName" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
@@ -307,33 +307,35 @@
            </div>
        </div>
 
-       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Kontak 1st AD:</label> 
-       <input type="text" id="mc_contactAD" placeholder="Contoh: Budi - 0812xxx" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Nama 1st AD:</label> 
+       <input type="text" id="mc_ad" style="padding:10px; border:1px solid var(--border-color); border-radius:6px;">
 
-       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Kontak Line Producer:</label> 
-       <input type="text" id="mc_contactLP" placeholder="Contoh: Susi - 0813xxx" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Nama Line Producer:</label> 
+       <input type="text" id="mc_linepro" style="padding:10px; border:1px solid var(--border-color); border-radius:6px;">
 
-       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Kontak Casting Director:</label> 
-       <input type="text" id="mc_contactCasting" placeholder="Contoh: Andi - 0814xxx" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Kontak 1st AD (WA):</label> 
+       <input type="text" id="mc_contactAD" placeholder="Contoh: Budi - 0812xxx" style="padding:10px; border:1px solid var(--border-color); border-radius:6px;">
 
-       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Kontak Talent Coord:</label> 
-       <input type="text" id="mc_contactTalent" placeholder="Contoh: Joko - 0815xxx" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
+       <input type="hidden" id="mc_contactLP" value="">
+       <input type="hidden" id="mc_contactCasting" value="">
+       <input type="hidden" id="mc_contactTalent" value="">
 
        <label style="font-size:12px; font-weight:bold; margin-top:8px;">Rumah Sakit Terdekat:</label> 
-       <textarea id="mc_hospital" rows="3" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
+       <textarea id="mc_hospital" rows="2" style="padding:10px; border:1px solid var(--border-color); border-radius:6px;"></textarea>
        
-       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Info Parkir / Basecamp Default:</label> 
-       <textarea id="mc_parking" rows="2" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
-       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Waktu Makan (Breakfast/Lunch/Dinner):</label> 
-       <input type="text" id="mc_meals" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Info Parkir / Basecamp:</label> 
+       <textarea id="mc_parking" rows="2" style="padding:10px; border:1px solid var(--border-color); border-radius:6px;"></textarea>
        
+       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Waktu Makan:</label> 
+       <input type="text" id="mc_meals" style="padding:10px; border:1px solid var(--border-color); border-radius:6px;">
+
        <label style="font-size:12px; font-weight:bold; margin-top:8px;">Aturan Syuting:</label> 
-       <textarea id="mc_rules" rows="3" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
-       
-      <button class="btn-cast-gallery" onclick="saveMasterCallsheet()" style="justify-content:center; margin-top:16px; padding:12px; font-size:14px;">💾 Simpan Master Data</button>
+       <textarea id="mc_rules" rows="3" style="padding:10px; border:1px solid var(--border-color); border-radius:6px;"></textarea>
+
+       <button class="btn-cast-gallery" onclick="saveMasterCallsheet()" style="justify-content:center; margin-top:16px; padding:12px; font-size:14px;">💾 Simpan Master Data</button>
     </div>
   </div>
-</div>  
+</div>
 
 <script>
 // =========================================================================
@@ -998,14 +1000,25 @@ function openModal(dateKey) {
 }
 
 function openAllScenesPopup(onlyWrapped = false) {
-    let allScenes = []; for (let key in shootDays) { shootDays[key].scenes.forEach(s => { allScenes.push({ scene: s, dayNum: shootDays[key].day }); }); }
+    let allScenes = []; 
+    for (let key in shootDays) { 
+        shootDays[key].scenes.forEach(s => { allScenes.push({ scene: s, dayNum: shootDays[key].day }); }); 
+    }
     allScenes.sort((a, b) => a.scene.scene - b.scene.scene);
-    const ws = getWrappedScenes(); let displayScenes = allScenes;
-    if (onlyWrapped) { displayScenes = allScenes.filter(item => ws.includes(item.scene.scene)); document.getElementById('allScenesHeaderTitle').innerHTML = '🎬 Daftar Scene Wrapped'; } 
-    else { document.getElementById('allScenesHeaderTitle').innerHTML = '🎬 Daftar Semua Scene'; }
+    const ws = getWrappedScenes(); 
+    let displayScenes = allScenes;
+    
+    if (onlyWrapped) { 
+        displayScenes = allScenes.filter(item => ws.includes(item.scene.scene)); 
+        document.getElementById('allScenesHeaderTitle').innerHTML = '🎬 Daftar Scene Wrapped'; 
+    } else { 
+        document.getElementById('allScenesHeaderTitle').innerHTML = '🎬 Daftar Semua Scene'; 
+    }
+    
     let html = '<div style="display:flex; flex-direction:column; gap:8px; text-align:left; width:100%;">'; 
-    if (displayScenes.length === 0) { html += '<div style="text-align:center; padding:20px; color:var(--text-light);">Belum ada scene yang di-wrap.</div>'; } 
-    else {
+    if (displayScenes.length === 0) { 
+        html += '<div style="text-align:center; padding:20px; color:var(--text-light);">Belum ada scene.</div>'; 
+    } else {
         displayScenes.forEach(item => { 
             const isW = ws.includes(item.scene.scene); 
             html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--bg-main); border:1px solid var(--border-color); border-radius:6px;">
@@ -1014,101 +1027,34 @@ function openAllScenesPopup(onlyWrapped = false) {
             </div>`;
         });
     }
-    html += '</div>'; document.getElementById('allScenesGrid').innerHTML = html; document.getElementById('allScenesPopup').classList.add('open');
+    html += '</div>'; 
+    document.getElementById('allScenesGrid').innerHTML = html; 
+    document.getElementById('allScenesPopup').classList.add('open');
 }
 
-<div class="popup-overlay" id="masterCallsheetPopup" style="z-index: 5000;" onclick="closePopup('masterCallsheetPopup', event)">
-  <div class="popup-box" style="max-width: 500px;">
-    <div class="popup-header">
-      <span>⚙️ Master Data Callsheet</span>
-      <button class="popup-close" onclick="closePopupDirect('masterCallsheetPopup')">✕</button>
-    </div>
-    <div class="popup-body" style="display:flex; flex-direction:column; gap:12px;">
-       <p style="font-size:12px; color:var(--text-light); margin-bottom:8px;">Data ini akan otomatis disalin ke setiap Callsheet BARU yang belum pernah diedit.</p>
-       
-       <label style="font-size:12px; font-weight:bold;">Nama PH:</label> 
-       <input type="text" id="mc_phName" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
-       
-       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Alamat PH:</label> 
-       <textarea id="mc_phAddress" rows="2" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
-       
-       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:8px;">
-           <div>
-               <label style="font-size:12px; font-weight:bold;">Sutradara:</label> 
-               <textarea id="mc_director" rows="2" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
-           </div>
-           <div>
-               <label style="font-size:12px; font-weight:bold;">Produser:</label> 
-               <textarea id="mc_producer" rows="2" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
-           </div>
-       </div>
-
-       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Nama 1st AD:</label> 
-       <input type="text" id="mc_ad" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
-
-       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Nama Line Producer:</label> 
-       <input type="text" id="mc_linepro" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
-
-       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Kontak 1st AD (WA):</label> 
-       <input type="text" id="mc_contactAD" placeholder="Contoh: Budi - 0812xxx" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
-
-       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Rumah Sakit Terdekat:</label> 
-       <textarea id="mc_hospital" rows="2" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
-       
-       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Info Parkir / Basecamp:</label> 
-       <textarea id="mc_parking" rows="2" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:inherit;"></textarea>
-       
-       <label style="font-size:12px; font-weight:bold; margin-top:8px;">Waktu Makan:</label> 
-       <input type="text" id="mc_meals" style="padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
-
-       <button class="btn-cast-gallery" onclick="saveMasterCallsheet()" style="justify-content:center; margin-top:16px; padding:12px; font-size:14px;">💾 Simpan Master Data</button>
-    </div>
-  </div>
-</div>  
-  
 function toggleWrapFromAllScenes(sceneNum, isWrappedView) {
     toggleWrap(sceneNum); 
     if (isWrappedView) openAllScenesPopup(true);
-    else { const isW = getWrappedScenes().includes(sceneNum); const btn = document.getElementById('allScenesWrapBtn-' + sceneNum); if(btn) { if(isW) { btn.classList.add('wrapped'); btn.innerHTML='Wrapped'; } else { btn.classList.remove('wrapped'); btn.innerHTML='Tandai Wrap'; } } }
 }
-
-function openSingleSceneCard(sceneNum) {
-    let targetScene = null; let targetDay = null; for (let key in shootDays) { let found = shootDays[key].scenes.find(s => s.scene === sceneNum); if (found) { targetScene = found; targetDay = shootDays[key]; break; } }
-    if (!targetScene) return; const isWrapped = getWrappedScenes().includes(targetScene.scene);
-    const mainHtml = parseCastIds(targetScene.main_cast).map(id => `<span class="cast-tag" onclick="openSingleCastPopup(${id}, false)">${id}. ${CAST_NAMES[id] || 'ID '+id}</span>`).join('');
-    const suppHtml = parseCastIds(targetScene.supporting).map(id => `<span class="cast-tag" style="background:var(--bg-card);" onclick="openSingleCastPopup(${id}, false)">${id}. ${CAST_NAMES[id] || 'ID '+id}</span>`).join('');
-    document.getElementById('singleSceneBody').innerHTML = `<div style="margin-bottom:16px; text-align:center;"><h3>Day ${targetDay.day} - ${targetDay.date}</h3></div><div class="scene-card ${isWrapped ? 'is-wrapped' : ''}" style="margin:0;"><div class="scene-header"><div class="scene-num">SC ${targetScene.scene}</div><div class="scene-set">📍 ${targetScene.set}</div></div><div class="scene-body"><div class="scene-desc">${targetScene.desc || ''}</div><div class="cast-section">${mainHtml} ${suppHtml}</div></div></div>`;
-    document.getElementById('singleScenePopup').classList.add('open');
-}
-
-function closeModal(e) { if (e.target===document.getElementById('modalOverlay')) closeModalDirect(); }
-function closePopup(id, e) { if (e.target===document.getElementById(id)) closePopupDirect(id); }
-function closeModalDirect() { document.getElementById('modalOverlay').classList.remove('open'); document.body.style.overflow=''; }
-function closePopupDirect(id) { document.getElementById(id).classList.remove('open'); if (document.querySelectorAll('.popup-overlay.open').length===0) document.body.style.overflow=''; }
 
 function openMasterCallsheetPopup() {
     const role = getCurrentRole();
     if (!role || (role.type !== 'ad' && role.type !== 'line_producer')) {
-        alert("Akses ditolak. Hanya AD atau LP yang bisa mengubah Master Data.");
+        alert("Akses ditolak. Hanya AD atau LP.");
         return;
     }
     
-    document.getElementById('mc_phName').value = CALLSHEET_MASTER.phName;
-    document.getElementById('mc_phAddress').value = CALLSHEET_MASTER.phAddress.replace(/<br>/g, '\n');
-    document.getElementById('mc_producer').value = CALLSHEET_MASTER.producer.replace(/<br>/g, '\n');
-    document.getElementById('mc_ad').value = CALLSHEET_MASTER.ad.replace(/<br>/g, '\n');
+    // Pastikan element ID ini ada di HTML (Langkah 1)
+    document.getElementById('mc_phName').value = CALLSHEET_MASTER.phName || "";
+    document.getElementById('mc_phAddress').value = (CALLSHEET_MASTER.phAddress || "").replace(/<br>/g, '\n');
+    document.getElementById('mc_producer').value = (CALLSHEET_MASTER.producer || "").replace(/<br>/g, '\n');
+    document.getElementById('mc_ad').value = (CALLSHEET_MASTER.ad || "").replace(/<br>/g, '\n');
     document.getElementById('mc_linepro').value = (CALLSHEET_MASTER.linepro || "").replace(/<br>/g, '\n');
-    document.getElementById('mc_director').value = CALLSHEET_MASTER.director.replace(/<br>/g, '\n');
-    
-    // AMBIL DATA KONTAK
+    document.getElementById('mc_director').value = (CALLSHEET_MASTER.director || "").replace(/<br>/g, '\n');
     document.getElementById('mc_contactAD').value = CALLSHEET_MASTER.contactAD || "";
-    document.getElementById('mc_contactLP').value = CALLSHEET_MASTER.contactLP || "";
-    document.getElementById('mc_contactCasting').value = CALLSHEET_MASTER.contactCasting || "";
-    document.getElementById('mc_contactTalent').value = CALLSHEET_MASTER.contactTalentCoord || "";
-
-    document.getElementById('mc_hospital').value = CALLSHEET_MASTER.hospital.replace(/<br>/g, '\n');
-    document.getElementById('mc_parking').value = CALLSHEET_MASTER.parking.replace(/<br>/g, '\n');
-    document.getElementById('mc_meals').value = CALLSHEET_MASTER.meals || "Breakfast: 06.00 | Lunch: 12.00 | Dinner: 18.00";
+    document.getElementById('mc_hospital').value = (CALLSHEET_MASTER.hospital || "").replace(/<br>/g, '\n');
+    document.getElementById('mc_parking').value = (CALLSHEET_MASTER.parking || "").replace(/<br>/g, '\n');
+    document.getElementById('mc_meals').value = CALLSHEET_MASTER.meals || "";
     document.getElementById('mc_rules').value = (CALLSHEET_MASTER.rules || "").replace(/<br>/g, '\n');
     
     document.getElementById('masterCallsheetPopup').classList.add('open');
@@ -1122,24 +1068,18 @@ function saveMasterCallsheet() {
         ad: document.getElementById('mc_ad').value.replace(/\n/g, '<br>'),
         linepro: document.getElementById('mc_linepro').value.replace(/\n/g, '<br>'),
         director: document.getElementById('mc_director').value.replace(/\n/g, '<br>'),
-        
-        // SIMPAN DATA KONTAK
         contactAD: document.getElementById('mc_contactAD').value,
-        contactLP: document.getElementById('mc_contactLP').value,
-        contactCasting: document.getElementById('mc_contactCasting').value,
-        contactTalentCoord: document.getElementById('mc_contactTalent').value,
-
         hospital: document.getElementById('mc_hospital').value.replace(/\n/g, '<br>'),
         parking: document.getElementById('mc_parking').value.replace(/\n/g, '<br>'),
         meals: document.getElementById('mc_meals').value,
         rules: document.getElementById('mc_rules').value.replace(/\n/g, '<br>')
     };
     syncRef.update({ callsheetMaster: JSON.stringify(newData) }).then(() => {
-        alert('Master Data berhasil disimpan! Data ini akan dipakai saat reset callsheet atau buka callsheet baru.');
+        alert('Data tersimpan!');
         closePopupDirect('masterCallsheetPopup');
     });
 }
-  
+
 initLogin();
 </script>
 </body>
