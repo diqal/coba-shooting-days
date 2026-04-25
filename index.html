@@ -555,6 +555,7 @@ function applyRoleAndClose(roleKey) {
       renderCalendar();
     }, 50);
   }
+     document.getElementById('loadingScreen').style.display = 'none';
 }
 
 function doLogout() {
@@ -616,8 +617,14 @@ function switchPhase(phase) {
   
 function initLogin() {
   const role = getCurrentRole();
-  if (role) applyRoleAndClose(role.type === 'ad' || role.type === 'line_producer' ? role.type : role.type === 'hod' ? role.dept : role.type === 'cast' ? 'cast' : 'crew');
-  else document.getElementById('loginOverlay').classList.remove('hidden');
+  if (role) {
+      applyRoleAndClose(role.type === 'ad' || role.type === 'line_producer' ? role.type : role.type === 'hod' ? role.dept : role.type === 'cast' ? 'cast' : 'crew');
+  } else {
+      // Munculkan layar login
+      document.getElementById('loginOverlay').classList.remove('hidden');
+      // PAKSA sembunyikan loading screen agar form login tidak ketutupan
+      document.getElementById('loadingScreen').style.display = 'none'; 
+  }
 }
 
 // =========================================================================
