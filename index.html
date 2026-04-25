@@ -243,7 +243,7 @@
     <div class="legend-bar">
         <button class="btn-cast-gallery" onclick="openCastGallery()">👥 Daftar Pemain</button>
         <button class="btn-cast-gallery" style="background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color);" onclick="openLocationGallery()">📍 Lokasi</button>
-        <button class="btn-cast-gallery" style="background: var(--success);" onclick="openDatabaseManager()">💾 Import Data Excel</button>
+        <button id="btnDatabaseManager" class="btn-cast-gallery" style="background: var(--success); display: none;" onclick="openDatabaseManager()">💾 Import Data Excel</button>
         <button class="btn-cast-gallery" style="background: var(--text-main); color: var(--bg-main);" onclick="toggleDarkMode()">🌙 Mode</button>
         <button class="btn-cast-gallery" style="background: #F59E0B; color: white;" onclick="gotoToday()">📅 Hari Ini</button>
     </div>
@@ -278,7 +278,7 @@
         <button class="v-btn active" id="vKanban" onclick="setPreProView('kanban')">📋 Kanban</button>
         <button class="v-btn" id="vTimeline" onclick="setPreProView('timeline')">⏳ Timeline</button>
         <button class="v-btn" id="vCalendar" onclick="setPreProView('calendar')">📅 Kalender</button>
-        <button class="v-btn" id="btnAddTask" onclick="openTemplateLibrary()">➕ Tambah Tugas</button>
+        <button class="v-btn" id="btnAddTask" style="display: none;" onclick="openTemplateLibrary()">➕ Tambah Tugas</button>
     </div>
     <div id="preproCalNav" style="display:none; justify-content:center; align-items:center; gap:20px; margin-bottom:20px;">
         <button class="month-btn" onclick="preproMonth--; if(preproMonth<0){preproMonth=11;preproYear--;} renderPrePro()">‹</button>
