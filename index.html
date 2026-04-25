@@ -464,7 +464,7 @@ function loginWithGoogle() {
     const user = result.user; const userEmail = user.email.toLowerCase(); 
     if (WHITELIST[userEmail]) {
       const roleData = WHITELIST[userEmail];
-      setCurrentRole(roleData);
+      setCurrentRole({...roleData, email: userEmail});
       let roleKey = roleData.type; if (roleData.type === 'hod') roleKey = roleData.dept;
       applyRoleAndClose(roleKey);
     } else {
@@ -490,7 +490,12 @@ function applyRoleAndClose(roleKey) {
   const labelMap = { ...ROLE_LABELS }; if (role.type === 'cast') labelMap.cast = '🌟 ' + role.castName;
   document.getElementById('roleBadgeText').textContent = labelMap[roleKey] || roleKey;
   
-  if (role.type === 'cast') {
+  if (canEditAdmin) {
+    const dbBtn = document.getElementById('btnDatabaseManager');
+    if (dbBtn) dbBtn.style.display = 'flex';
+    const fileBtn = document.getElementById('btnAddFile');
+    if (fileBtn) fileBtn.style.display = 'inline-block';
+  }
     setTimeout(() => {
       activeFilterCastId = role.castId; activeFilterLocation = null;
       document.getElementById('filterBanner').innerHTML = `Menampilkan jadwal untuk: <strong>${role.castName}</strong>`;
@@ -522,13 +527,13 @@ function initLogin() {
 // 5. NAVIGASI FASE (SYUTING, PRA-PRO, FILES)
 // =========================================================================
 function switchPhase(phase) {
+    const phaseIdMap = { shoot: 'Shoot', prepro: 'PrePro', files: 'Files' };
+    const key = phaseIdMap[phase] || (phase.charAt(0).toUpperCase() + phase.slice(1));
     currentPhase = phase;
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    
-    document.getElementById('btn' + phase.charAt(0).toUpperCase() + phase.slice(1)).classList.add('active');
-    document.getElementById('section' + phase.charAt(0).toUpperCase() + phase.slice(1)).classList.add('active');
-    
+    document.getElementById('btn' + key).classList.add('active');
+    document.getElementById('section' + key).classList.add('active');
     if(phase === 'shoot') renderCalendar();
     if(phase === 'prepro') renderPrePro();
     if(phase === 'files') renderFiles();
@@ -596,6 +601,8 @@ function renderPrePro() {
     const container = document.getElementById('preproContent');
     const role = getCurrentRole();
     const isAdmin = role && ['ad', 'line_producer', 'production_coordinator'].includes(role.type);
+    const addTaskBtn = document.getElementById('btnAddTask');
+    if (addTaskBtn) addTaskBtn.style.display = isAdmin ? 'inline-block' : 'none';
 
     if (preproView === 'kanban') {
         let html = `<div class="kanban-grid">`;
@@ -739,229 +746,438 @@ function renderFiles() {
 // =========================================================================
 // 10. HELPER & MODALS
 // =========================================================================
-function openCastGallery() { document.getElementById('castGalleryPopup').classList.add('open'); }
-function openLocationGallery() { document.getElementById('locationGalleryPopup').classList.add('open'); }
-function openDatabaseManager() { document.getElementById('databasePopup').classList.add('open'); }
-function openMasterCallsheetPopup() { document.getElementById('masterCallsheetPopup').classList.add('open'); }
+function showImgPopup(prefix, popupId, folder, n) {
+  const key = `img_${folder}_${n}`; const savedImg = IMAGE_CACHE[key]; 
+  document.getElementById(`${prefix}SceneNum`).textContent = n;
+  const deptKey = FOLDER_TO_DEPT[folder] || folder; const uploadAllowed = canUpload(deptKey);
+  let html = '';
+  if (savedImg) { html = `<img src="${savedImg}" style="width:100%; border-radius:8px;">${uploadAllowed ? `<button class="action-btn" style="width:100%; margin-top:16px; background:#dc2626; color:white; border:none;" onclick="deleteImage('${key}', '${prefix}', '${popupId}', '${folder}', '${n}')">🗑️ Hapus Gambar</button>` : ''}`; } 
+  else { html = `<div style="padding:40px; text-align:center; background:var(--bg-main); border-radius:8px; border:1px dashed var(--border-color);">${uploadAllowed ? `<p style="margin-bottom:16px; font-weight:600; color:var(--text-light);">📸 Gambar Belum Tersedia</p><input type="file" accept="image/*" id="${prefix}Upload" style="display:none;" onchange="handleImageUpload(event, '${key}', '${prefix}', '${popupId}', '${folder}', '${n}')"><label for="${prefix}Upload" class="action-btn" style="background:var(--primary); color:white; cursor:pointer; padding:10px 20px; border:none; display:inline-block;">➕ Upload Gambar</label>` : `<p style="font-size:30px; margin-bottom:12px;">📸</p><p style="font-weight:600; color:var(--text-light);">Gambar Belum Tersedia</p>`}</div>`; }
+  document.getElementById(`${prefix}Body`).innerHTML = html; document.getElementById(popupId).classList.add('open');
+}
+
+function handleImageUpload(e, key, prefix, popupId, folder, n) { const file = e.target.files[0]; if(!file) return; const reader = new FileReader(); document.getElementById(`${prefix}Body`).innerHTML = "Sedang mengupload..."; reader.onload = function(event) { const img = new Image(); img.onload = function() { const cvs = document.createElement('canvas'); const scale = Math.min(600 / img.width, 1); cvs.width = img.width * scale; cvs.height = img.height * scale; cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height); syncRef.child('images').child(key).set(cvs.toDataURL('image/jpeg', 0.6)).then(() => { showImgPopup(prefix, popupId, folder, n); }); }; img.src = event.target.result; }; reader.readAsDataURL(file); }
+function deleteImage(key, prefix, popupId, folder, n) { syncRef.child('images').child(key).remove().then(() => showImgPopup(prefix, popupId, folder, n)); }
+
+function openFloorplan(n) { showImgPopup('fp', 'floorplanPopup', 'photoboard', n); }
+function openLighting(n) { showImgPopup('lg', 'lightingPopup', 'lighting', n); }
+function openWardrobe(n) { showImgPopup('wm', 'wardrobePopup', 'wardrobe', n); }
+function openMakeup(n) { showImgPopup('mu', 'makeupPopup', 'make up', n); }
+function openProps(n) { showImgPopup('pr', 'propsPopup', 'props', n); }
+
+function getUniqueLocations() { const locs = {}; SCHEDULE_DATA.days.forEach(d => { d.scenes.forEach(s => { if (s.set) { const b = s.set.split('-')[0].trim(); if (!locs[b]) locs[b] = { name: b }; } }); }); return Object.values(locs); }
+function openLocationGallery() { const grid = document.getElementById('locationGrid'); let html = ''; getUniqueLocations().forEach(l => { html += `<div class="location-gallery-card" onclick="openSingleLocationPopup('${l.name.replace(/'/g, "\\'")}', true)"><div class="location-icon">📍</div><div class="location-name">${l.name}</div></div>`; }); grid.innerHTML = html; document.getElementById('locationGalleryPopup').classList.add('open'); document.body.style.overflow = 'hidden'; }
+
+function openSingleLocationPopup(rawSetName, isFullInfo = true) {
+  const setName = rawSetName.split('-')[0].trim(); currentViewLocName = setName; document.getElementById('singleLocName').textContent = setName;
+  const role = getCurrentRole(); const isLP_AD = role && (role.type === 'ad' || role.type === 'line_producer'); const slug = slugify(setName); const key = `img_logistic_${slug}`; const savedImg = IMAGE_CACHE[key];
+  let imgHtml = '';
+  if (savedImg) { imgHtml = `<img src="${savedImg}" style="width:100%; border-radius:8px; margin-bottom:16px;">${isLP_AD ? `<button class="action-btn" style="width:100%; background:#dc2626; color:white; margin-bottom:16px; border:none;" onclick="deleteLocationImage('${key}', '${encodeURIComponent(rawSetName)}')">Hapus Denah</button>` : ''}`; } 
+  else { imgHtml = `<div style="padding:30px; text-align:center; background:var(--bg-main); border-radius:8px; border:1px dashed var(--border-color); margin-bottom:16px;">${isLP_AD ? `<input type="file" accept="image/*" id="locUpload" style="display:none;" onchange="handleLocUpload(event, '${key}', '${encodeURIComponent(rawSetName)}')"><label for="locUpload" class="action-btn" style="background:var(--primary); color:white; cursor:pointer; padding:8px 16px; border:none;">➕ Upload Denah Logistik</label>` : `<p style="font-size:13px; color:var(--text-light);">📍 Denah belum tersedia</p>`}</div>`; }
+  document.getElementById('singleLocImgContainer').innerHTML = imgHtml;
+  if (!isFullInfo) { document.getElementById('btnFilterLoc').style.display = 'none'; document.getElementById('singleLocSchedule').style.display = 'none'; } 
+  else { document.getElementById('btnFilterLoc').style.display = 'flex'; document.getElementById('singleLocSchedule').style.display = 'block'; const workingDays = []; for (const [dateKey, d] of Object.entries(shootDays)) { if (d.scenes.some(s => s.set && String(s.set).toLowerCase().includes(String(setName).toLowerCase()))) workingDays.push({ key: dateKey, day: d.day }); } document.getElementById('singleLocDays').innerHTML = workingDays.map(w => `<button class="schedule-btn" onclick="closePopupDirect('singleLocationPopup');closePopupDirect('locationGalleryPopup');openModal('${w.key}')">Day ${w.day}</button>`).join(''); }
+  document.getElementById('singleLocationPopup').classList.add('open');
+}
+
+function handleLocUpload(e, key, rawSetNameEnc) { const file = e.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = function(event) { const img = new Image(); img.onload = function() { const cvs = document.createElement('canvas'); const scale = Math.min(800 / img.width, 1); cvs.width = img.width * scale; cvs.height = img.height * scale; cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height); syncRef.child('images').child(key).set(cvs.toDataURL('image/jpeg', 0.6)).then(() => { openSingleLocationPopup(decodeURIComponent(rawSetNameEnc), true); }); }; img.src = event.target.result; }; reader.readAsDataURL(file); }
+function deleteLocationImage(key, rawSetNameEnc) { syncRef.child('images').child(key).remove().then(() => openSingleLocationPopup(decodeURIComponent(rawSetNameEnc), true)); }
+
+function openDatabaseManager() {
+  const role = getCurrentRole();
+  if (!role || (role.type !== 'ad' && role.type !== 'line_producer')) { alert('Hanya AD dan Line Producer yang bisa melakukan Import Data Excel.'); return; }
+  document.getElementById('databasePopup').classList.add('open');
+}
+
+function importFromExcel() {
+    const text = document.getElementById('excelPasteArea').value;
+    if(!text.trim()) { alert('Kolom masih kosong!'); return; }
+    const rows = text.split('\n'); let successCount = 0; const months = ["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
+    const daysMap = {}; 
+    SCHEDULE_DATA.days.forEach(d => {
+        const realScenes = d.scenes.filter(s => s.desc !== "[Data Default Firebase...]");
+        if (realScenes.length > 0) { daysMap[d.day] = { day: d.day, date: d.date, wrap: d.wrap, scenes: [...realScenes] }; }
+    });
+    rows.forEach(row => {
+        const cols = row.split('\t'); if(cols.length < 5) return; 
+        let dayStr = cols[0].replace(/\D/g, ''); const dayNum = parseInt(dayStr); if(isNaN(dayNum) || dayNum <= 0) return;
+        let formattedDate = cols[1] ? cols[1].trim() : '';
+        if (formattedDate.includes('/') || formattedDate.includes('-')) {
+            let parts = formattedDate.split(/[\/\-]/);
+            if (parts.length === 3) { let d, m, y; if (parts[0].length === 4) { y = parts[0]; m = parts[1]; d = parts[2]; } else { d = parts[0]; m = parts[1]; y = parts[2]; } let monthIdx = parseInt(m) - 1; if (monthIdx >= 0 && monthIdx <= 11) { formattedDate = `${parseInt(d)} ${months[monthIdx]} ${y}`; } }
+        }
+        if(!daysMap[dayNum]) { daysMap[dayNum] = { day: dayNum, date: formattedDate, wrap: cols[2]||'', scenes: [] }; }
+        [cols[10]||'', cols[11]||''].forEach(castStr => {
+            let items = castStr.split(/[,;\n]/);
+            items.forEach(item => { item = item.trim(); let match = item.match(/^(\d+)[\.\-\s]+(.+)$/); if (match) { let id = parseInt(match[1]); let name = match[2].trim(); if (name && isNaN(name)) { CAST_NAMES[id] = name; } } });
+        });
+        const scNum = parseInt(cols[4])||0; const isExist = daysMap[dayNum].scenes.find(s => s.scene === scNum);
+        if(!isExist && scNum > 0) {
+            daysMap[dayNum].scenes.push({ time: cols[3]||'', scene: scNum, set: cols[5]||'', ie: cols[6]||'', dn: cols[7]||'', pages: cols[8]||'', desc: cols[9]||'', main_cast: cols[10]||'', supporting: cols[11]||'', extras: cols[12]||'' }); successCount++;
+        }
+    });
+
+    if(Object.keys(daysMap).length > 0 && successCount > 0) {
+        syncRef.update({ schedule: JSON.stringify({ days: Object.values(daysMap) }), castNames: JSON.stringify(CAST_NAMES) }).then(() => { alert(`BERHASIL! ${successCount} Scene ditambahkan.`); closePopupDirect('databasePopup'); });
+    } else alert('Format tidak valid atau scene sudah ada.');
+}
+
+function resetToDefaultData() { if(confirm('Yakin ingin mereset database?')) { syncRef.remove().then(() => alert('Database direset. Muat ulang halaman.')); } }
+
+function shareToWhatsApp() {
+    if (!currentCallsheetDateKey) { alert("Buka callsheet terlebih dahulu."); return; }
+    const sd = shootDays[currentCallsheetDateKey]; if (!sd) return;
+    let text = `*DAILY CALLSHEET - ${sd.date}*\nDay ${sd.day} of ${SCHEDULE_DATA.days.length}\n\n`;
+    let firstTime = "TBA"; if (sd.scenes.length > 0 && sd.scenes[0].time) { firstTime = subtractMinutes(sd.scenes[0].time.split('-')[0].trim(), 60); }
+    text += `*General Call:* ${firstTime}\n*Location:* ${sd.scenes.length > 0 ? sd.scenes[0].set : 'TBA'}\n\n*Scenes:* `;
+    sd.scenes.forEach(s => text += `${s.scene}, `);
+    window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
+}
+
+function openMasterCallsheetPopup() {
+    document.getElementById('mc_phName').value = CALLSHEET_MASTER.phName || "";
+    document.getElementById('mc_phAddress').value = (CALLSHEET_MASTER.phAddress || "").replace(/<br>/g, '\n');
+    document.getElementById('mc_producer').value = (CALLSHEET_MASTER.producer || "").replace(/<br>/g, '\n');
+    document.getElementById('mc_ad').value = (CALLSHEET_MASTER.ad || "").replace(/<br>/g, '\n');
+    document.getElementById('mc_linepro').value = (CALLSHEET_MASTER.linepro || "").replace(/<br>/g, '\n');
+    document.getElementById('mc_director').value = (CALLSHEET_MASTER.director || "").replace(/<br>/g, '\n');
+    document.getElementById('mc_hospital').value = (CALLSHEET_MASTER.hospital || "").replace(/<br>/g, '\n');
+    document.getElementById('mc_parking').value = (CALLSHEET_MASTER.parking || "").replace(/<br>/g, '\n');
+    document.getElementById('mc_meals').value = CALLSHEET_MASTER.meals || "Breakfast: 06.00 | Lunch: 12.00 | Dinner: 18.00";
+    document.getElementById('mc_rules').value = (CALLSHEET_MASTER.rules || "").replace(/<br>/g, '\n');
+    document.getElementById('masterCallsheetPopup').classList.add('open');
+}
+
+function saveMasterCallsheet() {
+    const newData = {
+        phName: document.getElementById('mc_phName').value,
+        phAddress: document.getElementById('mc_phAddress').value.replace(/\n/g, '<br>'),
+        producer: document.getElementById('mc_producer').value.replace(/\n/g, '<br>'),
+        ad: document.getElementById('mc_ad').value.replace(/\n/g, '<br>'),
+        linepro: document.getElementById('mc_linepro').value.replace(/\n/g, '<br>'),
+        director: document.getElementById('mc_director').value.replace(/\n/g, '<br>'),
+        hospital: document.getElementById('mc_hospital').value.replace(/\n/g, '<br>'),
+        parking: document.getElementById('mc_parking').value.replace(/\n/g, '<br>'),
+        meals: document.getElementById('mc_meals').value,
+        rules: document.getElementById('mc_rules').value.replace(/\n/g, '<br>')
+    };
+    syncRef.update({ callsheetMaster: JSON.stringify(newData) }).then(() => {
+        alert('Master Data berhasil disimpan!'); closePopupDirect('masterCallsheetPopup');
+    });
+}
+
+function closeModal(e) { if (e && e.target===document.getElementById('modalOverlay')) closeModalDirect(); }
+function closePopup(id, e) { if (e && e.target===document.getElementById(id)) closePopupDirect(id); }
+function closeModalDirect() { document.getElementById('modalOverlay').classList.remove('open'); document.body.style.overflow=''; }
+function closePopupDirect(id) { document.getElementById(id).classList.remove('open'); if (document.querySelectorAll('.popup-overlay.open').length===0) document.body.style.overflow=''; }
+function showGeneralModal(html) { document.getElementById('generalModalContent').innerHTML = html; document.getElementById('generalModalOverlay').style.display = 'flex'; }
+function closeGeneralModal() { document.getElementById('generalModalOverlay').style.display = 'none'; }
+
+// =========================================================================
+// HELPER FUNCTIONS (MISSING)
+// =========================================================================
+function parseCastIds(str) {
+    if (!str) return [];
+    return String(str).split(/[,;\s]+/).map(x => parseInt(x.trim())).filter(n => !isNaN(n) && n > 0);
+}
+
+function slugify(str) {
+    return (str || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+}
+
+function subtractMinutes(timeStr, mins) {
+    if (!timeStr) return 'TBA';
+    const parts = timeStr.replace('.', ':').split(':');
+    if (parts.length < 2) return timeStr;
+    let h = parseInt(parts[0]), m = parseInt(parts[1]);
+    const total = h * 60 + m - mins;
+    const newH = Math.floor(((total % 1440) + 1440) % 1440 / 60);
+    const newM = ((total % 60) + 60) % 60;
+    return `${String(newH).padStart(2,'0')}.${String(newM).padStart(2,'0')}`;
+}
 
 function saveHeaderData() {
     const role = getCurrentRole();
-    if(role && (role.type === 'ad' || role.type === 'line_producer')) {
-        syncRef.update({
-            headerTitle: document.getElementById('headerTitle').innerText,
-            headerSub: document.getElementById('headerSub').innerText,
-            headerDate: document.getElementById('headerDate').innerText
-        });
-    }
+    if (!role || (role.type !== 'ad' && role.type !== 'line_producer')) return;
+    syncRef.update({
+        headerTitle: document.getElementById('headerTitle').innerText,
+        headerSub: document.getElementById('headerSub').innerText,
+        headerDate: document.getElementById('headerDate').innerText
+    });
 }
 
-function shareToWhatsApp() {
-    if (!currentCallsheetDateKey) {
-        alert("Buka callsheet terlebih dahulu untuk membagikannya.");
-        return;
-    }
-    const sd = shootDays[currentCallsheetDateKey];
-    if (!sd) return;
-    let text = `*DAILY CALLSHEET - ${sd.date}*\n`;
-    text += `Day ${sd.day} of ${SCHEDULE_DATA.days.length}\n\n`;
-    let firstTime = "TBA";
-    if (sd.scenes.length > 0 && sd.scenes[0].time) {
-        firstTime = subtractMinutes(sd.scenes[0].time.split('-')[0].trim(), 60);
-    }
-    text += `*General Call:* ${firstTime}\n`;
-    text += `*Location:* ${sd.scenes.length > 0 ? sd.scenes[0].set : 'TBA'}\n\n`;
-    text += `*Scenes:* `;
-    sd.scenes.forEach(s => text += `${s.scene}, `);
-    const url = "https://wa.me/?text=" + encodeURIComponent(text);
-    window.open(url, '_blank');
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
 }
+
+// =========================================================================
+// KALENDER – openModal & wrap scene
+// =========================================================================
+let currentCallsheetDateKey = null;
 
 function openModal(dateKey) {
-  const sd = shootDays[dateKey]; if (!sd) return;
-  const parts = dateKey.split('-'); if (parts.length===3) { curYear=parseInt(parts[0]); curMonth=parseInt(parts[1])-1; renderCalendar(); }
-  document.getElementById('modalDayTitle').textContent = `Hari Syuting ${sd.day}`;
-  document.getElementById('btnOpenCallsheet').onclick = function() { openCallsheet(dateKey); };
-  let crewCallCalc = "TBA"; if (sd.scenes.length > 0 && sd.scenes[0].time) crewCallCalc = subtractMinutes(sd.scenes[0].time.split('-')[0].trim(), 90);
+    const sd = shootDays[dateKey];
+    if (!sd) return;
+    currentCallsheetDateKey = dateKey;
 
-  const role = getCurrentRole(); 
-  const isCastView = role && role.type === 'cast';
-  let scenesToShow = sd.scenes; 
+    document.getElementById('modalDayTitle').textContent = `Day ${sd.day} of ${SCHEDULE_DATA.days.length}`;
+    document.getElementById('modalDateSub').textContent = sd.date;
 
-  if (isCastView) {
-    scenesToShow = sd.scenes.filter(scene => {
-      const castList = [...parseCastIds(scene.main_cast), ...parseCastIds(scene.supporting)];
-      return castList.includes(role.castId);
+    const allCastIds = [...new Set(sd.scenes.flatMap(s => [...parseCastIds(s.main_cast), ...parseCastIds(s.supporting)]))];
+    document.getElementById('modalCrew').innerHTML = allCastIds.map(id =>
+        `<div class="crew-chip">${CAST_NAMES[id] || 'Cast #' + id}</div>`).join('');
+
+    let html = '';
+    sd.scenes.forEach(s => {
+        const wrapKey = `${sd.day}_${s.scene}`;
+        const isWrapped = getWrappedScenes().includes(wrapKey);
+        const mainIds = parseCastIds(s.main_cast);
+        const suppIds = parseCastIds(s.supporting);
+        html += `<div class="scene-card${isWrapped ? ' is-wrapped' : ''}">
+            <div class="scene-header">
+                <div class="scene-header-top">
+                    <div class="scene-header-left">
+                        <div class="scene-num">SC ${s.scene}</div>
+                        <div class="scene-time">🕐 ${s.time || 'TBA'}</div>
+                    </div>
+                    <div class="scene-tags">
+                        <span class="tag tag-${s.ie || 'I'}">${s.ie || 'I'}</span>
+                        <span class="tag tag-${s.dn || 'D'}">${s.dn || 'D'}</span>
+                    </div>
+                </div>
+                <div class="scene-set">📍 ${s.set || '-'} ${s.pages ? `<span style="font-size:12px;color:var(--text-light);">(${s.pages} pgs)</span>` : ''}</div>
+            </div>
+            <div class="scene-body">
+                <div class="scene-desc">${s.desc || '-'}</div>
+                ${mainIds.length ? `<div class="cast-section"><span class="cast-group-label">Main Cast</span>${mainIds.map(id => `<span class="cast-tag" onclick="openSingleCastPopup(${id})">${id}. ${CAST_NAMES[id] || 'Cast #' + id}</span>`).join('')}</div>` : ''}
+                ${suppIds.length ? `<div class="cast-section"><span class="cast-group-label">Supporting</span>${suppIds.map(id => `<span class="cast-tag" onclick="openSingleCastPopup(${id})">${id}. ${CAST_NAMES[id] || 'Cast #' + id}</span>`).join('')}</div>` : ''}
+                ${s.extras ? `<div class="cast-section"><span class="cast-group-label">Extras</span><span class="cast-tag">${s.extras}</span></div>` : ''}
+            </div>
+            <div class="scene-actions">
+                <button class="action-btn" onclick="openFloorplan(${s.scene})">📸 Photoboard</button>
+                <button class="action-btn" onclick="openWardrobe(${s.scene})">👗 Wardrobe</button>
+                <button class="action-btn" onclick="openMakeup(${s.scene})">💄 MU</button>
+                <button class="action-btn" onclick="openProps(${s.scene})">🎭 Props</button>
+                <button class="action-btn" onclick="openLighting(${s.scene})">💡 Lighting</button>
+                <button class="action-btn btn-wrap ${isWrapped ? 'wrapped' : ''}" onclick="toggleWrapScene('${wrapKey}', this)">
+                    ${isWrapped ? '✓ Wrapped' : 'Wrap Scene'}
+                </button>
+            </div>
+        </div>`;
     });
-    if (scenesToShow.length === 0) { alert(`Kamu tidak ada di jadwal hari syuting ${sd.day}.`); return; }
-  }
 
-  document.getElementById('modalDateSub').textContent = sd.date + (isCastView ? ` — ${scenesToShow.length} Scene Kamu` : ` — ${sd.scenes.length} Scenes`);
-  document.getElementById('modalCrew').innerHTML = `<div class="crew-chip">Crew Call: ${crewCallCalc}</div><div class="crew-chip">${sd.wrap || 'Wrap TBA'}</div>`;
-  document.getElementById('btnOpenCallsheet').style.display = isCastView ? 'none' : '';
-  
-  let html = ''; const ws = getWrappedScenes();
-  
-  if (isCastView) {
-    html += `
-      <div class="contact-card" style="background:var(--bg-main); padding:15px; border-radius:8px; margin-bottom:15px;">
-        <h4 style="margin-bottom:12px; font-size:14px; color:var(--text-main);">📞 Kontak Penting Produksi</h4>
-        <div style="font-size:13px; margin-bottom:5px;"><strong>1st AD:</strong> ${CALLSHEET_MASTER.contactAD || '-'}</div>
-        <div style="font-size:13px; margin-bottom:5px;"><strong>Line Producer:</strong> ${CALLSHEET_MASTER.contactLP || '-'}</div>
-      </div>
-      <div style="margin-top: 20px; margin-bottom: 10px; font-weight: bold; font-size: 14px;">🎬 Scene Kamu Hari Ini:</div>
-    `;
-  }
-
-  scenesToShow.forEach(scene => {
-    const isWrapped = ws.includes(scene.scene);
-    const mainHtml = parseCastIds(scene.main_cast).map(id=>`<span class="cast-tag" onclick="openSingleCastPopup(${id}, false)">${id}. ${CAST_NAMES[id]||'ID '+id}</span>`).join('');
-    const suppHtml = parseCastIds(scene.supporting).map(id=>`<span class="cast-tag" style="background:var(--bg-card);" onclick="openSingleCastPopup(${id}, false)">${id}. ${CAST_NAMES[id]||'ID '+id}</span>`).join('');
-    const extraHtml = (scene.extras && scene.extras.trim()) ? `<span class="cast-tag" style="background:transparent; border-style:dashed;">${scene.extras.split('\n')[0].trim()}</span>` : '';
-    html += `
-      <div class="scene-card ${isWrapped?'is-wrapped':''}" id="sceneCard-${scene.scene}">
-        <div class="scene-header">
-          <div class="scene-header-top">
-            <div class="scene-header-left"><div class="scene-num">SC ${scene.scene}</div></div>
-            ${scene.time ? `<div class="scene-time">🕒 ${scene.time}</div>` : ''}
-          </div><div class="scene-set">📍 ${scene.set}</div>
-        </div>
-        <div class="scene-body">
-          ${scene.desc ? `<div class="scene-desc">${scene.desc}</div>` : ''}
-          <div class="cast-section">${mainHtml||suppHtml||extraHtml ? `<div>${mainHtml}${suppHtml}${extraHtml}</div>` : ''}</div>
-        </div>
-        ${isCastView ? '' : `<div class="scene-actions">
-          <button class="action-btn" onclick="openFloorplan(${scene.scene})">Photoboard</button>
-          ${role && role.type === 'ad' ? `<button class="action-btn btn-wrap ${isWrapped?'wrapped':''}" id="wrapBtn-${scene.scene}" onclick="toggleWrap(${scene.scene})">${isWrapped?'Wrapped':'Tandai Selesai'}</button>` : `<span style="font-size:12px; font-weight:bold; color:${isWrapped ? 'var(--success)' : 'var(--text-light)'}; padding: 8px;">${isWrapped ? '✅ Wrapped' : '⏳ Belum Selesai'}</span>`}
-        </div>`}
-      </div>`;
-  });
-  document.getElementById('modalBody').innerHTML = html; document.getElementById('modalOverlay').classList.add('open'); document.body.style.overflow = 'hidden';
+    document.getElementById('modalBody').innerHTML = html;
+    document.getElementById('btnOpenCallsheet').onclick = () => { closeModalDirect(); openCallsheet(dateKey); };
+    document.getElementById('modalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
 }
 
-let currentCallsheetDateKey = null;
-let callsheetSaveTimeout;
+function toggleWrapScene(wrapKey, btn) {
+    let list = getWrappedScenes();
+    const card = btn.closest('.scene-card');
+    if (list.includes(wrapKey)) {
+        list = list.filter(x => x !== wrapKey);
+        btn.textContent = 'Wrap Scene';
+        btn.classList.remove('wrapped');
+        if (card) card.classList.remove('is-wrapped');
+    } else {
+        list.push(wrapKey);
+        btn.textContent = '✓ Wrapped';
+        btn.classList.add('wrapped');
+        if (card) card.classList.add('is-wrapped');
+    }
+    syncRef.update({ wrappedScenes: JSON.stringify(list) });
+}
 
+// =========================================================================
+// CALLSHEET
+// =========================================================================
 function openCallsheet(dateKey) {
-  currentCallsheetDateKey = dateKey;
-  const role = getCurrentRole();
-  const canEditAdmin = role && (role.type === 'ad' || role.type === 'line_producer');
-  
-  const applyCallsheetSecurity = () => {
-      document.querySelectorAll('#callsheetBody [contenteditable]').forEach(el => el.setAttribute('contenteditable', canEditAdmin));
-      const btnReset = document.getElementById('btnResetCallsheet');
-      if (btnReset) btnReset.style.display = canEditAdmin ? 'inline-block' : 'none';
-      const btnMaster = document.getElementById('btnMasterSettings');
-      if (btnMaster) btnMaster.style.display = canEditAdmin ? 'inline-block' : 'none';
-  };
+    const sd = shootDays[dateKey];
+    if (!sd) return;
+    currentCallsheetDateKey = dateKey;
 
-  db.ref('production_data/callsheets/' + dateKey).once('value').then(snapshot => {
-      const savedHtml = snapshot.val();
-      if (savedHtml) {
-          document.getElementById('callsheetBody').innerHTML = savedHtml;
-          applyCallsheetSecurity();
-          closeModalDirect(); document.getElementById('callsheetPopup').classList.add('open');
-          attachCallsheetListener(dateKey);
-      } else {
-          generateCallsheetTemplate(dateKey); 
-      }
-  });
-}
+    const m = CALLSHEET_MASTER;
+    let firstCallTime = 'TBA';
+    if (sd.scenes.length > 0 && sd.scenes[0].time) {
+        firstCallTime = subtractMinutes(sd.scenes[0].time.split('-')[0].trim(), 60);
+    }
 
-function generateCallsheetTemplate(dateKey) {
-  const sd = shootDays[dateKey]; if (!sd) return;
-  const sortedKeys = Object.keys(shootDays).sort();
-  const curIdx = sortedKeys.indexOf(dateKey);
-  const nextKey = (curIdx !== -1 && curIdx + 1 < sortedKeys.length) ? sortedKeys[curIdx + 1] : null;
-  const nextDay = nextKey ? shootDays[nextKey] : null;
+    const scenesHtml = sd.scenes.map(s => {
+        const mainNames = parseCastIds(s.main_cast).map(id => `${id}. ${CAST_NAMES[id] || '?'}`).join(', ');
+        const suppNames = parseCastIds(s.supporting).map(id => `${id}. ${CAST_NAMES[id] || '?'}`).join(', ');
+        return `<tr>
+            <td style="font-weight:bold;">SC ${s.scene}</td>
+            <td>${s.time || '-'}</td>
+            <td>${s.set || '-'}</td>
+            <td>${s.ie || ''}/${s.dn || ''}</td>
+            <td>${s.pages || '-'}</td>
+            <td>${mainNames || '-'}</td>
+            <td>${suppNames || '-'}</td>
+            <td>${s.extras || '-'}</td>
+        </tr>`;
+    }).join('');
 
-  let firstShot = "8:00am"; let crewCall = "7:00am";
-  if (sd.scenes.length > 0 && sd.scenes[0].time) {
-      firstShot = sd.scenes[0].time.split('-')[0].trim();
-      crewCall = subtractMinutes(firstShot, 60);
-  }
+    const html = `
+        <div style="text-align:center; border-bottom:2px solid #374151; padding-bottom:14px; margin-bottom:14px;">
+            <div style="font-size:20px; font-weight:900; text-transform:uppercase;">${m.phName || 'Production House'}</div>
+            <div style="font-size:12px;">${(m.phAddress || '').replace(/<br>/g, ' | ')}</div>
+        </div>
+        <table><tr style="background:#f1f5f9;">
+            <td colspan="4"><strong>DAILY CALLSHEET – ${sd.date}</strong></td>
+        </tr><tr>
+            <td><strong>Hari Syuting:</strong> Day ${sd.day} of ${SCHEDULE_DATA.days.length}</td>
+            <td><strong>General Call:</strong> ${firstCallTime}</td>
+            <td><strong>Wrap:</strong> ${sd.wrap || 'TBA'}</td>
+            <td><strong>Unit:</strong> Main Unit</td>
+        </tr><tr>
+            <td><strong>Sutradara:</strong><br>${(m.director || '-').replace(/<br>/g, '<br>')}</td>
+            <td><strong>Produser:</strong><br>${(m.producer || '-').replace(/<br>/g, '<br>')}</td>
+            <td><strong>1st AD:</strong><br>${(m.ad || '-').replace(/<br>/g, '<br>')}</td>
+            <td><strong>Line Producer:</strong><br>${(m.linepro || '-').replace(/<br>/g, '<br>')}</td>
+        </tr></table>
+        <table style="margin-top:12px;">
+            <tr><th>Scene</th><th>Jam</th><th>Lokasi</th><th>I/E D/N</th><th>Hlm</th><th>Main Cast</th><th>Supporting</th><th>Extras</th></tr>
+            ${scenesHtml}
+        </table>
+        <table style="margin-top:12px;"><tr>
+            <td><strong>RS Terdekat:</strong><br>${(m.hospital || '-').replace(/<br>/g, '<br>')}</td>
+            <td><strong>Parkir:</strong><br>${(m.parking || '-').replace(/<br>/g, '<br>')}</td>
+        </tr><tr>
+            <td colspan="2"><strong>Konsumsi:</strong> ${m.meals || '-'}</td>
+        </tr><tr>
+            <td colspan="2"><strong>Peraturan:</strong> ${(m.rules || '-').replace(/<br>/g, '<br>')}</td>
+        </tr></table>`;
 
-  let castFirstApp = {};
-  sd.scenes.forEach(scene => {
-      const start = scene.time ? scene.time.split('-')[0].trim() : null; if (!start) return;
-      [...parseCastIds(scene.main_cast), ...parseCastIds(scene.supporting)].forEach(id => {
-          if (!castFirstApp[id]) castFirstApp[id] = start;
-      });
-  });
-  let castCallTimes = [];
-  Object.keys(castFirstApp).forEach(idStr => {
-      const id = parseInt(idStr); const start = castFirstApp[id];
-      castCallTimes.push({ id, name: CAST_NAMES[id] || 'ID ' + id, actor: ACTOR_NAMES[id] || '-', call: subtractMinutes(start, 60), ready: start });
-  });
-  castCallTimes.sort((a, b) => a.call.localeCompare(b.call));
-
-  const projTitle = document.getElementById('headerTitle').innerText || 'JUDUL PROYEK';
-
-  let scheduleHtml = ''; let prevLoc = null;
-  sd.scenes.forEach(s => {
-      const currentLoc = s.set ? s.set.split('-')[0].trim() : 'TBA';
-      if (prevLoc && currentLoc !== prevLoc) {
-          scheduleHtml += `<tr contenteditable="true" style="background:#f1f5f9; font-weight:bold;"><td style="text-align:center;">${s.time || 'TBA'}</td><td colspan="2" style="text-align:right;">Move to:</td><td colspan="5" style="color:var(--primary);">${currentLoc} ([Tulis Alamat Lengkap / Pindah Posisi Di Sini])</td></tr>`;
-      }
-      prevLoc = currentLoc;
-      scheduleHtml += `<tr contenteditable="true"><td style="text-align:center; font-weight:bold;">${s.time || 'TBA'}</td><td style="text-align:center;">${s.scene}</td><td><strong>${s.set || 'TBA'}</strong><br>${s.desc || ''}</td><td style="text-align:center;">${s.dn}</td><td style="text-align:center;">${[...parseCastIds(s.main_cast), ...parseCastIds(s.supporting)].join(', ')}</td><td>${currentLoc}</td><td style="text-align:center;">${s.pages || '-'}</td><td style="text-align:center;">1h 0m</td></tr>`;
-  });
-
-  let advanceHtml = '';
-  if (nextDay) {
-      nextDay.scenes.forEach(s => {
-          const currentLoc = s.set ? s.set.split('-')[0].trim() : 'TBA';
-          advanceHtml += `<tr contenteditable="true"><td style="text-align:center; font-weight:bold;">${s.time || 'TBA'}</td><td style="text-align:center;">${s.scene}</td><td><strong>${s.set || 'TBA'}</strong><br>${s.desc || ''}</td><td style="text-align:center;">${s.dn}</td><td style="text-align:center;">${[...parseCastIds(s.main_cast), ...parseCastIds(s.supporting)].join(', ')}</td><td>${currentLoc}</td><td style="text-align:center;">${s.pages || '-'}</td><td style="text-align:center;">-</td></tr>`;
-      });
-  } else {
-      advanceHtml = `<tr contenteditable="true"><td colspan="8" style="text-align:center; color:#9ca3af; padding: 12px;">No advance schedule available / Isi Manual</td></tr>`;
-  }
-
-  let html = `
-    <div style="display:flex; justify-content:space-between; border-bottom:2px solid black; padding-bottom:12px; margin-bottom:16px;">
-        <div style="width:33%; font-size:10px; line-height:1.4;"><h2 contenteditable="true" style="margin:0; font-size:16px;">${CALLSHEET_MASTER.phName}</h2><div contenteditable="true">${CALLSHEET_MASTER.phAddress}</div></div>
-        <div style="width:34%; text-align:center;"><h1 contenteditable="true" style="margin:0; font-size:18px; text-transform:uppercase;">${projTitle}: Day ${sd.day}</h1><div contenteditable="true" style="font-weight:bold; font-size:12px; margin-top:4px;">DAY ${sd.day} OF ${SCHEDULE_DATA.days.length}</div><div contenteditable="true" style="font-size:12px;">${sd.date}</div></div>
-        <div style="width:33%; text-align:right; font-size:10px; line-height:1.4;"><div contenteditable="true">Weather: [Suhu/Cuaca]</div><div contenteditable="true">Sunrise [Waktu] Sunset [Waktu]</div></div>
-    </div>
-    <table><tr><th>Producer</th><th>1st AD</th><th>LP</th><th>Director</th></tr><tr contenteditable="true"><td>${CALLSHEET_MASTER.producer}</td><td>${CALLSHEET_MASTER.ad}</td><td>${CALLSHEET_MASTER.linepro}</td><td>${CALLSHEET_MASTER.director}</td></tr></table>
-    <div style="display:flex; gap:12px; margin-bottom:12px;">
-        <div style="flex: 2;"><table><tr><th colspan="2">Locations & Parking</th></tr><tr contenteditable="true"><td style="font-weight:bold; width: 30%; border-right:none;">General Call Time:<br><span style="font-size:14px; color:var(--primary);">${crewCall}</span></td><td style="border-left:none;">${CALLSHEET_MASTER.parking}</td></tr></table></div>
-        <div style="flex: 1.5;"><table><tr><th style="background:#fee2e2; color:#991b1b;">Nearest Hospital</th></tr><tr contenteditable="true"><td><strong>${CALLSHEET_MASTER.hospital}</strong></td></tr></table></div>
-    </div>
-    <div style="font-size:12px; font-weight:bold; margin-bottom:6px; text-transform:uppercase;">Schedule – Day ${sd.day}</div>
-    <table><tr><th style="width: 8%; text-align:center;">START</th><th style="width: 5%; text-align:center;">SC</th><th style="width: 38%;">DESCRIPTION</th><th style="width: 5%; text-align:center;">D/N</th><th style="width: 10%; text-align:center;">CAST</th><th style="width: 20%;">LOCATION</th><th style="width: 6%; text-align:center;">PAGES</th><th style="width: 8%; text-align:center;">EST (H)</th></tr>${scheduleHtml}</table>
-    <div style="font-size:12px; font-weight:bold; margin-bottom:6px; text-transform:uppercase; margin-top: 16px;">Talent</div>
-    <table><tr><th style="width:5%; text-align:center;">ID</th><th style="width:30%;">NAME</th><th style="width:20%;">ROLE</th><th style="width:10%; text-align:center;">STATUS</th><th style="width:10%; text-align:center;">PICKUP</th><th style="width:12%; text-align:center;">CALL</th><th style="width:13%; text-align:center;">H/MU</th></tr>
-        ${castCallTimes.map(c => `<tr contenteditable="true"><td style="text-align:center; font-weight:bold;">${c.id}</td><td><strong>${c.actor}</strong></td><td>"${c.name}"</td><td style="text-align:center;">SWF</td><td style="text-align:center;">-</td><td style="text-align:center; font-weight:bold;">${c.call}</td><td style="text-align:center;">${c.ready}</td></tr>`).join('')}
-    </table>
-    <div style="font-size:12px; font-weight:bold; margin-bottom:6px; text-transform:uppercase; margin-top: 16px;">Advance Schedule – ${nextDay ? 'Day ' + nextDay.day + ' (' + nextDay.date + ')' : 'Next Day'}</div>
-    <table><tr><th style="width: 8%; text-align:center;">START</th><th style="width: 5%; text-align:center;">SC</th><th style="width: 38%;">DESCRIPTION</th><th style="width: 5%; text-align:center;">D/N</th><th style="width: 10%; text-align:center;">CAST</th><th style="width: 20%;">LOCATION</th><th style="width: 6%; text-align:center;">PAGES</th><th style="width: 8%; text-align:center;">EST (H)</th></tr>${advanceHtml}</table>
-  `;
-  
-  document.getElementById('callsheetBody').innerHTML = html;
-  
-  const role = getCurrentRole(); const canEditAdmin = role && (role.type === 'ad' || role.type === 'line_producer');
-  document.querySelectorAll('#callsheetBody [contenteditable]').forEach(el => el.setAttribute('contenteditable', canEditAdmin));
-  
-  closeModalDirect(); document.getElementById('callsheetPopup').classList.add('open');
-  attachCallsheetListener(dateKey);
-}
-
-function attachCallsheetListener(dateKey) { 
-    setTimeout(() => { 
-        const body = document.getElementById('callsheetBody'); 
-        body.oninput = function() { 
-            clearTimeout(callsheetSaveTimeout);
-            callsheetSaveTimeout = setTimeout(() => { db.ref('production_data/callsheets/' + dateKey).set(body.innerHTML); }, 1000);
-        }; 
-    }, 100); 
+    const role = getCurrentRole();
+    const isAdmin = role && (role.type === 'ad' || role.type === 'line_producer');
+    document.getElementById('btnMasterSettings').style.display = isAdmin ? 'inline-block' : 'none';
+    document.getElementById('btnResetCallsheet').style.display = isAdmin ? 'inline-block' : 'none';
+    document.getElementById('callsheetBody').innerHTML = html;
+    document.getElementById('callsheetPopup').classList.add('open');
+    document.body.style.overflow = 'hidden';
 }
 
 function resetCallsheetHandler() {
-    if(currentCallsheetDateKey && confirm('Yakin reset Callsheet hari ini? Editan akan hilang.')) {
-        db.ref('production_data/callsheets/' + currentCallsheetDateKey).remove().then(() => {
-            closePopupDirect('callsheetPopup'); alert("Callsheet dihapus. Buka lagi untuk memuat ulang template asli.");
-        });
+    if (!currentCallsheetDateKey) return;
+    if (confirm('Reset tampilan callsheet hari ini?')) openCallsheet(currentCallsheetDateKey);
+}
+
+// =========================================================================
+// CAST GALLERY
+// =========================================================================
+function openCastGallery() {
+    const grid = document.getElementById('castGrid');
+    let html = '';
+    Object.entries(CAST_NAMES).forEach(([id, name]) => {
+        const imgKey = `img_cast_${id}`;
+        const imgSrc = IMAGE_CACHE[imgKey] || '';
+        const isWrapped = getWrappedCasts().includes(parseInt(id));
+        html += `<div class="cast-gallery-card" onclick="openSingleCastPopup(${id})">
+            ${isWrapped ? '<span class="cast-wrap-badge">✓ WRAP</span>' : ''}
+            <img class="cast-gallery-img" src="${imgSrc || 'https://placehold.co/80x80/e2e8f0/94a3b8?text=' + encodeURIComponent(name.charAt(0))}" onerror="this.src='https://placehold.co/80x80/e2e8f0/94a3b8?text=${encodeURIComponent(name.charAt(0))}'">
+            <span class="cast-gallery-id">Cast #${id}</span>
+            <div class="cast-gallery-name">${name}</div>
+            ${ACTOR_NAMES[id] ? `<div class="cast-actor-name">${ACTOR_NAMES[id]}</div>` : ''}
+        </div>`;
+    });
+    grid.innerHTML = html || '<p style="color:var(--text-light);padding:20px;">Belum ada data pemain.</p>';
+    document.getElementById('castGalleryPopup').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function openSingleCastPopup(castId) {
+    currentViewCastId = castId;
+    const name = CAST_NAMES[castId] || 'Cast #' + castId;
+    const actor = ACTOR_NAMES[castId] || '';
+    const imgKey = `img_cast_${castId}`;
+    const imgSrc = IMAGE_CACHE[imgKey] || '';
+    const isWrapped = getWrappedCasts().includes(parseInt(castId));
+
+    document.getElementById('singleCastImg').src = imgSrc || `https://placehold.co/120x120/e2e8f0/94a3b8?text=${encodeURIComponent(name.charAt(0))}`;
+    document.getElementById('singleCastName').textContent = name;
+    document.getElementById('singleCastActor').textContent = actor;
+    document.getElementById('singleCastId').textContent = `Cast #${castId}`;
+
+    const wrapBtn = document.getElementById('btnCastWrap');
+    wrapBtn.textContent = isWrapped ? '✓ Sudah Wrap' : 'Tandai Selesai';
+    wrapBtn.className = 'btn-cast-wrap' + (isWrapped ? ' wrapped' : '');
+    wrapBtn.onclick = () => toggleWrapCast(castId);
+
+    const workingDays = [];
+    for (const [dateKey, d] of Object.entries(shootDays)) {
+        for (const s of d.scenes) {
+            if ([...parseCastIds(s.main_cast), ...parseCastIds(s.supporting)].includes(parseInt(castId))) {
+                workingDays.push({ key: dateKey, day: d.day, date: d.date }); break;
+            }
+        }
     }
+    document.getElementById('singleCastDays').innerHTML = workingDays.sort((a, b) => a.day - b.day).map(w =>
+        `<button class="schedule-btn" onclick="closePopupDirect('singleCastPopup');closePopupDirect('castGalleryPopup');openModal('${w.key}')">Day ${w.day} — ${w.date}</button>`
+    ).join('') || '<p style="color:var(--text-light);font-size:13px;">Tidak ada jadwal syuting.</p>';
+
+    document.getElementById('singleCastPopup').classList.add('open');
+}
+
+function toggleWrapCast(castId) {
+    const id = parseInt(castId);
+    let list = getWrappedCasts();
+    if (list.includes(id)) list = list.filter(x => x !== id);
+    else list.push(id);
+    syncRef.update({ wrappedCasts: JSON.stringify(list) }).then(() => openSingleCastPopup(castId));
+}
+
+function triggerFilterCast() {
+    if (currentViewCastId === null) return;
+    activeFilterCastId = currentViewCastId;
+    activeFilterLocation = null;
+    const name = CAST_NAMES[currentViewCastId] || 'Cast #' + currentViewCastId;
+    document.getElementById('filterBanner').innerHTML = `Menampilkan jadwal untuk: <strong>${name}</strong> <button class="filter-clear" onclick="clearFilter()">✕ Hapus Filter</button>`;
+    document.getElementById('filterBanner').classList.add('active');
+    closePopupDirect('singleCastPopup');
+    closePopupDirect('castGalleryPopup');
+    switchPhase('shoot');
+}
+
+function triggerFilterLoc() {
+    if (!currentViewLocName) return;
+    activeFilterLocation = currentViewLocName.toLowerCase();
+    activeFilterCastId = null;
+    document.getElementById('filterBanner').innerHTML = `Menampilkan lokasi: <strong>${currentViewLocName}</strong> <button class="filter-clear" onclick="clearFilter()">✕ Hapus Filter</button>`;
+    document.getElementById('filterBanner').classList.add('active');
+    closePopupDirect('singleLocationPopup');
+    closePopupDirect('locationGalleryPopup');
+    switchPhase('shoot');
+}
+
+function clearFilter() {
+    activeFilterCastId = null;
+    activeFilterLocation = null;
+    document.getElementById('filterBanner').classList.remove('active');
+    renderCalendar();
+}
+
+// =========================================================================
+// ALL SCENES POPUP
+// =========================================================================
+function openAllScenesPopup(wrappedOnly) {
+    document.getElementById('allScenesHeaderTitle').textContent = wrappedOnly ? '✅ Scene Sudah Wrap' : '🎬 Daftar Semua Scene';
+    let html = '';
+    SCHEDULE_DATA.days.forEach(d => {
+        d.scenes.forEach(s => {
+            const wrapKey = `${d.day}_${s.scene}`;
+            const isWrapped = getWrappedScenes().includes(wrapKey);
+            if (wrappedOnly && !isWrapped) return;
+            html += `<div class="task-card" style="${isWrapped ? 'opacity:0.7;background:var(--bg-main);' : ''}">
+                <div class="task-title">${isWrapped ? '✅ ' : ''}SC ${s.scene} — ${s.set || '-'}</div>
+                <div class="task-meta">📅 Day ${d.day} | ${s.ie || ''} ${s.dn || ''} | ${s.pages || ''} pgs</div>
+                <div class="task-meta" style="margin-top:4px;">📝 ${s.desc || '-'}</div>
+            </div>`;
+        });
+    });
+    document.getElementById('allScenesGrid').innerHTML = html || '<p style="color:var(--text-light);padding:20px;">Belum ada data scene.</p>';
+    document.getElementById('allScenesPopup').classList.add('open');
+    document.body.style.overflow = 'hidden';
 }
 
 initLogin();
