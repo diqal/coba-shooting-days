@@ -684,8 +684,7 @@ function toggleWrap(sceneNum) {
       if (card) {
           if (isNowWrapped) card.classList.add('is-wrapped');
           else card.classList.remove('is-wrapped');
-      }
-  }); 
+      } 
 
 function toggleCastWrap(id) {
   const role = getCurrentRole(); if (!role || role.type !== 'ad') { alert('Hanya AD yang bisa menandai Wrap Pemain.'); return; }
