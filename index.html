@@ -393,6 +393,7 @@ let activeFilterLocation = null;
 let currentViewCastId = null;
 let currentViewLocName = null;
 let currentPhase = 'shoot';
+let isAdmin = false;
 let preproView = 'kanban';
 let PREPRO_DATA = [];
 let preproYear = new Date().getFullYear(), preproMonth = new Date().getMonth();
@@ -450,7 +451,6 @@ syncRef.on('value', (snapshot) => {
     rebuildShootDays();
     if(currentPhase === 'shoot') renderCalendar();
     if(currentPhase === 'prepro') renderPrePro();
-    renderCalendar();
     
     document.getElementById('loadingScreen').style.display = 'none';
     
@@ -551,7 +551,8 @@ function loginWithGoogle() {
 
 function applyRoleAndClose(roleKey) {
   const role = getCurrentRole();
-  const canEditAdmin = role && (role.type === 'ad' || role.type === 'line_producer');
+  isAdmin = role && (role.type === 'ad' || role.type === 'line_producer');
+  const canEditAdmin = isAdmin;
   document.getElementById('headerTitle').setAttribute('contenteditable', canEditAdmin);
   document.getElementById('headerSub').setAttribute('contenteditable', canEditAdmin);
   document.getElementById('headerDate').setAttribute('contenteditable', canEditAdmin);
@@ -582,7 +583,8 @@ function doLogout() {
     document.getElementById('loginOverlay').classList.remove('hidden');
     renderCalendar();
   });
-
+}
+  
 function switchPhase(phase) {
     const phaseIdMap = { shoot: 'Shoot', prepro: 'PrePro' };
     const key = phaseIdMap[phase] || (phase.charAt(0).toUpperCase() + phase.slice(1));
@@ -591,7 +593,10 @@ function switchPhase(phase) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById('btn' + key).classList.add('active');
     document.getElementById('section' + key).classList.add('active');
-    if(phase === 'shoot') renderCalendar(); else if(phase === 'prepro') renderPrePro);
+   if (phase === 'shoot') {
+  renderCalendar();
+} else if (phase === 'prepro') {
+  renderPrePro();
 }
 
 function initLogin() {
