@@ -436,7 +436,7 @@ syncRef.on('value', (snapshot) => {
     const data = snapshot.val() || {};
     
     SCHEDULE_DATA = data.schedule ? JSON.parse(data.schedule) : DEFAULT_SCHEDULE;
-    CAST_NAMES = data.castNames ? JSON.parse(data.castNames) : { 1: "Pemain 1" 2: "Pemain 2" };
+    CAST_NAMES = data.castNames ? JSON.parse(data.castNames) : { 1: "Pemain 1", 2: "Pemain 2" };
     ACTOR_NAMES = data.actorNames ? JSON.parse(data.actorNames) : {};
     PREPRO_DATA = data.prepro ? JSON.parse(data.prepro) : [];
     WRAPPED_SCENES = data.wrappedScenes ? JSON.parse(data.wrappedScenes) : [];
