@@ -1677,15 +1677,22 @@ function openModal(dateKey) {
   document.getElementById('btnOpenCallsheet').onclick = function() { openCallsheet(dateKey); };
   // TOMBOL DPR:
     let btnDPR = document.getElementById('btnOpenDPR');
-    if (!btnDPR) {
-        btnDPR = document.createElement('button');
-        btnDPR.id = 'btnOpenDPR';
-        btnDPR.className = 'btn-cast-gallery';
-        btnDPR.style.cssText = 'background: #3B82F6; color: white; margin-left: 10px;';
-        btnDPR.innerHTML = '📊 Buka DPR';
-        document.getElementById('btnOpenCallsheet').parentNode.appendChild(btnDPR);
+    if (currentPhase === 'shoot') {
+        if (!btnDPR) {
+            btnDPR = document.createElement('button');
+            btnDPR.id = 'btnOpenDPR';
+            btnDPR.className = 'btn-cast-gallery';
+            btnDPR.style.cssText = 'background: #3B82F6; color: white; margin-left: 10px;';
+            btnDPR.innerHTML = '📊 Buka DPR';
+            document.getElementById('btnOpenCallsheet').parentNode.appendChild(btnDPR);
+        }
+        btnDPR.style.display = 'inline-block'; // Tampilkan
+        btnDPR.onclick = function() { openDPR(dateKey); };
+    } else {
+        // 3. Sembunyikan jika bukan di fase Syuting agar tidak "nyasar"
+        if (btnDPR) btnDPR.style.display = 'none';
     }
-    btnDPR.onclick = function() { openDPR(dateKey); };
+  
   let crewCallCalc = "TBA"; if (sd.scenes.length > 0 && sd.scenes[0].time) crewCallCalc = subtractMinutes(sd.scenes[0].time.split('-')[0].trim(), 90);
 
   const role = getCurrentRole(); let scenesToShow = sd.scenes; const isCastView = role && role.type === 'cast';
@@ -2111,8 +2118,8 @@ function renderPostProCalendar() {
             let bgColor = t.status === 'Done' ? 'var(--success)' : (t.status === 'Waiting for Revision' ? 'var(--warning)' : 'var(--primary)');
             html += `
             <div onclick="editPostTask('${t.id}')" 
-                 style="background:${bgColor}22; border-left:3px solid ${bgColor}; padding:4px; margin-bottom:4px; font-size:10px; font-weight:700; color:${bgColor}; cursor:pointer;">
-                ${t.title}
+                 style="background:${bgColor}; border-radius:4px; padding:4px 6px; margin-bottom:4px; font-size:10px; font-weight:700; color:white; cursor:pointer;">
+                ${t.time ? `<span style="opacity:0.8; font-weight:normal;">${t.time}</span> ` : ''}${t.title}
             </div>`;
         });
         html += `</div>`;
@@ -2122,19 +2129,63 @@ function renderPostProCalendar() {
 
 // Fungsi Tambah Tugas Baru (Hanya untuk Admin Pasca)
 function addPostTask() {
-    const title = prompt("Nama Jadwal Pasca (Misal: Editing Episode 1):");
-    if (!title) return;
-    const date = prompt("Tanggal Deadline (YYYY-MM-DD):");
-    if (!date) return;
+    function addPostTask() {
+    const role = getCurrentRole();
+    const canAdd = role && ['director', 'producer', 'postpro_manager'].includes(role.type);
 
-    POSTPRO_DATA.push({
+    if (!canAdd) {
+        alert("Maaf, hanya tim manajemen yang bisa menambah jadwal pasca.");
+        return;
+    }
+
+    let html = `
+    <div style="font-family: 'Inter', sans-serif; padding: 10px;">
+        <h3 style="margin-bottom: 20px;">➕ Tambah Agenda Pasca-Pro</h3>
+        <div class="profile-form">
+            <label>Judul Agenda:</label>
+            <input type="text" id="new_post_title" class="v-btn" placeholder="Misal: Preview Offline Eps 1">
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                <div>
+                    <label>Tanggal:</label>
+                    <input type="date" id="new_post_date" class="v-btn">
+                </div>
+                <div>
+                    <label>Jam:</label>
+                    <input type="time" id="new_post_time" class="v-btn">
+                </div>
+            </div>
+            
+            <button class="nav-btn active" onclick="saveNewPostTask()" style="margin-top:20px; width: 100%;">➕ Tambahkan ke Kalender</button>
+        </div>
+    </div>`;
+    
+    showGeneralModal(html);
+}
+
+  function saveNewPostTask() {
+    const title = document.getElementById('new_post_title').value;
+    const date = document.getElementById('new_post_date').value;
+    const time = document.getElementById('new_post_time').value; // Ambil nilai jam
+
+    if (!title || !date) {
+        alert("Mohon isi judul dan tanggal!");
+        return;
+    }
+
+    const newTask = {
         id: 'post_' + Date.now(),
         title: title,
         date: date,
+        time: time || '', // Simpan jam (kosongkan jika tidak diisi)
         status: 'To-Do',
         notes: ''
-    });
+    };
+
+    POSTPRO_DATA.push(newTask);
     syncRef.update({ postpro: JSON.stringify(POSTPRO_DATA) });
+    closeGeneralModal();
+    renderPostProCalendar(); 
 }
 
 // Pop-Up Edit & Progress Notes
@@ -2143,42 +2194,58 @@ function editPostTask(id) {
     if (!t) return;
     const role = getCurrentRole();
     
-    const canEditFull = role && ['director', 'producer', 'ad', 'line_producer', 'postpro_manager'].includes(role.type);
-    
+    const canEditFull = role && ['director', 'producer', 'postpro_manager'].includes(role.type);
     const postProRoles = ['director', 'producer', 'postpro_manager', 'hod_editor', 'hod_colorist', 'hod_vfx', 'hod_soundpost', 'hod_music'];
-    const userRoleKey = role.type === 'hod' ? role.dept : role.type;
-    const canEditNotes = postProRoles.includes(userRoleKey);
+    const canEditNotes = postProRoles.includes(role.type);
 
-    let html = `<h3>Detail: ${t.title}</h3><div class="profile-form">`;
+    let html = `
+    <div style="font-family: 'Inter', sans-serif;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+            <div style="background:var(--primary); color:white; padding:8px 12px; border-radius:8px; font-size:18px;">✂️</div>
+            <h3 style="margin:0; font-size:20px;">Post-Pro Progress</h3>
+        </div>
+
+        <div style="background: var(--bg-main); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+    <div>
+        <label style="font-size:10px; font-weight:800; color:var(--text-light);">Judul</label>
+        <input type="text" id="po_title" value="${t.title}" style="..." ${!canEditFull ? 'disabled' : ''}>
+    </div>
+    <div>
+        <label style="font-size:10px; font-weight:800; color:var(--text-light);">Tanggal</label>
+        <input type="date" id="po_date" value="${t.date}" style="..." ${!canEditFull ? 'disabled' : ''}>
+    </div>
+    <div>
+        <label style="font-size:10px; font-weight:800; color:var(--text-light);">Jam</label>
+        <input type="time" id="po_time" value="${t.time || ''}" style="..." ${!canEditFull ? 'disabled' : ''}>
+    </div>
+</div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label style="font-size:11px; font-weight:800; color:var(--text-light); text-transform:uppercase; display:block; margin-bottom:8px;">Status Progres</label>
+            <select id="po_status" class="v-btn" style="width:100%; height:45px; border-radius:10px; font-weight:bold;" ${!canEditNotes ? 'disabled' : ''}>
+                <option value="To-Do" ${t.status==='To-Do'?'selected':''}>⏳ To-Do</option>
+                <option value="In Progress" ${t.status==='In Progress'?'selected':''}>🔥 In Progress</option>
+                <option value="Waiting for Revision" ${t.status==='Waiting for Revision'?'selected':''}>👀 Menunggu Revisi</option>
+                <option value="Done" ${t.status==='Done'?'selected':''}>✅ Selesai (Done)</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label style="font-size:11px; font-weight:800; color:var(--primary); text-transform:uppercase; display:block; margin-bottom:8px;">📝 Progress Notes (Update Departemen)</label>
+            <textarea id="po_notes" 
+                      style="width:100%; min-height:120px; background:var(--bg-main); border:1px solid var(--border-color); border-radius:12px; padding:12px; color:var(--text-main); font-family:inherit; line-height:1.6; font-size:13px;" 
+                      placeholder="Tulis detail progress di sini..." 
+                      ${!canEditNotes ? 'disabled' : ''}>${t.notes || ''}</textarea>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px;">
+            ${canEditNotes ? `<button class="nav-btn active" onclick="updatePostTask('${id}')" style="width:100%; height:45px; border-radius:10px;">💾 Simpan Pembaruan</button>` : ''}
+            ${canEditFull ? `<button onclick="deletePostTask('${id}')" style="background:transparent; border:none; color:#EF4444; font-size:12px; font-weight:bold; cursor:pointer; margin-top:5px;">🗑️ Hapus Agenda Ini</button>` : ''}
+        </div>
+    </div>`;
     
-    if (canEditFull) {
-        html += `<label>Judul Tugas:</label><input type="text" id="po_title" value="${t.title}" class="v-btn">
-                 <label>Deadline:</label><input type="date" id="po_date" value="${t.date}" class="v-btn">`;
-    } else {
-        html += `<input type="hidden" id="po_title" value="${t.title}">
-                 <input type="hidden" id="po_date" value="${t.date}">`;
-    }
-
-    html += `
-    <label style="margin-top:10px;">Status Progres:</label>
-    <select id="po_status" class="v-btn" ${!canEditNotes ? 'disabled' : ''}>
-        <option value="To-Do" ${t.status==='To-Do'?'selected':''}>⏳ To-Do</option>
-        <option value="In Progress" ${t.status==='In Progress'?'selected':''}>🔥 In Progress</option>
-        <option value="Waiting for Revision" ${t.status==='Waiting for Revision'?'selected':''}>👀 Menunggu Revisi</option>
-        <option value="Done" ${t.status==='Done'?'selected':''}>✅ Selesai (Done)</option>
-    </select>
-
-    <label style="margin-top:10px; color:var(--primary); font-weight:800;">📝 Progress Notes (Catatan Tim):</label>
-    <textarea id="po_notes" class="v-btn" style="min-height:100px; resize:vertical; font-family:inherit; line-height:1.5;" placeholder="Ketik update progress (misal: Rendering 70%, Menunggu audio masuk)..." ${!canEditNotes ? 'disabled' : ''}>${t.notes || ''}</textarea>
-    `;
-
-    if (canEditNotes) {
-        html += `<button class="nav-btn active" onclick="updatePostTask('${id}')" style="margin-top:16px;">💾 Simpan Update</button>`;
-        if (canEditFull) {
-            html += `<button class="v-btn" style="color:red; margin-top:8px;" onclick="deletePostTask('${id}')">🗑️ Hapus Tugas</button>`;
-        }
-    }
-    html += `</div>`;
     showGeneralModal(html);
 }
 
@@ -2187,6 +2254,7 @@ function updatePostTask(id) {
     if (idx === -1) return;
     POSTPRO_DATA[idx].title = document.getElementById('po_title').value;
     POSTPRO_DATA[idx].date = document.getElementById('po_date').value;
+    POSTPRO_DATA[idx].time = document.getElementById('po_time').value;
     POSTPRO_DATA[idx].status = document.getElementById('po_status').value;
     POSTPRO_DATA[idx].notes = document.getElementById('po_notes').value;
 
