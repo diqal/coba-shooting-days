@@ -406,6 +406,17 @@ body.dark-mode .rombak-col { background: #1E293B; border-color: #334155; }
   </div>
 </div>
 
+<div class="popup-overlay" id="dprPopup" style="z-index: 3100;" onclick="closePopup('dprPopup', event)">
+  <div class="popup-box" style="max-width: 700px; background: var(--bg-card); border-radius: 8px;">
+    <div class="popup-header no-print" style="background: #1E293B; color: white; justify-content: space-between;">
+      <span style="font-family: 'Inter', sans-serif; font-weight: 800;">📊 DAILY PRODUCTION REPORT</span>
+      <button class="popup-close" onclick="closePopupDirect('dprPopup')" style="color: white; background: transparent;">✕</button>
+    </div>
+    <div class="popup-body" id="dprBody" style="padding: 30px; font-family: 'Inter', sans-serif; color: var(--text-main); background: var(--bg-card); max-height: 70vh; overflow-y: auto;">
+      </div>
+  </div>
+</div>
+
 <div class="popup-overlay" id="scriptLogPopup" style="z-index: 3100;" onclick="closePopup('scriptLogPopup', event)">
   <div class="popup-box" style="max-width: 600px; border-radius: 8px;">
     <div class="popup-header" style="background: #FEF3C7; color: #92400E; justify-content: space-between;">
@@ -1664,7 +1675,23 @@ function openModal(dateKey) {
   const parts = dateKey.split('-'); if (parts.length===3) { curYear=parseInt(parts[0]); curMonth=parseInt(parts[1])-1; renderCalendar(); }
   document.getElementById('modalDayTitle').textContent = `Hari Syuting ${sd.day}`;
   document.getElementById('btnOpenCallsheet').onclick = function() { openCallsheet(dateKey); };
-     }
+  // TOMBOL DPR:
+    let btnDPR = document.getElementById('btnOpenDPR');
+    if (currentPhase === 'shoot') {
+        if (!btnDPR) {
+            btnDPR = document.createElement('button');
+            btnDPR.id = 'btnOpenDPR';
+            btnDPR.className = 'btn-cast-gallery';
+            btnDPR.style.cssText = 'background: #3B82F6; color: white; margin-left: 10px;';
+            btnDPR.innerHTML = '📊 Buka DPR';
+            document.getElementById('btnOpenCallsheet').parentNode.appendChild(btnDPR);
+        }
+        btnDPR.style.display = 'inline-block'; // Tampilkan
+        btnDPR.onclick = function() { openDPR(dateKey); };
+    } else {
+        // 3. Sembunyikan jika bukan di fase Syuting agar tidak "nyasar"
+        if (btnDPR) btnDPR.style.display = 'none';
+    }
   
   let crewCallCalc = "TBA"; if (sd.scenes.length > 0 && sd.scenes[0].time) crewCallCalc = subtractMinutes(sd.scenes[0].time.split('-')[0].trim(), 90);
 
@@ -1954,8 +1981,60 @@ function handleSceneMove(fromDay, toDay, sceneIndex) {
 }
 
 // =========================================================================
-// 12. FITUR SCRIPT LOG
+// 12. FITUR DPR & SCRIPT LOG
 // =========================================================================
+
+let dprSaveTimeout;
+function openDPR(dateKey) {
+    const sd = shootDays[dateKey]; 
+    if (!sd) return;
+    const role = getCurrentRole();
+    
+    // HANYA BISA DIEDIT OLEH: Prod Coord & Line Producer
+    const canEditDPR = role && ['production_coordinator', 'line_producer'].includes(role.type);
+
+    db.ref('production_data/dpr/' + dateKey).once('value').then(snapshot => {
+        const savedHtml = snapshot.val();
+        if (savedHtml) {
+            document.getElementById('dprBody').innerHTML = savedHtml;
+        } else {
+            // Template Default DPR
+            document.getElementById('dprBody').innerHTML = `
+            <div style="text-align:center; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">
+                <h2 style="margin:0;">DAILY PRODUCTION REPORT</h2>
+                <h4 style="margin:5px 0 0 0; color:var(--text-light);">Day ${sd.day} - ${sd.date}</h4>
+            </div>
+            <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:13px;" border="1">
+                <tr><th style="padding:8px; text-align:left; width:40%;">Actual Crew Call</th><td contenteditable="true" style="padding:8px;">[00:00]</td></tr>
+                <tr><th style="padding:8px; text-align:left;">First Shot (Camera Roll)</th><td contenteditable="true" style="padding:8px;">[00:00]</td></tr>
+                <tr><th style="padding:8px; text-align:left;">Lunch Break</th><td contenteditable="true" style="padding:8px;">[00:00 - 00:00]</td></tr>
+                <tr><th style="padding:8px; text-align:left;">Actual Wrap</th><td contenteditable="true" style="padding:8px;">[00:00]</td></tr>
+            </table>
+            <div style="font-weight:bold; font-size:13px; margin-bottom:8px;">CATATAN KENDALA / DELAY:</div>
+            <div contenteditable="true" style="min-height:80px; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:13px;">
+                [Tulis catatan cuaca, overtime, dll di sini...]
+            </div>
+            `;
+        }
+
+        // Privasi
+        document.querySelectorAll('#dprBody [contenteditable]').forEach(el => {
+            el.setAttribute('contenteditable', canEditDPR);
+            if (!canEditDPR) el.style.border = 'none';
+        });
+
+        if (canEditDPR) {
+            const body = document.getElementById('dprBody');
+            body.oninput = function() {
+                clearTimeout(dprSaveTimeout);
+                dprSaveTimeout = setTimeout(() => { db.ref('production_data/dpr/' + dateKey).set(body.innerHTML); }, 1000);
+            };
+        }
+
+        closeModalDirect();
+        document.getElementById('dprPopup').classList.add('open');
+    });
+}
 
 let scriptLogSaveTimeout;
 function openScriptLog(sceneNum) {
