@@ -307,8 +307,8 @@ body.dark-mode .rombak-col { background: #1E293B; border-color: #334155; }
 
 <div id="sectionPostPro" class="section">
     <div class="hero">
-        <h2>🎞️ Jadwal Pasca-Produksi</h2>
-        <p style="color: var(--text-light); font-size: 14px;">Ruang khusus Director, Producer, dan Tim Post-Pro.</p>
+        <h2 style="color: white;">🎞️ Jadwal Pasca-Produksi</h2>
+        <p style="color: #cbd5e1; font-size: 14px;">FILM A</p>
     </div>
 
     <div class="calendar-section active" style="margin-top: 20px;">
@@ -462,7 +462,7 @@ let activeFilterCastId = null;
 let activeFilterLocation = null;
 let currentViewCastId = null;
 let currentViewLocName = null;
-let currentPhase = 'shoot';
+let currentPhase = 'prepro';
 let isAdmin = false;
 let preproView = 'calendar';
 let PREPRO_DATA = [];
@@ -593,11 +593,12 @@ const WHITELIST = {
   "artdirector@gmail.com": { type: "hod", dept: "hod_artdept" },
 
   // --- TIM PASCA-PRODUKSI ---
-  "postmanager@gmail.com": { type: "postpro_manager" },
+  "niaanizah97@gmail.com": { type: "postpro_manager" },
   "editor@gmail.com": { type: "hod", dept: "hod_editor" },
   "colorist@gmail.com": { type: "hod", dept: "hod_colorist" },
   "musicdirector@gmail.com": { type: "hod", dept: "hod_music" },
   "vfx@gmail.com": { type: "hod", dept: "hod_vfx" },
+  "soundpost@gmail.com": { type: "hod", dept: "hod_soundpost" },
  
   // --- PEMAIN ---
   "ipachadijah@gmail.com": { type: "cast", castId: 1, castName: "Alya" },
@@ -615,7 +616,7 @@ const ROLE_LABELS = {
   production_coordinator: "📋 Prod. Coordinator", script_supervisor: "📑 Script Supervisor",
   postpro_manager: "🎞️ Post Manager", hod_editor: "✂️ Editor", hod_colorist: "🎨 Colorist",
   hod_cinematography: "📷 Cinematographer", hod_wardrobe: "👗 Wardrobe", production_coordinator: "📋 Prod. Coordinator",
-  hod_makeup: "💄 Make Up", hod_artdept: "🎭 Art Dept", hod_music: "🎵 Music Director", hod_vfx: "🌌 VFX Artist", crew: "👥 Kru", cast: null
+  hod_makeup: "💄 Make Up", hod_artdept: "🎭 Art Dept", hod_music: "🎵 Music Director", hod_vfx: "🌌 VFX Artist", hod_soundpost: "🎛️ Post Sound" crew: "👥 Kru", cast: null
 };
 
 const FOLDER_TO_DEPT = {
@@ -629,7 +630,7 @@ const FOLDER_TO_DEPT = {
   "Music": ["hod_music"],
   "Editing & Versioning": ["hod_editor", "postpro_manager"],
   "Visual & Color": ["hod_colorist", "hod_vfx"],
-  "Audio & Music": ["hod_sound", "hod_music"]
+  "Audio & Music": ["hod_soundpost", "hod_music"]
 };
 
 function getCurrentRole() { try { return JSON.parse(sessionStorage.getItem('prodRole')); } catch(e) { return null; } }
@@ -694,7 +695,7 @@ function applyRoleAndClose(roleKey) {
   }
   
   // PASCA-PRODUKSI
-  const postProAccessList = ['director', 'producer', 'ad', 'line_producer', 'postpro_manager', 'postpro_producer', 'hod_editor', 'hod_colorist', 'hod_vfx', 'hod_sound', 'hod_music', 'hod_vfx'];
+  const postProAccessList = ['director', 'producer', 'ad', 'line_producer', 'postpro_manager', 'postpro_producer', 'hod_editor', 'hod_colorist', 'hod_vfx', 'hod_soundpost', 'hod_music', 'hod_vfx'];
   const userRoleKey = role.type === 'hod' ? role.dept : role.type;
   if (postProAccessList.includes(userRoleKey)) {
       document.getElementById('btnPostPro').style.display = 'inline-block'; 
@@ -1083,7 +1084,8 @@ function generateCallsheetTemplate(dateKey) {
                 <strong>CAMERA:</strong> [Nama] (DOP), [Nama] (Cam Op), [Nama] (1st AC) <br>
                 <strong>LIGHTING & GRIP:</strong> [Nama] (Gaffer), [Nama] (Best Boy), [Nama] (Key Grip) <br>
                 <strong>ART:</strong> [Nama] (Art Dir), [Nama] (Set Dresser), [Nama] (Wardrobe), [Nama] (Key Make Up), [Nama] (Key Hair) <br>
-                <strong>POST:</strong> [Nama] (Editor), [Nama] (Colorist), [Nama] (Sound Post), [Nama] (Music Director) <br>
+                <strong>SOUND:</strong> [Nama] (Sound Recordist), [Nama] (Boom Operator), [Nama] (Utility) <br>
+                <strong>POST:</strong> [Nama] (Editor), [Nama] (Colorist), [Nama] (Sound Designer), [Nama] (Music Director) <br>
                 <span style="color:#9ca3af;">[... Lanjutkan / Paste Semua Nama Kru Di Sini ...]</span>
             </td>
         </tr>
@@ -2143,7 +2145,7 @@ function editPostTask(id) {
     
     const canEditFull = role && ['director', 'producer', 'ad', 'line_producer', 'postpro_manager'].includes(role.type);
     
-    const postProRoles = ['director', 'producer', 'ad', 'line_producer', 'postpro_manager', 'hod_editor', 'hod_colorist', 'hod_vfx', 'hod_sound', 'hod_music'];
+    const postProRoles = ['director', 'producer', 'postpro_manager', 'hod_editor', 'hod_colorist', 'hod_vfx', 'hod_soundpost', 'hod_music'];
     const userRoleKey = role.type === 'hod' ? role.dept : role.type;
     const canEditNotes = postProRoles.includes(userRoleKey);
 
