@@ -536,6 +536,11 @@ syncRef.on('value', (snapshot) => {
     }
     
     document.getElementById('loadingScreen').style.display = 'none';
+
+  switchPhase(currentPhase);
+    if (currentPhase === 'prepro' && typeof setPreProView === "function") {
+        setPreProView('calendar');
+    }
     
     if (document.getElementById('castGalleryPopup').classList.contains('open')) openCastGallery();
 });
@@ -573,10 +578,10 @@ function getWrappedCasts() { return WRAPPED_CASTS; }
 const WHITELIST = {
   // --- DIRECTOR & PRODUCER ---
   "director@gmail.com": { type: "director" },
-  "producer@gmail.com": { type: "producer" },
+  "diqalkhr@gmail.com": { type: "producer" },
   
   // --- TIM PRODUKSI ---
-  "diqalkhr@gmail.com": { type: "ad" },
+  "astrada@gmail.com": { type: "ad" },
   "lineproducer.film@gmail.com": { type: "line_producer" },
   "prodcoord@gmail.com": { type: "production_coordinator" },
   
@@ -724,6 +729,7 @@ function doLogout() {
     renderCalendar();
   });
 }
+  
   
 function switchPhase(phase) {
     currentPhase = phase;
