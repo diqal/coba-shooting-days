@@ -451,8 +451,6 @@ const syncRef = db.ref('production_data');
 // 2. VARIABEL GLOBAL 
 // =========================================================================
 let curYear = new Date().getFullYear(), curMonth = new Date().getMonth(); 
-let currentPostYear = new Date().getFullYear();
-let currentPostMonth = new Date().getMonth();
 let CAST_NAMES = { 1: "Karakter Utama 1", 2: "Karakter Utama 2", 3: "Karakter Pendukung 1" };
 let ACTOR_NAMES = { 1: "Nama Aktor 1", 3: "Nama Aktor 3" }; 
 let SCHEDULE_DATA = { days: [] }; 
@@ -750,7 +748,6 @@ function switchPhase(phase) {
     } else if (phase === 'postpro') {
         document.getElementById('btnPostPro').classList.add('active');
         document.getElementById('sectionPostPro').classList.add('active');
-        jumpToRelevantPostProMonth();
         renderPostProCalendar(); 
     }
 }
@@ -2250,29 +2247,6 @@ function deletePostTask(id) {
     POSTPRO_DATA = POSTPRO_DATA.filter(x => x.id !== id);
     syncRef.update({ postpro: JSON.stringify(POSTPRO_DATA) });
     closeGeneralModal();
-}
-
-  function jumpToRelevantPostProMonth() {
-    if (POSTPRO_DATA.length === 0) return;
-
-    // 1. Ambil semua tanggal, urutkan dari yang paling baru
-    const sortedTasks = [...POSTPRO_DATA].sort((a, b) => new Date(a.date) - new Date(b.date));
-    
-    // 2. Cari tugas yang tanggalnya hari ini atau yang akan datang (paling mendekati hari ini)
-    const today = new Date().toISOString().split('T')[0];
-    let targetTask = sortedTasks.find(t => t.date >= today);
-
-    // 3. Kalau semua tugas sudah lewat, ambil tugas yang paling terakhir (paling baru selesai)
-    if (!targetTask) {
-        targetTask = sortedTasks[sortedTasks.length - 1];
-    }
-
-    // 4. Set bulan dan tahun kalender ke tanggal tersebut
-    const targetDate = new Date(targetTask.date);
-    currentPostMonth = targetDate.getMonth();
-    currentPostYear = targetDate.getFullYear();
-    
-    renderPostProCalendar();
 }
   
 initLogin();
