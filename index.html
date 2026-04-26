@@ -2127,11 +2127,10 @@ function renderPostProCalendar() {
     }
 }
 
-// Fungsi Tambah Tugas Baru (Hanya untuk Admin Pasca)
+// 1. Fungsi Tambah Tugas Baru
 function addPostTask() {
-    function addPostTask() {
     const role = getCurrentRole();
-    const canAdd = role && ['director', 'producer', 'postpro_manager'].includes(role.type);
+        const canAdd = role && ['director', 'producer', 'postpro_manager'].includes(role.type);
 
     if (!canAdd) {
         alert("Maaf, hanya tim manajemen yang bisa menambah jadwal pasca.");
@@ -2163,10 +2162,11 @@ function addPostTask() {
     showGeneralModal(html);
 }
 
-  function saveNewPostTask() {
+// 2. Fungsi Simpan
+function saveNewPostTask() {
     const title = document.getElementById('new_post_title').value;
     const date = document.getElementById('new_post_date').value;
-    const time = document.getElementById('new_post_time').value; // Ambil nilai jam
+    const time = document.getElementById('new_post_time').value;
 
     if (!title || !date) {
         alert("Mohon isi judul dan tanggal!");
@@ -2177,7 +2177,7 @@ function addPostTask() {
         id: 'post_' + Date.now(),
         title: title,
         date: date,
-        time: time || '', // Simpan jam (kosongkan jika tidak diisi)
+        time: time || '',
         status: 'To-Do',
         notes: ''
     };
@@ -2200,27 +2200,7 @@ function editPostTask(id) {
 
     let html = `
     <div style="font-family: 'Inter', sans-serif;">
-        <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
-            <div style="background:var(--primary); color:white; padding:8px 12px; border-radius:8px; font-size:18px;">✂️</div>
-            <h3 style="margin:0; font-size:20px;">Post-Pro Progress</h3>
-        </div>
-
-        <div style="background: var(--bg-main); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px;">
-            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-    <div>
-        <label style="font-size:10px; font-weight:800; color:var(--text-light);">Judul</label>
-        <input type="text" id="po_title" value="${t.title}" style="..." ${!canEditFull ? 'disabled' : ''}>
-    </div>
-    <div>
-        <label style="font-size:10px; font-weight:800; color:var(--text-light);">Tanggal</label>
-        <input type="date" id="po_date" value="${t.date}" style="..." ${!canEditFull ? 'disabled' : ''}>
-    </div>
-    <div>
-        <label style="font-size:10px; font-weight:800; color:var(--text-light);">Jam</label>
-        <input type="time" id="po_time" value="${t.time || ''}" style="..." ${!canEditFull ? 'disabled' : ''}>
-    </div>
-</div>
-        </div>
+        </div>        </div>        </div>
 
         <div style="margin-bottom:20px;">
             <label style="font-size:11px; font-weight:800; color:var(--text-light); text-transform:uppercase; display:block; margin-bottom:8px;">Status Progres</label>
