@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta name="mobile-web-app-capable" content="yes">
-<title>Kalender Syuting – Realtime Master</title>
+<title>PRODUCTION SCHEDULE – FILM A</title>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
@@ -210,7 +210,6 @@ body.dark-mode .rombak-col { background: #3E2723; border-color: #5D4037; }
 </head>
 <body>
 
-`DOOD POPUP`
 <div class="popup-overlay" id="doodPopup" style="z-index:3200;" onclick="closePopup('doodPopup', event)">
   <div class="popup-box" style="max-width:98vw; width:98vw;">
     <div class="popup-header">
@@ -221,7 +220,6 @@ body.dark-mode .rombak-col { background: #3E2723; border-color: #5D4037; }
   </div>
 </div>
 
-`STRIPBOARD POPUP`
 <div class="popup-overlay" id="stripboardPopup" style="z-index:3200;" onclick="closePopup('stripboardPopup', event)">
   <div class="popup-box" style="max-width:98vw; width:98vw;">
     <div class="popup-header">
@@ -241,7 +239,6 @@ body.dark-mode .rombak-col { background: #3E2723; border-color: #5D4037; }
   </div>
 </div>
 
-`CONFLICT DETECTOR POPUP`
 <div class="popup-overlay" id="conflictPopup" style="z-index:3200;" onclick="closePopup('conflictPopup', event)">
   <div class="popup-box" style="max-width:700px;">
     <div class="popup-header" style="background:#FEF2F2;color:#991B1B;">
@@ -252,7 +249,6 @@ body.dark-mode .rombak-col { background: #3E2723; border-color: #5D4037; }
   </div>
 </div>
 
-`LOCATION MANAGEMENT POPUP`
 <div class="popup-overlay" id="locationMgmtPopup" style="z-index:3200;" onclick="closePopup('locationMgmtPopup', event)">
   <div class="popup-box" style="max-width:860px;">
     <div class="popup-header">
@@ -266,7 +262,6 @@ body.dark-mode .rombak-col { background: #3E2723; border-color: #5D4037; }
   </div>
 </div>
 
-`TRANSPORT & ACCOMMODATION POPUP`
 <div class="popup-overlay" id="transpoPopup" style="z-index:3200;" onclick="closePopup('transpoPopup', event)">
   <div class="popup-box" style="max-width:860px;">
     <div class="popup-header">
@@ -283,12 +278,12 @@ body.dark-mode .rombak-col { background: #3E2723; border-color: #5D4037; }
 <div id="loginOverlay" class="hidden">
   <div class="login-box">
     <div class="login-logo">
-      <h2>🎬 Shooting Calendar</h2>
+      <h2>🎬 KALENDER PRODUKSI</h2>
     </div>
 
     <div id="loginStep1" style="text-align: center;">
       <p style="color: #94A3B8; font-size: 13px; margin-bottom: 20px; line-height: 1.5;">
-        🔒 <b>Kalender Syuting Film A</b><br>
+        🔒 <b>Kalender Produksi Film A</b><br>
         Login di sini
       </p>
 
@@ -333,7 +328,7 @@ body.dark-mode .rombak-col { background: #3E2723; border-color: #5D4037; }
     </div>
 
     <div id="shootCalendar" class="calendar-section active">
-        <div class="calendar-title">Kalender Syuting</div>
+        <div class="calendar-title">Kalender Produksi</div>
         <div class="month-nav">
             <button class="month-btn" onclick="prevMonth()">‹</button>
             <div class="month-label" id="monthLabel">Bulan Tahun</div>
