@@ -336,7 +336,19 @@ body.dark-mode .rombak-col { background: #1E293B; border-color: #334155; }
     </div>
 </div>
 
-<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)"><div class="modal" id="modalBox"><div class="modal-header"><div class="modal-title"><h2 id="modalDayTitle">Hari Syuting</h2><p id="modalDateSub"></p></div><div style="display: flex; gap: 12px; align-items: center;"><button id="btnOpenCallsheet" class="btn-cast-gallery" style="padding: 8px 14px; font-size: 13px;">📋 Buka Callsheet</button><button class="modal-close" onclick="closeModalDirect()">✕</button></div></div><div class="modal-crew" id="modalCrew"></div><div class="modal-body" id="modalBody"></div></div></div>
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)"><div class="modal" id="modalBox"><div class="modal-header">
+    <div class="modal-title">
+        <h2 id="modalDayTitle">Hari Syuting</h2>
+        <p id="modalDateSub"></p>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+        <button id="btnOpenCallsheet" class="btn-cast-gallery" style="padding: 8px 14px; font-size: 13px;">📋 Buka Callsheet</button>
+        <button id="btnOpenDPR" class="btn-cast-gallery" style="display:none; background: #3B82F6; color: white; padding: 8px 14px; font-size: 13px;">📊 Buka DPR</button>
+        <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+</div>
+
+<div class="modal-crew" id="modalCrew"></div><div class="modal-body" id="modalBody"></div></div></div>
 <div class="popup-overlay" id="callsheetPopup" style="z-index: 3000;" onclick="closePopup('callsheetPopup', event)"><div class="popup-box" style="max-width: 850px; background: var(--bg-card); border-radius: 0;"><div class="popup-header no-print" style="background: var(--text-main); color: white; justify-content: space-between;"><span style="font-family: 'Inter', sans-serif; font-weight: 800;">📋 DAILY CALLSHEET</span><button class="popup-close" onclick="closePopupDirect('callsheetPopup')" style="color: white; background: transparent;">✕</button></div><div class="popup-body" id="callsheetBody" style="padding: 30px; font-family: 'Inter', sans-serif; color: var(--text-main); background: var(--bg-card);"></div><div class="no-print" style="padding: 15px 30px; background: var(--bg-main); text-align: right; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; gap: 10px;">
     <div>
         <button id="btnMasterSettings" class="action-btn" style="background: var(--secondary); color: white; border: none;" onclick="openMasterCallsheetPopup()">⚙️ Atur Master Callsheet</button>
@@ -1676,22 +1688,18 @@ function openModal(dateKey) {
   document.getElementById('modalDayTitle').textContent = `Hari Syuting ${sd.day}`;
   document.getElementById('btnOpenCallsheet').onclick = function() { openCallsheet(dateKey); };
   // TOMBOL DPR:
-    let btnDPR = document.getElementById('btnOpenDPR');
-    if (currentPhase === 'shoot') {
-        if (!btnDPR) {
-            btnDPR = document.createElement('button');
-            btnDPR.id = 'btnOpenDPR';
-            btnDPR.className = 'btn-cast-gallery';
-            btnDPR.style.cssText = 'background: #3B82F6; color: white; margin-left: 10px;';
-            btnDPR.innerHTML = '📊 Buka DPR';
-            document.getElementById('btnOpenCallsheet').parentNode.appendChild(btnDPR);
-        }
-        btnDPR.style.display = 'inline-block'; // Tampilkan
-        btnDPR.onclick = function() { openDPR(dateKey); };
-    } else {
-        // 3. Sembunyikan jika bukan di fase Syuting agar tidak "nyasar"
-        if (btnDPR) btnDPR.style.display = 'none';
-    }
+  const btnDPR = document.getElementById('btnOpenDPR');
+  const btnCallsheet = document.getElementById('btnOpenCallsheet');
+
+  // Tampilkan tombol hanya jika di fase Shooting
+  if (currentPhase === 'shoot') {
+      btnDPR.style.display = 'inline-block';
+      btnDPR.onclick = function() { openDPR(dateKey); };
+      btnCallsheet.style.display = 'inline-block';
+  } else {
+      btnDPR.style.display = 'none';
+      btnCallsheet.style.display = 'none';
+  }
   
   let crewCallCalc = "TBA"; if (sd.scenes.length > 0 && sd.scenes[0].time) crewCallCalc = subtractMinutes(sd.scenes[0].time.split('-')[0].trim(), 90);
 
@@ -1796,6 +1804,7 @@ function showGeneralModal(htmlContent) {
     document.getElementById('modalCrew').innerHTML = "";
     document.getElementById('modalBody').innerHTML = htmlContent;
     document.getElementById('btnOpenCallsheet').style.display = 'none';
+    document.getElementById('btnOpenDPR').style.display = 'none'; // Tambahkan baris ini
     document.getElementById('modalOverlay').classList.add('open');
 }
 
@@ -1975,11 +1984,15 @@ function handleSceneMove(fromDay, toDay, sceneIndex) {
     shootDays[fromDay].scenes.splice(sceneIndex, 1);
     shootDays[toDay].scenes.push(sceneData);
 
+    const updatedDaysArray = Object.values(shootDays).filter(d => d.day !== 'X');
+
     // Simpan ke Firebase & Render Ulang
-    syncRef.update({ shoot_schedule: JSON.stringify(shootDays) });
+    syncRef.update({ 
+        schedule: JSON.stringify({ days: updatedDaysArray }) 
+    });
+    
     renderRombakBoard();
 }
-
 // =========================================================================
 // 12. FITUR DPR & SCRIPT LOG
 // =========================================================================
