@@ -559,6 +559,10 @@ syncRef.on('value', (snapshot) => {
 function rebuildShootDays() {
     shootDays = {};
     SCHEDULE_DATA.days.forEach(d => {
+        if (d.day === 'X') {
+          shootDays['parkiran'] = d;
+          return;
+            }
       const keyMatch = d.date.replace(/,/g, '').split(' ');
       if (keyMatch.length >= 3) {
           const yrStr = keyMatch[keyMatch.length-1];
@@ -1983,14 +1987,13 @@ function handleSceneMove(fromDay, toDay, sceneIndex) {
     shootDays[fromDay].scenes.splice(sceneIndex, 1);
     shootDays[toDay].scenes.push(sceneData);
 
-    const updatedDaysArray = Object.values(shootDays).filter(d => d.day !== 'X');
+    const updatedDaysArray = Object.values(shootDays);
 
     // Simpan ke Firebase & Render Ulang
     syncRef.update({ 
         schedule: JSON.stringify({ days: updatedDaysArray }) 
     });
     
-    renderRombakBoard();
 }
 // =========================================================================
 // 12. FITUR DPR & SCRIPT LOG
