@@ -707,7 +707,7 @@ function applyRoleAndClose(roleKey) {
   }
   
   // PASCA-PRODUKSI
-  const postProAccessList = ['director', 'producer', 'ad', 'line_producer', 'postpro_manager', 'postpro_producer', 'hod_editor', 'hod_colorist', 'hod_vfx', 'hod_soundpost', 'hod_music', 'hod_vfx'];
+  const postProAccessList = ['director', 'producer', 'postpro_manager', 'postpro_producer', 'hod_editor', 'hod_colorist', 'hod_vfx', 'hod_soundpost', 'hod_music', 'hod_vfx'];
   const userRoleKey = role.type === 'hod' ? role.dept : role.type;
   if (postProAccessList.includes(userRoleKey)) {
       document.getElementById('btnPostPro').style.display = 'inline-block'; 
@@ -2146,7 +2146,7 @@ function addPostTask() {
         const canAdd = role && ['director', 'producer', 'postpro_manager'].includes(role.type);
 
     if (!canAdd) {
-        alert("Maaf, hanya tim manajemen yang bisa menambah jadwal pasca.");
+        alert("Maaf, hanya tim POST-PRO yang bisa menambah jadwal pasca.");
         return;
     }
 
