@@ -210,6 +210,74 @@ body.dark-mode .rombak-col { background: #3E2723; border-color: #5D4037; }
 </head>
 <body>
 
+`DOOD POPUP`
+<div class="popup-overlay" id="doodPopup" style="z-index:3200;" onclick="closePopup('doodPopup', event)">
+  <div class="popup-box" style="max-width:98vw; width:98vw;">
+    <div class="popup-header">
+      <span>📊 DAY-OUT-OF-DAYS REPORT</span>
+      <button class="popup-close" onclick="closePopupDirect('doodPopup')">✕</button>
+    </div>
+    <div class="popup-body" id="doodBody" style="overflow-x:auto; padding:16px;"></div>
+  </div>
+</div>
+
+`STRIPBOARD POPUP`
+<div class="popup-overlay" id="stripboardPopup" style="z-index:3200;" onclick="closePopup('stripboardPopup', event)">
+  <div class="popup-box" style="max-width:98vw; width:98vw;">
+    <div class="popup-header">
+      <span>🎬 STRIPBOARD — One-Liner Schedule</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <select id="stripSortBy" onchange="renderStripboard()" style="padding:6px 10px;border:1px solid var(--border-color);border-radius:4px;background:var(--bg-card);color:var(--text-main);font-size:12px;font-weight:700;">
+          <option value="day">Sort: Shoot Day</option>
+          <option value="scene">Sort: Scene #</option>
+          <option value="location">Sort: Location</option>
+          <option value="ie">Sort: INT/EXT</option>
+          <option value="dn">Sort: Day/Night</option>
+        </select>
+        <button class="popup-close" onclick="closePopupDirect('stripboardPopup')">✕</button>
+      </div>
+    </div>
+    <div class="popup-body" id="stripboardBody" style="overflow-x:auto; padding:16px;"></div>
+  </div>
+</div>
+
+`CONFLICT DETECTOR POPUP`
+<div class="popup-overlay" id="conflictPopup" style="z-index:3200;" onclick="closePopup('conflictPopup', event)">
+  <div class="popup-box" style="max-width:700px;">
+    <div class="popup-header" style="background:#FEF2F2;color:#991B1B;">
+      <span>⚠️ CONFLICT DETECTOR</span>
+      <button class="popup-close" onclick="closePopupDirect('conflictPopup')">✕</button>
+    </div>
+    <div class="popup-body" id="conflictBody" style="padding:16px;max-height:70vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
+`LOCATION MANAGEMENT POPUP`
+<div class="popup-overlay" id="locationMgmtPopup" style="z-index:3200;" onclick="closePopup('locationMgmtPopup', event)">
+  <div class="popup-box" style="max-width:860px;">
+    <div class="popup-header">
+      <span>📍 LOCATION MANAGEMENT</span>
+      <div style="display:flex;gap:8px;">
+        <button id="btnAddLocation" class="btn-cast-gallery" style="padding:6px 12px;font-size:12px;display:none;" onclick="openAddLocationForm()">➕ Add Location</button>
+        <button class="popup-close" onclick="closePopupDirect('locationMgmtPopup')">✕</button>
+      </div>
+    </div>
+    <div class="popup-body" id="locationMgmtBody" style="padding:16px;max-height:75vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
+`TRANSPORT & ACCOMMODATION POPUP`
+<div class="popup-overlay" id="transpoPopup" style="z-index:3200;" onclick="closePopup('transpoPopup', event)">
+  <div class="popup-box" style="max-width:860px;">
+    <div class="popup-header">
+      <span>🚐 TRANSPORT & ACCOMMODATION</span>
+      <button class="popup-close" onclick="closePopupDirect('transpoPopup')">✕</button>
+    </div>
+    <div class="popup-body" id="transpoBody" style="padding:16px;max-height:75vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
+
 <div id="loadingScreen">Tunggu sebentar, ya...</div>
 
 <div id="loginOverlay" class="hidden">
@@ -253,12 +321,15 @@ body.dark-mode .rombak-col { background: #3E2723; border-color: #5D4037; }
 
     <div class="legend-bar">
         <button class="btn-cast-gallery" onclick="openCastGallery()">👥 Daftar Pemain</button>
-        <button class="btn-cast-gallery" style="background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color);" onclick="openLocationGallery()">📍 Lokasi</button>
+        <button class="btn-cast-gallery" style="background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color);" onclick="openLocationMgmt()">📍 Lokasi</button>
         <button id="btnDatabaseManager" class="btn-cast-gallery" style="background: var(--success);" onclick="openDatabaseManager()">💾 Import Data Excel</button>
         <button class="btn-cast-gallery" style="background: var(--text-main); color: var(--bg-main);" onclick="toggleDarkMode()">🌙 Mode</button>
-        <button class="btn-cast-gallery" style="background: #F59E0B; color: white;" onclick="gotoToday()">📅 Hari Ini</button>
-        
+        <button class="btn-cast-gallery" style="background: #F59E0B; color: white;" onclick="gotoToday()">📅 Hari Ini</button>  
         <button id="btnRombak" class="btn-cast-gallery" style="display:none; background: #8B5CF6; color: white;" onclick="toggleRombakMode()">⚙️ Ubah Jadwal</button>
+        <button class="btn-cast-gallery" style="background:#0F766E; color:white;" onclick="openDOOD()">🛌 DOOD</button>
+        <button class="btn-cast-gallery" style="background:#1E293B; color:white;" onclick="openStripboard()">🎬 Stripboard</button>
+        <button id="btnConflict" class="btn-cast-gallery" style="background:#DC2626; color:white; display:none;" onclick="openConflictPopup()">⚠️ Conflicts <span id="conflictBadge">0</span></button>
+<button class="btn-cast-gallery" style="background:#7C3AED; color:white;" onclick="openTranspo()">🚐 Transpo & Hotel</button>
     </div>
 
     <div id="shootCalendar" class="calendar-section active">
@@ -294,6 +365,7 @@ body.dark-mode .rombak-col { background: #3E2723; border-color: #5D4037; }
         <button class="v-btn" id="vKanban" onclick="setPreProView('kanban')">📋 Kanban</button>
         <button class="v-btn" id="vTimeline" onclick="setPreProView('timeline')">⏳ Timeline</button>
         <button class="v-btn active" id="vCalendar" onclick="setPreProView('calendar')">📅 Kalender</button>
+        <button class="v-btn" id="vGantt" onclick="setPreProView('gantt')">📊 Gantt</button>
         <button class="v-btn" id="btnAddTask" onclick="openTemplateLibrary()" style="display:none;">➕ Tambah Tugas</button>
     </div>
     <div id="preproCalNav" style="display:flex; justify-content:center; align-items:center; gap:20px; margin-bottom:20px;">
@@ -309,6 +381,11 @@ body.dark-mode .rombak-col { background: #3E2723; border-color: #5D4037; }
         <h2 style="color: white;">🎞️ Jadwal Pasca-Produksi</h2>
         <p style="color: #cbd5e1; font-size: 14px;">FILM A</p>
     </div>
+   
+<div style="display:flex;justify-content:center;gap:10px;margin:20px 0 0;flex-wrap:wrap;">
+    <button class="v-btn active" id="ppvCalendar" onclick="setPostProView('calendar')">📅 Calendar</button>
+    <button class="v-btn" id="ppvDept" onclick="setPostProView('dept')">🏢 Dept Lanes</button>
+  </div>
 
     <div class="calendar-section active" style="margin-top: 20px;">
         <div class="month-nav">
@@ -468,6 +545,7 @@ let SCHEDULE_DATA = { days: [] };
 let WRAPPED_SCENES = [];
 let WRAPPED_CASTS = [];
 let IMAGE_CACHE = {}; 
+let postProView = 'calendar'
 let shootDays = {};
 let activeFilterCastId = null; 
 let activeFilterLocation = null;
@@ -542,11 +620,17 @@ syncRef.on('value', (snapshot) => {
     if(currentPhase === 'prepro') {
         renderPrePro();
     }
-    if(currentPhase === 'postpro') {
-        renderPostProCalendar();
+   if(currentPhase === 'postpro') {
+        if (typeof postProView !== 'undefined' && postProView === 'dept') {
+            setPostProView('dept'); 
+        } else {
+            renderPostProCalendar();
+        }
     }
     
     document.getElementById('loadingScreen').style.display = 'none';
+    runConflictDetection();
+    fetchWeatherForSchedule();
 
   switchPhase(currentPhase);
     if (currentPhase === 'prepro' && typeof setPreProView === "function") {
@@ -1314,55 +1398,95 @@ function uploadCastImg(e, id) {
 // 9. PRA-PRODUKSI LOGIC
 // =========================================================================
 function renderPrePro() {
-    const container = document.getElementById('preproContent'), 
-          role = getCurrentRole(), 
-          isAdmin = role && ['ad', 'line_producer'].includes(role.type);
+  const container = document.getElementById('preproContent');
+  const role = getCurrentRole();
+  const isAdmin = role && ['ad', 'line_producer'].includes(role.type);
 
-    if (preproView === 'kanban') {
-        let html = `<div class="kanban-grid">`;
-        
-        ['To-Do', 'In Progress', 'Done'].forEach(col => {
-            const tasks = PREPRO_DATA.filter(t => t.status === col);
-            
-            // Buka elemen kolom
-            html += `<div class="kanban-col"><div class="kanban-header">${col} (${tasks.length})</div>`;
-          
-            tasks.forEach(t => {
-                const isUrgent = t.priority === 'Urgent';
-                const castBadges = t.casts ? t.casts.split(',').map(id => {
-                    const name = CAST_NAMES[id.trim()] || 'ID ' + id;
-                    return `<span style="background:var(--primary); color:white; padding:2px 5px; border-radius:3px; font-size:9px; margin-right:3px;">${name}</span>`;
-                }).join('') : '';
-                
-                html += `
-                <div class="task-card" style="${isUrgent ? 'border-left: 5px solid #EF4444;' : ''}">
-                    ${isUrgent ? `<div style="color:#EF4444; font-size:10px; font-weight:900; margin-bottom:5px;">⚠️ URGENT</div>` : ''}
-                    <div class="task-title">${t.title}</div>
-                    <div class="task-meta">🕒 ${t.time || '-'} | 📅 ${t.date || '-'}</div>
-                    <div style="margin-top:8px;">${castBadges}</div>
-                    <div style="font-size:11px; margin-top:5px; color:var(--text-light);">👥 ${t.crew || '-'}</div>
-                    <div style="margin-top:10px; display:flex; gap:5px;">
-                        <button class="btn-wa" onclick="sharePreProWA('${t.id}')">📲 WA</button>
-                        ${isAdmin ? `<button class="v-btn" onclick="editPreProTask('${t.id}')">⚙️</button>` : ''}
-                    </div>
-                </div>`;
-            });
-        
-            html += `</div>`; 
-            
-        });
+  // --- PROGRESS BAR (always shown above all views) ---
+  const total   = PREPRO_DATA.length;
+  const done    = PREPRO_DATA.filter(t => t.status === 'Done').length;
+  const inProg  = PREPRO_DATA.filter(t => t.status === 'In Progress').length;
+  const today   = new Date(); today.setHours(0,0,0,0);
+  const overdue = PREPRO_DATA.filter(t => t.date && new Date(t.date) < today && t.status !== 'Done').length;
+  const pct     = total > 0 ? Math.round(done / total * 100) : 0;
 
-        container.innerHTML = html;
+  const progressHtml = `
+  <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:10px;padding:16px 20px;margin-bottom:20px;display:flex;gap:24px;align-items:center;flex-wrap:wrap;">
+    <div style="text-align:center;min-width:64px;">
+      <div style="font-size:28px;font-weight:900;color:var(--primary);line-height:1;">${pct}%</div>
+      <div style="font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;">Done</div>
+    </div>
+    <div style="flex:1;min-width:180px;">
+      <div style="height:8px;background:var(--border-color);border-radius:4px;overflow:hidden;margin-bottom:6px;">
+        <div style="height:100%;background:var(--primary);border-radius:4px;width:${pct}%;transition:width 0.6s ease;"></div>
+      </div>
+      <div style="display:flex;gap:14px;font-size:11px;font-weight:600;flex-wrap:wrap;">
+        <span style="color:#10B981;">✅ Done: ${done}</span>
+        <span style="color:#F59E0B;">🔥 In Progress: ${inProg}</span>
+        <span style="color:#3B82F6;">⏳ To-Do: ${total - done - inProg}</span>
+        ${overdue > 0 ? `<span style="color:#EF4444;font-weight:800;">⏰ Overdue: ${overdue}</span>` : ''}
+      </div>
+    </div>
+    ${isAdmin ? `<button class="btn-cast-gallery" style="background:#F59E0B;color:white;padding:8px 14px;font-size:12px;" onclick="openRecurringTaskForm()">🔁 Recurring Task</button>` : ''}
+  </div>`;
 
-    } else if (preproView === 'timeline') {
-        let html = `<table class="timeline-table"><tr><th>Kegiatan</th><th>Kategori</th><th>Tanggal</th><th>Jam</th><th>Lokasi</th><th>Status</th></tr>`;
-        const sorted = [...PREPRO_DATA].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-        sorted.forEach(t => { html += `<tr><td><strong>${t.title}</strong></td><td>${t.cat}</td><td>${t.date || '-'}</td><td>${t.time||'-'}</td><td>${t.loc||'-'}</td><td>${t.status}</td></tr>`; });
-        container.innerHTML = html + `</table>`;
-        
-    } else if (preproView === 'calendar') {
-        renderPreProCalendar(container, isAdmin);
-    }
+  if (preproView === 'kanban') {
+    let html = progressHtml + `<div class="kanban-grid">`;
+    ['To-Do', 'In Progress', 'Done'].forEach(col => {
+      const tasks = PREPRO_DATA.filter(t => t.status === col);
+      html += `<div class="kanban-col"><div class="kanban-header">${col} (${tasks.length})</div>`;
+      tasks.forEach(t => {
+        const today2 = new Date(); today2.setHours(0,0,0,0);
+        const isOverdueTask = t.date && new Date(t.date) < today2 && t.status !== 'Done';
+        const prioColor = { Critical: '#EF4444', High: '#F59E0B', Normal: '#3B82F6' }[t.priority] || '#64748B';
+        const blockedBy = (t.dependsOn||[]).some(depId => { const d = PREPRO_DATA.find(x=>x.id===depId); return d && d.status!=='Done'; });
+        html += `
+        <div class="task-card" style="border-left:4px solid ${prioColor};${isOverdueTask?'background:#FFF1F2;':''}" >
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+            <div class="task-title" style="font-size:13px;">${blockedBy?'🔒 ':''}${t.title}</div>
+            <span style="font-size:9px;font-weight:800;color:${prioColor};white-space:nowrap;margin-left:6px;">${t.priority||'Normal'}</span>
+          </div>
+          ${isOverdueTask ? `<div style="color:#EF4444;font-size:10px;font-weight:800;margin-bottom:4px;">⏰ OVERDUE: ${t.date}</div>` : ''}
+          <div class="task-meta">🕒 ${t.time||'-'} | 📅 ${t.date||'-'}</div>
+          <div style="font-size:11px;margin-top:4px;color:var(--text-light);">👤 ${t.assignee||t.crew||'-'}</div>
+          ${t.linkUrl ? `<a href="${t.linkUrl}" target="_blank" style="font-size:10px;color:var(--primary);font-weight:700;display:block;margin-top:4px;">↗️ ${t.linkLabel||'Link'}</a>` : ''}
+          <div style="margin-top:10px;display:flex;gap:5px;">
+            <button class="btn-wa" onclick="sharePreProWA('${t.id}')">📲 WA</button>
+            ${isAdmin ? `<button class="v-btn" onclick="editPreProTask('${t.id}')">⚙️</button>` : ''}
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+    });
+    container.innerHTML = html + `</div>`;
+
+  } else if (preproView === 'timeline') {
+    const sorted = [...PREPRO_DATA].sort((a, b) => (a.date||'').localeCompare(b.date||''));
+    const today2 = new Date(); today2.setHours(0,0,0,0);
+    let html = progressHtml + `<table class="timeline-table">
+      <tr><th>Kegiatan</th><th>Assignee</th><th>Priority</th><th>Start</th><th>Due</th><th>Status</th><th>Link</th></tr>`;
+    sorted.forEach(t => {
+      const isOverdueTask = t.date && new Date(t.date) < today2 && t.status !== 'Done';
+      const prioColor = { Critical:'#EF4444', High:'#F59E0B', Normal:'#10B981' }[t.priority] || '#64748B';
+      const blockedBy = (t.dependsOn||[]).some(depId => { const d = PREPRO_DATA.find(x=>x.id===depId); return d && d.status!=='Done'; });
+      html += `<tr style="${isOverdueTask?'background:#FFF1F2;':''}">
+        <td><strong>${blockedBy?'🔒 ':''}${t.title}</strong><br><span style="font-size:10px;color:var(--text-light);">${t.cat}</span></td>
+        <td style="font-size:12px;">${t.assignee||t.crew||'—'}</td>
+        <td><span style="background:${prioColor}20;color:${prioColor};padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;">${t.priority||'Normal'}</span></td>
+        <td style="font-size:12px;">${t.startDate||'—'}</td>
+        <td style="font-size:12px;${isOverdueTask?'color:#EF4444;font-weight:800;':''}">${t.date||'—'}${isOverdueTask?' ⏰':''}</td>
+        <td>${t.status}</td>
+        <td>${t.linkUrl?`<a href="${t.linkUrl}" target="_blank" style="color:var(--primary);font-size:11px;font-weight:700;">↗️ ${t.linkLabel||'Link'}</a>`:'—'}</td>
+      </tr>`;
+    });
+    container.innerHTML = html + `</table>`;
+
+  } else if (preproView === 'gantt') {
+    container.innerHTML = progressHtml + renderGantt(isAdmin);
+
+  } else if (preproView === 'calendar') {
+    renderPreProCalendar(container, isAdmin, progressHtml);
+  }
 }
 
   function setPreProView(view) {
@@ -1379,60 +1503,78 @@ function renderPrePro() {
     renderPrePro();
 }
   
-function renderPreProCalendar(container, isAdmin) {
-    const monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-    document.getElementById('preproMonthLabel').textContent = `${monthNames[preproMonth]} ${preproYear}`;
+function renderPreProCalendar(container, isAdmin, progressHtml = '') {
+  const monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  document.getElementById('preproMonthLabel').textContent = `${monthNames[preproMonth]} ${preproYear}`;
 
-    const STATUS_COLOR = { 'Done': '#10B981', 'In Progress': '#F59E0B', 'To-Do': '#3B82F6' };
-    const firstDay = new Date(preproYear, preproMonth, 1).getDay();
-    const daysInMonth = new Date(preproYear, preproMonth + 1, 0).getDate();
-    const daysInPrev = new Date(preproYear, preproMonth, 0).getDate();
-    const today = new Date();
-    const cells = [];
-    for (let i = firstDay - 1; i >= 0; i--) cells.push({ day: daysInPrev - i, other: true });
-    for (let d = 1; d <= daysInMonth; d++) cells.push({ day: d, other: false });
-    const remaining = 42 - cells.length;
-    for (let d = 1; d <= remaining; d++) cells.push({ day: d, other: true });
+  const STATUS_COLOR = { 'Done':'#10B981', 'In Progress':'#F59E0B', 'To-Do':'#3B82F6' };
+  const PRIO_DOT = { 'Critical':'🔴 ', 'High':'🟡 ', 'Normal':'' };
+  const firstDay   = new Date(preproYear, preproMonth, 1).getDay();
+  const daysInMonth = new Date(preproYear, preproMonth + 1, 0).getDate();
+  const daysInPrev  = new Date(preproYear, preproMonth, 0).getDate();
+  const today = new Date(); today.setHours(0,0,0,0);
 
-    let html = `<div style="background:var(--bg-card); border-radius:8px; overflow:hidden; border:1px solid var(--border-color);">
-        <div style="display:grid; grid-template-columns:repeat(7,1fr); background:var(--border-color); border-bottom:1px solid var(--border-color);">
-            ${['MIN','SEN','SEL','RAB','KAM','JUM','SAB'].map(d => `<div class="cal-header-cell">${d}</div>`).join('')}
-        </div>
-        <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:1px; background:var(--border-color);">`;
+  const cells = [];
+  for (let i = firstDay - 1; i >= 0; i--) cells.push({ day: daysInPrev - i, other: true });
+  for (let d = 1; d <= daysInMonth; d++) cells.push({ day: d, other: false });
+  const remaining = 42 - cells.length;
+  for (let d = 1; d <= remaining; d++) cells.push({ day: d, other: true });
 
-    cells.forEach(cell => {
-        const isToday = !cell.other && cell.day === today.getDate() && preproMonth === today.getMonth() && preproYear === today.getFullYear();
-        const dateStr = cell.other ? null : `${preproYear}-${String(preproMonth + 1).padStart(2, '0')}-${String(cell.day).padStart(2, '0')}`;
-        const dayTasks = dateStr ? PREPRO_DATA.filter(t => t.date === dateStr) : [];
+  let html = progressHtml + `
+  <div style="background:var(--bg-card);border-radius:8px;overflow:hidden;border:1px solid var(--border-color);">
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);background:var(--border-color);border-bottom:1px solid var(--border-color);">
+      ${['MIN','SEN','SEL','RAB','KAM','JUM','SAB'].map(d=>`<div class="cal-header-cell">${d}</div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border-color);">`;
 
-        html += `<div style="background:var(--bg-card); min-height:110px; padding:10px; position:relative; ${cell.other ? 'opacity:0.4;' : ''} ${isToday ? 'box-shadow:inset 0 0 0 2px var(--primary);' : ''}">
-            <span style="font-size:15px; font-weight:600; color:${cell.other ? 'var(--secondary)' : 'var(--text-main)'}; display:block; margin-bottom:6px;">${cell.day}</span>`;
+  cells.forEach(cell => {
+    const isToday = !cell.other && cell.day === today.getDate() && preproMonth === today.getMonth() && preproYear === today.getFullYear();
+    const dateStr = cell.other ? null : `${preproYear}-${String(preproMonth+1).padStart(2,'0')}-${String(cell.day).padStart(2,'0')}`;
+    const dayTasks = dateStr ? PREPRO_DATA.filter(t => t.date === dateStr) : [];
 
-        dayTasks.forEach(t => {
-            const color = STATUS_COLOR[t.status] || '#64748B';
-            html += `<div onclick="${isAdmin ? `editPreProTask('${t.id}')` : ''}" style="background:${color}18; border-left:3px solid ${color}; border-radius:3px; padding:3px 6px; margin-bottom:4px; font-size:10px; font-weight:700; color:${color}; cursor:${isAdmin ? 'pointer' : 'default'}; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;" title="${t.title}">
-                ${t.time ? `<span style="opacity:0.8;">${t.time}</span> ` : ''}${t.title}
-            </div>`;
-        });
+    const hasOverdue = dayTasks.some(t => t.status !== 'Done' && new Date(dateStr) < today);
+    const hasCritical = dayTasks.some(t => t.priority === 'Critical' && t.status !== 'Done');
 
-        html += `</div>`;
+    const cellBg = hasOverdue ? '#FFF1F2' : 'var(--bg-card)';
+    const cellBorder = hasCritical ? 'box-shadow:inset 0 0 0 2px #EF4444;' : isToday ? 'box-shadow:inset 0 0 0 2px var(--primary);' : '';
+
+    html += `<div style="background:${cellBg};min-height:110px;padding:10px;position:relative;${cell.other?'opacity:0.4;':''}${cellBorder}">
+      <span style="font-size:15px;font-weight:600;color:${cell.other?'var(--secondary)':'var(--text-main)'};display:block;margin-bottom:6px;">${cell.day}</span>`;
+
+    dayTasks.forEach(t => {
+      const color = STATUS_COLOR[t.status] || '#64748B';
+      const prioDot = PRIO_DOT[t.priority] || '';
+      const isOverdueTask = t.status !== 'Done' && new Date(dateStr) < today;
+      const blocked = (t.dependsOn||[]).some(depId => { const d = PREPRO_DATA.find(x=>x.id===depId); return d && d.status!=='Done'; });
+      html += `<div onclick="${isAdmin ? `editPreProTask('${t.id}')` : ''}"
+        title="${t.title}${isOverdueTask?' — OVERDUE':''}${blocked?' — BLOCKED':''}"
+        style="background:${isOverdueTask?'#FEE2E2':color+'18'};border-left:3px solid ${isOverdueTask?'#EF4444':color};
+          border-radius:3px;padding:3px 6px;margin-bottom:4px;font-size:10px;font-weight:700;
+          color:${isOverdueTask?'#991B1B':color};cursor:${isAdmin?'pointer':'default'};
+          overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">
+        ${prioDot}${blocked?'🔒 ':''}${t.time?`<span style="opacity:0.8;">${t.time}</span> `:''}${t.title}
+      </div>`;
     });
 
-    html += `</div></div>`;
-
-    // Legend
-    html += `<div style="display:flex; gap:16px; justify-content:center; margin-top:16px; flex-wrap:wrap;">`;
-    Object.entries(STATUS_COLOR).forEach(([label, color]) => {
-        const count = PREPRO_DATA.filter(t => t.status === label && t.date && t.date.startsWith(`${preproYear}-${String(preproMonth + 1).padStart(2, '0')}`)).length;
-        html += `<div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--text-light);">
-            <div style="width:12px; height:12px; border-radius:2px; background:${color};"></div> ${label} <span style="background:var(--bg-main); padding:1px 6px; border-radius:10px;">${count}</span>
-        </div>`;
-    });
-    const noDate = PREPRO_DATA.filter(t => !t.date).length;
-    if (noDate > 0) html += `<div style="font-size:12px; font-weight:700; color:var(--text-light);">⚠️ Belum dijadwal: ${noDate} tugas</div>`;
     html += `</div>`;
+  });
 
-    container.innerHTML = html;
+  html += `</div></div>`;
+
+  // Legend
+  html += `<div style="display:flex;gap:14px;justify-content:center;margin-top:16px;flex-wrap:wrap;align-items:center;">`;
+  Object.entries(STATUS_COLOR).forEach(([label, color]) => {
+    const count = PREPRO_DATA.filter(t => t.status === label && (t.date||'').startsWith(`${preproYear}-${String(preproMonth+1).padStart(2,'0')}`)).length;
+    html += `<div style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--text-light);">
+      <div style="width:10px;height:10px;border-radius:2px;background:${color};"></div>${label} <span style="background:var(--bg-main);padding:1px 5px;border-radius:10px;">${count}</span>
+    </div>`;
+  });
+  html += `<div style="font-size:11px;font-weight:700;color:#EF4444;">🔴 = Critical priority</div>`;
+  const overdueCt = PREPRO_DATA.filter(t => t.date && new Date(t.date) < today && t.status !== 'Done').length;
+  if (overdueCt > 0) html += `<div style="font-size:11px;font-weight:800;color:#EF4444;">⏰ ${overdueCt} tugas overdue</div>`;
+  html += `</div>`;
+
+  container.innerHTML = html;
 }
 
 function openTemplateLibrary() {
@@ -1446,83 +1588,159 @@ function openTemplateLibrary() {
     showGeneralModal(html);
 }
 
-  function addTask(title, cat) { const id = 'task_' + Date.now(); PREPRO_DATA.push({ id, title, cat, status: 'To-Do', time: '', loc: '', maps: '', reportUrl: '', crew: '', cast: '' }); syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) }); closeGeneralModal(); editPreProTask(id); }
+  function addTask(title, cat) {
+  const id = 'task_' + Date.now();
+  PREPRO_DATA.push({
+    id, title, cat,
+    status: 'To-Do',
+    priority: 'Normal',
+    time: '', date: '', startDate: '',
+    loc: '', maps: '', reportUrl: '',
+    assignee: '', crew: '', cast: '',
+    dependsOn: [],
+    linkUrl: '', linkLabel: '',
+    mom: ''
+  });
+  syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) });
+  closeGeneralModal();
+  editPreProTask(id);
+}
 
 function editPreProTask(id) {
-    const t = PREPRO_DATA.find(x => x.id === id);
-    if (!t) return;
-    
-    const role = getCurrentRole();
-    
-    // Aturan Hak Akses
-    const canEditMoM = role && ['ad', 'line_producer', 'production_coordinator'].includes(role.type);
-    const canEditFull = role && ['ad', 'line_producer'].includes(role.type);
+  const t = PREPRO_DATA.find(x => x.id === id);
+  if (!t) return;
+  const role = getCurrentRole();
+  const canEditMoM  = role && ['ad', 'line_producer', 'production_coordinator'].includes(role.type);
+  const canEditFull = role && ['ad', 'line_producer'].includes(role.type);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const isOverdue   = t.date && new Date(t.date) < today && t.status !== 'Done';
 
-    let html = `<h3>Edit Agenda: ${t.title}</h3><div class="profile-form">`;
-    
-    // Status
-    html += `
+  // Build dependency options (all other tasks)
+  const depOptions = PREPRO_DATA
+    .filter(x => x.id !== id)
+    .map(x => {
+      const checked = (t.dependsOn || []).includes(x.id) ? 'checked' : '';
+      return `<label style="display:flex;align-items:center;gap:6px;font-size:12px;padding:4px 0;cursor:pointer;">
+        <input type="checkbox" class="dep-checkbox" value="${x.id}" ${checked} style="cursor:pointer;">
+        <span style="font-weight:600;">${x.title}</span>
+        <span style="font-size:10px;color:var(--text-light);">(${x.status})</span>
+      </label>`;
+    }).join('');
+
+  // Check if blocked by unfinished dependency
+  const blockedBy = (t.dependsOn || [])
+    .map(depId => PREPRO_DATA.find(x => x.id === depId))
+    .filter(dep => dep && dep.status !== 'Done');
+
+  let html = `<div style="font-family:'Inter',sans-serif;">
+  <h3 style="margin-bottom:4px;">✏️ ${t.title}</h3>
+  <div style="font-size:11px;color:var(--text-light);margin-bottom:${isOverdue ? '0' : '16px'};">${t.cat || ''}</div>
+  ${isOverdue ? `<div style="background:#FEE2E2;color:#991B1B;padding:8px 12px;border-radius:6px;font-size:12px;font-weight:700;margin-bottom:12px;">⏰ OVERDUE — Due ${t.date}</div>` : ''}
+  ${blockedBy.length > 0 ? `<div style="background:#FEF3C7;color:#92400E;padding:8px 12px;border-radius:6px;font-size:12px;font-weight:700;margin-bottom:12px;">🔒 BLOCKED by: ${blockedBy.map(d=>d.title).join(', ')}</div>` : ''}
+
+  <div class="profile-form">
     <label>Status:</label>
-    <select id="p_status" class="v-btn" onchange="toggleMoMInput(this.value)">
-        <option value="To-Do" ${t.status==='To-Do'?'selected':''}>To-Do</option>
-        <option value="In Progress" ${t.status==='In Progress'?'selected':''}>In Progress</option>
-        <option value="Done" ${t.status==='Done'?'selected':''}>Done</option>
-    </select>`;
+    <select id="p_status" class="v-btn" onchange="toggleMoMInput(this.value)" style="height:40px;">
+      <option value="To-Do" ${t.status==='To-Do'?'selected':''}>⏳ To-Do</option>
+      <option value="In Progress" ${t.status==='In Progress'?'selected':''}>🔥 In Progress</option>
+      <option value="Done" ${t.status==='Done'?'selected':''}>✅ Done</option>
+    </select>
 
-    // Container MoM (Muncul jika status Done)
-    html += `
-    <div id="mom_container" style="display: ${t.status === 'Done' ? 'block' : 'none'}; margin-top: 15px; padding: 10px; background: var(--bg-main); border-radius: 8px; border: 1px dashed var(--border-color);">
-        <label style="color: var(--primary); font-weight: 800;">📄 Link Minutes of Meeting (MoM):</label>
-        <input type="text" id="p_mom" value="${t.mom || ''}" 
-               placeholder="Paste link Google Docs / Notion di sini..." 
-               class="v-btn" ${!canEditMoM ? 'disabled' : ''}>
-        ${!canEditMoM && t.mom ? `<a href="${t.mom}" target="_blank" style="display: block; margin-top: 8px; font-size: 12px; color: var(--primary);">↗️ Buka Notulensi</a>` : ''}
+    <div id="mom_container" style="display:${t.status==='Done'?'block':'none'};padding:10px;background:var(--bg-main);border-radius:8px;border:1px dashed var(--border-color);">
+      <label style="color:var(--primary);font-weight:800;font-size:11px;">📄 Link MoM / Notulensi:</label>
+      <input type="text" id="p_mom" value="${t.mom||''}" placeholder="Paste Google Docs / Notion link..." class="v-btn" style="margin-top:6px;" ${!canEditMoM?'disabled':''}>
+      ${!canEditMoM && t.mom ? `<a href="${t.mom}" target="_blank" style="display:block;margin-top:6px;font-size:12px;color:var(--primary);">↗️ Buka Notulensi</a>` : ''}
     </div>`;
 
-    // Kolom Edit Full (Hanya untuk Admin)
-    if (canEditFull) {
-        html += `
-        <label style="margin-top:12px;">Prioritas:</label>
-        <select id="p_priority" class="v-btn">
-            <option value="Normal" ${t.priority==='Normal'?'selected':''}>🟢 Normal</option>
-            <option value="Urgent" ${t.priority==='Urgent'?'selected':''}>🔴 Urgent</option>
-        </select>
-        <label>Tanggal:</label><input type="date" id="p_date" value="${t.date || ''}" class="v-btn">
-        <label>Jam:</label><input type="time" id="p_time" value="${t.time || ''}" class="v-btn">
-        <label>Lokasi:</label><input type="text" id="p_loc" value="${t.loc || ''}" class="v-btn">
-        <label>Kru/Pemain:</label><input type="text" id="p_crew" value="${t.crew || ''}" class="v-btn">`;
-    } else {
-        // Data disembunyikan agar tidak terhapus jika di-save oleh HOD non-admin
-        html += `
-        <input type="hidden" id="p_priority" value="${t.priority || 'Normal'}">
-        <input type="hidden" id="p_date" value="${t.date || ''}">
-        <input type="hidden" id="p_time" value="${t.time || ''}">
-        <input type="hidden" id="p_loc" value="${t.loc || ''}">
-        <input type="hidden" id="p_crew" value="${t.crew || ''}">`;
-    }
+  if (canEditFull) {
+    html += `
+    <label style="margin-top:4px;">Priority:</label>
+    <select id="p_priority" class="v-btn" style="height:40px;">
+      <option value="Normal" ${(t.priority||'Normal')==='Normal'?'selected':''}>⚪ Normal</option>
+      <option value="High"   ${t.priority==='High'?'selected':''}>🟡 High</option>
+      <option value="Critical" ${t.priority==='Critical'?'selected':''}>🔴 Critical</option>
+    </select>
 
-    // Tombol Action
-    html += `<button class="nav-btn active" onclick="updatePreProTask('${id}')" style="margin-top:16px;">💾 Simpan Perubahan</button>
-    ${canEditFull ? `<button class="v-btn" style="color:red; margin-top:8px;" onclick="deletePreProTask('${id}')">🗑️ Hapus Agenda</button>` : ''}</div>`;
-    
-    showGeneralModal(html);
+    <label>Assignee (who owns this task):</label>
+    <input type="text" id="p_assignee" value="${t.assignee||''}" class="v-btn" placeholder="e.g. 1st AD, Wardrobe HOD...">
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div>
+        <label style="font-size:11px;">Start Date:</label>
+        <input type="date" id="p_startDate" value="${t.startDate||''}" class="v-btn">
+      </div>
+      <div>
+        <label style="font-size:11px;">Due Date:</label>
+        <input type="date" id="p_date" value="${t.date||''}" class="v-btn">
+      </div>
+    </div>
+
+    <label>Time:</label>
+    <input type="time" id="p_time" value="${t.time||''}" class="v-btn">
+
+    <label>Location:</label>
+    <input type="text" id="p_loc" value="${t.loc||''}" class="v-btn">
+
+    <label>Additional Crew / Notes:</label>
+    <input type="text" id="p_crew" value="${t.crew||''}" class="v-btn">
+
+    <label>Reference Link (optional):</label>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:8px;">
+      <input type="text" id="p_linkLabel" value="${t.linkLabel||''}" class="v-btn" placeholder="Label, e.g. Script v3">
+      <input type="text" id="p_linkUrl" value="${t.linkUrl||''}" class="v-btn" placeholder="https://...">
+    </div>
+
+    <label style="margin-top:4px;">Dependencies (must be Done before this can start):</label>
+    <div style="max-height:130px;overflow-y:auto;background:var(--bg-main);border:1px solid var(--border-color);border-radius:6px;padding:8px 12px;" id="dep_container">
+      ${depOptions || '<span style="font-size:12px;color:var(--text-light);">No other tasks yet.</span>'}
+    </div>`;
+  } else {
+    // Hidden fields to preserve values on save
+    html += `
+    <input type="hidden" id="p_priority"  value="${t.priority||'Normal'}">
+    <input type="hidden" id="p_assignee"  value="${t.assignee||''}">
+    <input type="hidden" id="p_startDate" value="${t.startDate||''}">
+    <input type="hidden" id="p_date"      value="${t.date||''}">
+    <input type="hidden" id="p_time"      value="${t.time||''}">
+    <input type="hidden" id="p_loc"       value="${t.loc||''}">
+    <input type="hidden" id="p_crew"      value="${t.crew||''}">
+    <input type="hidden" id="p_linkLabel" value="${t.linkLabel||''}">
+    <input type="hidden" id="p_linkUrl"   value="${t.linkUrl||''}">`;
+    if (t.linkUrl) html += `<a href="${t.linkUrl}" target="_blank" style="display:inline-block;margin-top:8px;font-size:12px;color:var(--primary);font-weight:700;">↗️ ${t.linkLabel || 'Open Link'}</a>`;
+  }
+
+  html += `
+    <button class="nav-btn active" onclick="updatePreProTask('${id}')" style="margin-top:12px;width:100%;padding:12px;">💾 Simpan Perubahan</button>
+    ${canEditFull ? `<button class="v-btn" style="color:red;margin-top:8px;width:100%;" onclick="deletePreProTask('${id}')">🗑️ Hapus Agenda</button>` : ''}
+  </div></div>`;
+
+  showGeneralModal(html);
 }
 
 // Fungsi Simpan ke Firebase
 function updatePreProTask(id) {
-    const idx = PREPRO_DATA.findIndex(x => x.id === id);
-    if (idx === -1) return;
+  const idx = PREPRO_DATA.findIndex(x => x.id === id);
+  if (idx === -1) return;
 
-    PREPRO_DATA[idx].status = document.getElementById('p_status').value;
-    PREPRO_DATA[idx].priority = document.getElementById('p_priority').value;
-    PREPRO_DATA[idx].date = document.getElementById('p_date').value;
-    PREPRO_DATA[idx].time = document.getElementById('p_time').value;
-    PREPRO_DATA[idx].loc = document.getElementById('p_loc').value;
-    PREPRO_DATA[idx].crew = document.getElementById('p_crew').value;
-    PREPRO_DATA[idx].mom = document.getElementById('p_mom').value; // Ambil nilai MoM
+  // Collect checked dependency IDs
+  const checkedDeps = [];
+  document.querySelectorAll('.dep-checkbox:checked').forEach(cb => checkedDeps.push(cb.value));
 
-    syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) });
-    closeGeneralModal();
+  PREPRO_DATA[idx].status    = document.getElementById('p_status').value;
+  PREPRO_DATA[idx].priority  = document.getElementById('p_priority').value;
+  PREPRO_DATA[idx].assignee  = document.getElementById('p_assignee').value;
+  PREPRO_DATA[idx].startDate = document.getElementById('p_startDate').value;
+  PREPRO_DATA[idx].date      = document.getElementById('p_date').value;
+  PREPRO_DATA[idx].time      = document.getElementById('p_time').value;
+  PREPRO_DATA[idx].loc       = document.getElementById('p_loc').value;
+  PREPRO_DATA[idx].crew      = document.getElementById('p_crew').value;
+  PREPRO_DATA[idx].linkLabel = document.getElementById('p_linkLabel').value;
+  PREPRO_DATA[idx].linkUrl   = document.getElementById('p_linkUrl').value;
+  PREPRO_DATA[idx].mom       = document.getElementById('p_mom')?.value || PREPRO_DATA[idx].mom || '';
+  PREPRO_DATA[idx].dependsOn = checkedDeps;
+
+  syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) });
+  closeGeneralModal();
 }
 
 // Fungsi Hapus Tugas
@@ -1550,6 +1768,215 @@ function sharePreProWA(id) {
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank'); 
 }
 
+// RENDER GANTT FUNCTION //
+
+function renderGantt(isAdmin) {
+  const tasks = PREPRO_DATA.filter(t => t.date || t.startDate)
+    .sort((a,b) => ((a.startDate||a.date)||'').localeCompare((b.startDate||b.date)||''));
+
+  if (tasks.length === 0)
+    return `<div style="text-align:center;padding:60px;color:var(--text-light);">
+      <div style="font-size:40px;margin-bottom:12px;">📊</div>
+      No tasks with dates yet. Add start/due dates to your tasks to see the Gantt chart.
+    </div>`;
+
+  const allDates = tasks.flatMap(t => [t.startDate||t.date, t.date]).filter(Boolean).sort();
+  const minDate = new Date(allDates[0]);
+  const maxDate = new Date(allDates[allDates.length - 1]);
+  minDate.setDate(minDate.getDate() - 3);
+  maxDate.setDate(maxDate.getDate() + 7);
+
+  const totalDays = Math.max(1, Math.ceil((maxDate - minDate) / 864e5));
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayOffset = Math.max(0, Math.min(totalDays, Math.ceil((today - minDate) / 864e5)));
+
+  function pct(dateStr) {
+    return Math.max(0, Math.min(100, (Math.ceil((new Date(dateStr) - minDate) / 864e5) / totalDays) * 100));
+  }
+
+  // Build week-label header
+  const weeks = []; let cur = new Date(minDate);
+  while (cur <= maxDate) { weeks.push(new Date(cur)); cur = new Date(cur); cur.setDate(cur.getDate() + 7); }
+
+  const PRIO_COLOR = { Critical:'#EF4444', High:'#F59E0B', Normal:'#3B82F6', Urgent:'#EF4444' };
+  const cats = [...new Set(tasks.map(t => t.cat || 'Other'))];
+
+  let html = `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+  <table style="border-collapse:collapse;width:100%;min-width:700px;background:var(--bg-card);border-radius:8px;overflow:hidden;border:1px solid var(--border-color);">
+  <thead>
+    <tr style="background:var(--text-main);">
+      <th style="padding:10px 14px;text-align:left;min-width:200px;position:sticky;left:0;background:var(--text-main);z-index:3;font-size:12px;color:white;">TASK</th>
+      <th style="padding:10px 8px;text-align:center;min-width:80px;font-size:11px;color:white;">PRIORITY</th>
+      <th style="padding:10px 8px;text-align:center;min-width:80px;font-size:11px;color:white;">STATUS</th>
+      <th style="padding:6px 0;position:relative;min-width:${Math.max(400, totalDays * 14)}px;">
+        <div style="position:relative;height:36px;padding:0 4px;">`;
+
+  weeks.forEach(w => {
+    const left = pct(w.toISOString().split('T')[0]);
+    html += `<span style="position:absolute;left:${left}%;font-size:9px;color:rgba(255,255,255,0.6);white-space:nowrap;transform:translateX(-50%);">${w.getDate()}/${w.getMonth()+1}</span>`;
+  });
+  html += `</div></th></tr></thead><tbody>`;
+
+  cats.forEach(cat => {
+    html += `<tr style="background:var(--bg-main);">
+      <td colspan="4" style="padding:5px 14px;font-size:11px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;position:sticky;left:0;background:var(--bg-main);">${cat}</td>
+    </tr>`;
+
+    tasks.filter(t => (t.cat||'Other') === cat).forEach((t, i) => {
+      const start = t.startDate || t.date;
+      const end   = t.date || t.startDate;
+      const barLeft  = pct(start);
+      const barRight = pct(end);
+      const barWidth = Math.max(0.8, barRight - barLeft);
+      const isOverdueT = end && new Date(end) < today && t.status !== 'Done';
+      const barColor = isOverdueT ? '#EF4444' : (PRIO_COLOR[t.priority] || '#3B82F6');
+      const opacity  = t.status === 'Done' ? 0.45 : 1;
+      const todayPct = (todayOffset / totalDays) * 100;
+      const blocked  = (t.dependsOn||[]).some(depId => { const d = PREPRO_DATA.find(x=>x.id===depId); return d && d.status!=='Done'; });
+      const rowBg    = i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-main)';
+
+      html += `<tr style="background:${rowBg};border-bottom:1px solid var(--border-color);">
+        <td style="padding:8px 14px;position:sticky;left:0;background:${rowBg};z-index:1;max-width:200px;">
+          <div style="font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-main);" title="${t.title}">
+            ${blocked ? '🔒 ' : ''}${t.title}
+          </div>
+          <div style="font-size:10px;color:var(--text-light);">${t.assignee || t.crew || '—'}</div>
+        </td>
+        <td style="padding:8px;text-align:center;">
+          <span style="font-size:10px;font-weight:800;background:${barColor}20;color:${barColor};padding:2px 7px;border-radius:3px;">${t.priority||'Normal'}</span>
+        </td>
+        <td style="padding:8px;text-align:center;font-size:11px;font-weight:700;color:var(--text-main);">${t.status}</td>
+        <td style="padding:4px 0;height:38px;position:relative;">
+          <!-- Today line -->
+          <div style="position:absolute;left:${todayPct}%;top:0;bottom:0;width:2px;background:rgba(239,68,68,0.4);z-index:2;pointer-events:none;"></div>
+          <!-- Bar -->
+          <div onclick="${isAdmin ? `editPreProTask('${t.id}')` : ''}" title="Click to edit • ${start} → ${end}"
+            style="position:absolute;left:${barLeft}%;width:${barWidth}%;min-width:4px;height:20px;top:50%;transform:translateY(-50%);
+              background:${barColor};opacity:${opacity};border-radius:3px;
+              cursor:${isAdmin?'pointer':'default'};display:flex;align-items:center;padding:0 5px;overflow:hidden;">
+            ${t.status === 'Done' ? '<span style="font-size:10px;color:white;font-weight:700;">✓</span>' : ''}
+          </div>
+        </td>
+      </tr>`;
+    });
+  });
+
+  // Today label at bottom
+  const todayPct2 = (todayOffset / totalDays) * 100;
+  html += `<tr style="background:var(--bg-main);">
+    <td colspan="3" style="padding:4px 14px;font-size:10px;color:var(--text-light);position:sticky;left:0;background:var(--bg-main);">
+      📅 TODAY: ${today.toISOString().split('T')[0]}
+    </td>
+    <td style="position:relative;height:20px;">
+      <div style="position:absolute;left:${todayPct2}%;transform:translateX(-50%);font-size:9px;color:#EF4444;font-weight:700;">TODAY ▲</div>
+    </td>
+  </tr>`;
+
+  html += `</tbody></table></div>`;
+  return html;
+}
+
+
+// RENDER RECURRING TASK FORM/
+
+function openRecurringTaskForm() {
+  const role = getCurrentRole();
+  if (!role || !['ad','line_producer'].includes(role.type)) { alert('AD/LP only.'); return; }
+
+  const html = `
+  <div style="font-family:'Inter',sans-serif;padding:10px;">
+    <h3 style="margin-bottom:16px;">🔁 Generate Recurring Tasks</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">TASK TITLE</label>
+        <input id="rec_title" class="v-btn" style="width:100%;margin-top:4px;" placeholder="e.g. Daily Rehearsal"></div>
+      <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">CATEGORY</label>
+        <select id="rec_cat" class="v-btn" style="width:100%;margin-top:4px;height:40px;">
+          ${MASTER_CHECKLIST.map(g=>`<option value="${g.cat}">${g.cat}</option>`).join('')}
+        </select></div>
+      <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">PRIORITY</label>
+        <select id="rec_priority" class="v-btn" style="width:100%;margin-top:4px;height:40px;">
+          <option value="Normal">⚪ Normal</option>
+          <option value="High">🟡 High</option>
+          <option value="Critical">🔴 Critical</option>
+        </select></div>
+      <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">ASSIGNEE</label>
+        <input id="rec_assignee" class="v-btn" style="width:100%;margin-top:4px;" placeholder="e.g. Director, Cast Team"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">START DATE</label>
+          <input type="date" id="rec_start" class="v-btn" style="width:100%;margin-top:4px;"></div>
+        <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">END DATE</label>
+          <input type="date" id="rec_end" class="v-btn" style="width:100%;margin-top:4px;"></div>
+      </div>
+      <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">REPEAT EVERY</label>
+        <select id="rec_freq" class="v-btn" style="width:100%;margin-top:4px;height:40px;">
+          <option value="1">Every day</option>
+          <option value="2">Every 2 days</option>
+          <option value="7" selected>Every week</option>
+          <option value="14">Every 2 weeks</option>
+        </select></div>
+      <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">TIME (optional)</label>
+        <input type="time" id="rec_time" class="v-btn" style="width:100%;margin-top:4px;"></div>
+      <div id="rec_preview" style="font-size:12px;color:var(--text-light);padding:8px;background:var(--bg-main);border-radius:6px;min-height:30px;"></div>
+      <button class="nav-btn active" onclick="generateRecurringTasks()" style="width:100%;padding:12px;">⚡ Generate Tasks</button>
+    </div>
+  </div>`;
+
+  showGeneralModal(html);
+
+  // Live preview
+  ['rec_start','rec_end','rec_freq'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', previewRecurring);
+  });
+}
+
+function previewRecurring() {
+  const start = document.getElementById('rec_start')?.value;
+  const end   = document.getElementById('rec_end')?.value;
+  const freq  = parseInt(document.getElementById('rec_freq')?.value || '7');
+  const el    = document.getElementById('rec_preview');
+  if (!el || !start || !end) return;
+
+  let count = 0; let cur = new Date(start);
+  const endDate = new Date(end);
+  while (cur <= endDate) { count++; cur.setDate(cur.getDate() + freq); }
+  el.textContent = `→ Will create ${count} task${count===1?'':'s'}.`;
+}
+
+function generateRecurringTasks() {
+  const title    = document.getElementById('rec_title').value.trim();
+  const cat      = document.getElementById('rec_cat').value;
+  const priority = document.getElementById('rec_priority').value;
+  const assignee = document.getElementById('rec_assignee').value;
+  const start    = document.getElementById('rec_start').value;
+  const end      = document.getElementById('rec_end').value;
+  const freq     = parseInt(document.getElementById('rec_freq').value || '7');
+  const time     = document.getElementById('rec_time').value;
+
+  if (!title || !start || !end) { alert('Title, start date, and end date are required.'); return; }
+  if (new Date(start) > new Date(end)) { alert('End date must be after start date.'); return; }
+
+  let cur = new Date(start);
+  const endDate = new Date(end);
+  let count = 0;
+
+  while (cur <= endDate) {
+    const dateStr = cur.toISOString().split('T')[0];
+    PREPRO_DATA.push({
+      id: 'task_' + Date.now() + '_' + count,
+      title, cat, priority, assignee, status: 'To-Do',
+      date: dateStr, startDate: dateStr, time,
+      loc:'', crew:'', dependsOn:[], linkUrl:'', linkLabel:'', mom:''
+    });
+    count++;
+    cur = new Date(cur);
+    cur.setDate(cur.getDate() + freq);
+  }
+
+  syncRef.update({ prepro: JSON.stringify(PREPRO_DATA) });
+  closeGeneralModal();
+  alert(`✅ ${count} recurring task${count===1?'':'s'} created!`);
+}
 
 // =========================================================================
 // 10. CORE RENDERING & HELPERS
@@ -1656,6 +2083,9 @@ function renderCalendar() {
       mainIds.forEach(id => { html += `<div class="cast-dot dot-main" title="${CAST_NAMES[id]||'ID'+id}">${id}</div>`; });
       suppIds.forEach(id => { html += `<div class="cast-dot dot-supp" title="${CAST_NAMES[id]||'ID'+id}">${id}</div>`; });
       html += `</div>`;
+ 
+      html += getWeatherHtml(key);
+
       div.setAttribute('onclick', `openModal('${key}')`);
     }
     div.innerHTML = html; body.appendChild(div);
@@ -2110,151 +2540,274 @@ function nextMonthPost() { currentPostMonth++; if(currentPostMonth > 11) { curre
 
 // Render Kalender Pasca
 function renderPostProCalendar() {
-    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-    document.getElementById('monthLabelPost').textContent = `${monthNames[currentPostMonth]} ${currentPostYear}`;
+  const monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  document.getElementById('monthLabelPost').textContent = `${monthNames[currentPostMonth]} ${currentPostYear}`;
 
-    const body = document.getElementById('calBodyPost');
-    body.innerHTML = '';
+  const body = document.getElementById('calBodyPost');
+  body.innerHTML = '';
 
-    const firstDay = new Date(currentPostYear, currentPostMonth, 1).getDay();
-    const daysInMonth = new Date(currentPostYear, currentPostMonth + 1, 0).getDate();
+  const firstDay = new Date(currentPostYear, currentPostMonth, 1).getDay();
+  const daysInMonth = new Date(currentPostYear, currentPostMonth + 1, 0).getDate();
+  const today = new Date(); today.setHours(0,0,0,0);
 
-    for (let i = 0; i < firstDay; i++) {
-        body.innerHTML += `<div class="cal-day other-month"></div>`;
-    }
+  for (let i = 0; i < firstDay; i++) {
+    body.innerHTML += `<div class="cal-day other-month"></div>`;
+  }
 
-    for (let day = 1; day <= daysInMonth; day++) {
-        const dateStr = `${currentPostYear}-${String(currentPostMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const dayTasks = POSTPRO_DATA.filter(t => t.date === dateStr);
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${currentPostYear}-${String(currentPostMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const dayTasks = POSTPRO_DATA.filter(t => t.date === dateStr);
+    const isToday  = dateStr === today.toISOString().split('T')[0];
 
-        let html = `<div class="cal-day"><div class="date-num">${day}</div>`;
-        
-        dayTasks.forEach(t => {
-            let bgColor = t.status === 'Done' ? 'var(--success)' : (t.status === 'Waiting for Revision' ? 'var(--warning)' : 'var(--primary)');
-            html += `
-            <div onclick="editPostTask('${t.id}')" 
-                 style="background:${bgColor}; border-radius:4px; padding:4px 6px; margin-bottom:4px; font-size:10px; font-weight:700; color:white; cursor:pointer;">
-                ${t.time ? `<span style="opacity:0.8; font-weight:normal;">${t.time}</span> ` : ''}${t.title}
-            </div>`;
-        });
-        html += `</div>`;
-        body.innerHTML += html;
-    }
+    const hasMilestone = dayTasks.some(t => t.isMilestone);
+    const hasOverdue   = dayTasks.some(t => t.date && new Date(t.date) < today && t.status !== 'Done' && t.approvalStatus !== 'Approved');
+
+    let cellBg     = hasMilestone ? '#FEF3C7' : hasOverdue ? '#FFF1F2' : 'var(--bg-card)';
+    let cellBorder = hasMilestone ? 'box-shadow:inset 0 0 0 2px #F59E0B;' : isToday ? 'box-shadow:inset 0 0 0 2px var(--primary);' : '';
+
+    let html = `<div class="cal-day" style="background:${cellBg};${cellBorder}">
+      <div class="date-num" style="font-weight:600;margin-bottom:4px;">${day}${hasMilestone ? ' 🚩' : ''}</div>`;
+
+    dayTasks.forEach(t => {
+      const isOverdueT = new Date(t.date) < today && t.status !== 'Done' && t.approvalStatus !== 'Approved';
+      let bgColor = isOverdueT ? '#EF4444' :
+        t.approvalStatus === 'Approved' ? '#10B981' :
+        t.status === 'Done' ? '#10B981' :
+        t.status === 'Waiting for Revision' ? '#EF4444' :
+        t.status === 'In Progress' ? '#F59E0B' : '#3B82F6';
+
+      const progress = t.progress || 0;
+      html += `
+      <div onclick="editPostTask('${t.id}')"
+        style="border-radius:4px;margin-bottom:4px;font-size:10px;font-weight:700;color:white;cursor:pointer;overflow:hidden;">
+        <div style="background:${bgColor};padding:3px 6px;display:flex;justify-content:space-between;gap:3px;align-items:center;">
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.isMilestone?'🚩 ':''}${t.title}</span>
+          <span style="flex-shrink:0;opacity:0.85;">${progress}%</span>
+        </div>
+        ${progress > 0 && progress < 100 ? `<div style="height:3px;background:rgba(0,0,0,0.2);"><div style="height:100%;background:rgba(255,255,255,0.6);width:${progress}%;"></div></div>` : ''}
+      </div>`;
+    });
+
+    html += `</div>`;
+    body.innerHTML += html;
+  }
 }
 
 // 1. Fungsi Tambah Tugas Baru
 function addPostTask() {
-    const role = getCurrentRole();
-        const canAdd = role && ['director', 'producer', 'postpro_manager'].includes(role.type);
+  const role = getCurrentRole();
+  const canAdd = role && ['director','producer','postpro_manager'].includes(role.type);
+  if (!canAdd) { alert('Hanya tim POST-PRO yang bisa menambah jadwal pasca.'); return; }
 
-    if (!canAdd) {
-        alert("Maaf, hanya tim POST-PRO yang bisa menambah jadwal pasca.");
-        return;
-    }
+  const DEPARTMENTS = ['Editing','Color Grading','VFX','Sound Post','Music','DCP / Deliverable','Other'];
 
-    let html = `
-    <div style="font-family: 'Inter', sans-serif; padding: 10px;">
-        <h3 style="margin-bottom: 20px;">➕ Tambah Agenda Pasca-Pro</h3>
-        <div class="profile-form">
-            <label>Judul Agenda:</label>
-            <input type="text" id="new_post_title" class="v-btn" placeholder="Misal: Preview Offline Eps 1">
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
-                <div>
-                    <label>Tanggal:</label>
-                    <input type="date" id="new_post_date" class="v-btn">
-                </div>
-                <div>
-                    <label>Jam:</label>
-                    <input type="time" id="new_post_time" class="v-btn">
-                </div>
-            </div>
-            
-            <button class="nav-btn active" onclick="saveNewPostTask()" style="margin-top:20px; width: 100%;">➕ Tambahkan ke Kalender</button>
-        </div>
-    </div>`;
-    
-    showGeneralModal(html);
+  let html = `
+  <div style="font-family:'Inter',sans-serif;padding:10px;">
+    <h3 style="margin-bottom:16px;">➕ Tambah Agenda Pasca-Pro</h3>
+    <div class="profile-form">
+      <label>Judul Agenda:</label>
+      <input type="text" id="new_post_title" class="v-btn" placeholder="e.g. Offline Cut v1, Color Grade Reel 1">
+
+      <label>Department:</label>
+      <select id="new_post_dept" class="v-btn" style="height:40px;">
+        ${DEPARTMENTS.map(d=>`<option value="${d}">${d}</option>`).join('')}
+      </select>
+
+      <label>
+        <input type="checkbox" id="new_post_milestone" style="margin-right:6px;">
+        🚩 This is a Delivery Milestone (DCP, Festival, Broadcaster...)
+      </label>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">
+        <div><label style="font-size:11px;">Date:</label>
+          <input type="date" id="new_post_date" class="v-btn" style="width:100%;margin-top:4px;"></div>
+        <div><label style="font-size:11px;">Time:</label>
+          <input type="time" id="new_post_time" class="v-btn" style="width:100%;margin-top:4px;"></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><label style="font-size:11px;">Estimated Duration (days):</label>
+          <input type="number" id="new_post_estDays" class="v-btn" style="width:100%;margin-top:4px;" placeholder="e.g. 5" min="0"></div>
+        <div><label style="font-size:11px;">Initial Progress (%):</label>
+          <input type="number" id="new_post_progress" class="v-btn" style="width:100%;margin-top:4px;" placeholder="0" min="0" max="100"></div>
+      </div>
+
+      <button class="nav-btn active" onclick="saveNewPostTask()" style="margin-top:16px;width:100%;">➕ Tambahkan ke Kalender</button>
+    </div>
+  </div>`;
+
+  showGeneralModal(html);
 }
 
 // 2. Fungsi Simpan
 function saveNewPostTask() {
-    const title = document.getElementById('new_post_title').value;
-    const date = document.getElementById('new_post_date').value;
-    const time = document.getElementById('new_post_time').value;
+  const title = document.getElementById('new_post_title').value;
+  const date  = document.getElementById('new_post_date').value;
+  if (!title || !date) { alert('Mohon isi judul dan tanggal!'); return; }
 
-    if (!title || !date) {
-        alert("Mohon isi judul dan tanggal!");
-        return;
-    }
+  const newTask = {
+    id:           'post_' + Date.now(),
+    title,
+    department:   document.getElementById('new_post_dept')?.value || 'Other',
+    isMilestone:  document.getElementById('new_post_milestone')?.checked || false,
+    date,
+    time:         document.getElementById('new_post_time')?.value || '',
+    status:       'To-Do',
+    approvalStatus: 'Not Submitted',
+    progress:     parseInt(document.getElementById('new_post_progress')?.value || '0'),
+    estimatedDays: parseInt(document.getElementById('new_post_estDays')?.value || '0'),
+    actualDays:   0,
+    notes:        '',
+    versions:     []
+  };
 
-    const newTask = {
-        id: 'post_' + Date.now(),
-        title: title,
-        date: date,
-        time: time || '',
-        status: 'To-Do',
-        notes: ''
-    };
-
-    POSTPRO_DATA.push(newTask);
-    syncRef.update({ postpro: JSON.stringify(POSTPRO_DATA) });
-    closeGeneralModal();
-    renderPostProCalendar(); 
+  POSTPRO_DATA.push(newTask);
+  syncRef.update({ postpro: JSON.stringify(POSTPRO_DATA) });
+  closeGeneralModal();
+  renderPostProCalendar();
 }
 
 // Pop-Up Edit & Progress Notes
 function editPostTask(id) {
-    const t = POSTPRO_DATA.find(x => x.id === id);
-    if (!t) return;
-    const role = getCurrentRole();
-    
-    const canEditFull = role && ['director', 'producer', 'postpro_manager'].includes(role.type);
-    const postProRoles = ['director', 'producer', 'postpro_manager', 'hod_editor', 'hod_colorist', 'hod_vfx', 'hod_soundpost', 'hod_music'];
-    const canEditNotes = postProRoles.includes(role.type);
+  const t = POSTPRO_DATA.find(x => x.id === id);
+  if (!t) return;
+  const role = getCurrentRole();
+  const canEditFull  = role && ['director','producer','postpro_manager'].includes(role.type);
+  const postProRoles = ['director','producer','postpro_manager','hod_editor','hod_colorist','hod_vfx','hod_soundpost','hod_music'];
+  const canEditNotes = postProRoles.includes(role.type);
+  const DEPARTMENTS  = ['Editing','Color Grading','VFX','Sound Post','Music','DCP / Deliverable','Other'];
 
-    let html = `
-    <div style="font-family: 'Inter', sans-serif;">
-        </div>        </div>        </div>
+  const today = new Date(); today.setHours(0,0,0,0);
+  const isOverdue = t.date && new Date(t.date) < today && t.status !== 'Done' && t.approvalStatus !== 'Approved';
 
-        <div style="margin-bottom:20px;">
-            <label style="font-size:11px; font-weight:800; color:var(--text-light); text-transform:uppercase; display:block; margin-bottom:8px;">Status Progres</label>
-            <select id="po_status" class="v-btn" style="width:100%; height:45px; border-radius:10px; font-weight:bold;" ${!canEditNotes ? 'disabled' : ''}>
-                <option value="To-Do" ${t.status==='To-Do'?'selected':''}>⏳ To-Do</option>
-                <option value="In Progress" ${t.status==='In Progress'?'selected':''}>🔥 In Progress</option>
-                <option value="Waiting for Revision" ${t.status==='Waiting for Revision'?'selected':''}>👀 Menunggu Revisi</option>
-                <option value="Done" ${t.status==='Done'?'selected':''}>✅ Selesai (Done)</option>
-            </select>
+  // Version history HTML
+  const versions = t.versions || [];
+  let versionHtml = versions.length === 0
+    ? `<div style="color:var(--text-light);font-size:12px;font-style:italic;padding:8px 0;">No versions logged yet.</div>`
+    : versions.map((v, i) => `
+      <div style="background:var(--bg-main);border-radius:6px;padding:8px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+        <div>
+          <div style="font-size:12px;font-weight:800;color:var(--text-main);">v${versions.length - i} — ${v.label}</div>
+          <div style="font-size:11px;color:var(--text-light);">${v.date} &nbsp;|&nbsp; ${v.author}</div>
+          ${v.notes ? `<div style="font-size:11px;color:var(--text-main);margin-top:3px;">${v.notes}</div>` : ''}
         </div>
+      </div>`).reverse().join('');
 
-        <div style="margin-bottom:20px;">
-            <label style="font-size:11px; font-weight:800; color:var(--primary); text-transform:uppercase; display:block; margin-bottom:8px;">📝 Progress Notes (Update Departemen)</label>
-            <textarea id="po_notes" 
-                      style="width:100%; min-height:120px; background:var(--bg-main); border:1px solid var(--border-color); border-radius:12px; padding:12px; color:var(--text-main); font-family:inherit; line-height:1.6; font-size:13px;" 
-                      placeholder="Tulis detail progress di sini..." 
-                      ${!canEditNotes ? 'disabled' : ''}>${t.notes || ''}</textarea>
-        </div>
+  const html = `
+  <div style="font-family:'Inter',sans-serif;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <div>
+        <div style="font-size:16px;font-weight:800;color:var(--text-main);">${t.isMilestone?'🚩 ':''}${t.title}</div>
+        <div style="font-size:11px;color:var(--primary);font-weight:700;margin-top:2px;">${t.department||'Other'}</div>
+      </div>
+      ${isOverdue ? `<div style="background:#FEE2E2;color:#991B1B;padding:5px 10px;border-radius:4px;font-size:11px;font-weight:800;">⏰ OVERDUE</div>` : ''}
+    </div>
 
-        <div style="display:flex; flex-direction:column; gap:8px;">
-            ${canEditNotes ? `<button class="nav-btn active" onclick="updatePostTask('${id}')" style="width:100%; height:45px; border-radius:10px;">💾 Simpan Pembaruan</button>` : ''}
-            ${canEditFull ? `<button onclick="deletePostTask('${id}')" style="background:transparent; border:none; color:#EF4444; font-size:12px; font-weight:bold; cursor:pointer; margin-top:5px;">🗑️ Hapus Agenda Ini</button>` : ''}
-        </div>
-    </div>`;
-    
-    showGeneralModal(html);
+    <!-- Progress Bar -->
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <span style="font-size:11px;font-weight:700;color:var(--text-light);">PROGRESS</span>
+        <span style="font-size:13px;font-weight:800;color:var(--primary);">${t.progress||0}%</span>
+      </div>
+      <div style="height:8px;background:var(--border-color);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;background:var(--primary);border-radius:4px;width:${t.progress||0}%;"></div>
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div style="margin-bottom:14px;">
+      <label style="font-size:11px;font-weight:800;color:var(--text-light);text-transform:uppercase;display:block;margin-bottom:6px;">Status Progress</label>
+      <select id="po_status" class="v-btn" style="width:100%;height:45px;border-radius:8px;font-weight:bold;" ${!canEditNotes?'disabled':''}>
+        <option value="To-Do"               ${t.status==='To-Do'?'selected':''}>⏳ To-Do</option>
+        <option value="In Progress"         ${t.status==='In Progress'?'selected':''}>🔥 In Progress</option>
+        <option value="Waiting for Revision" ${t.status==='Waiting for Revision'?'selected':''}>👀 Waiting for Revision</option>
+        <option value="Done"                ${t.status==='Done'?'selected':''}>✅ Done</option>
+      </select>
+    </div>
+
+    <!-- Approval workflow -->
+    <div style="margin-bottom:14px;">
+      <label style="font-size:11px;font-weight:800;color:var(--text-light);text-transform:uppercase;display:block;margin-bottom:6px;">Director / Client Approval</label>
+      <select id="po_approval" class="v-btn" style="width:100%;height:45px;border-radius:8px;font-weight:bold;" ${!canEditNotes?'disabled':''}>
+        <option value="Not Submitted"        ${(t.approvalStatus||'Not Submitted')==='Not Submitted'?'selected':''}>📤 Not Submitted</option>
+        <option value="Submitted for Review" ${t.approvalStatus==='Submitted for Review'?'selected':''}>🔍 Submitted for Review</option>
+        <option value="Revision Requested"   ${t.approvalStatus==='Revision Requested'?'selected':''}>🔁 Revision Requested</option>
+        <option value="Approved"             ${t.approvalStatus==='Approved'?'selected':''}>✅ Approved by Director</option>
+      </select>
+    </div>
+
+    ${canEditFull ? `
+    <!-- Progress % slider -->
+    <div style="margin-bottom:14px;">
+      <label style="font-size:11px;font-weight:800;color:var(--text-light);text-transform:uppercase;display:block;margin-bottom:6px;">PROGRESS %</label>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <input type="range" id="po_progress" min="0" max="100" step="5" value="${t.progress||0}"
+          style="flex:1;" oninput="document.getElementById('po_progress_val').textContent=this.value+'%'">
+        <span id="po_progress_val" style="font-size:14px;font-weight:800;color:var(--primary);min-width:40px;">${t.progress||0}%</span>
+      </div>
+    </div>
+
+    <!-- Duration -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div>
+        <label style="font-size:11px;font-weight:800;color:var(--text-light);text-transform:uppercase;display:block;margin-bottom:6px;">ESTIMATED DAYS</label>
+        <input type="number" id="po_estDays" value="${t.estimatedDays||''}" class="v-btn" placeholder="e.g. 5" min="0">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:800;color:var(--text-light);text-transform:uppercase;display:block;margin-bottom:6px;">ACTUAL DAYS USED</label>
+        <input type="number" id="po_actualDays" value="${t.actualDays||''}" class="v-btn" placeholder="Fill when done" min="0">
+      </div>
+    </div>` : `
+    <input type="hidden" id="po_progress"   value="${t.progress||0}">
+    <input type="hidden" id="po_estDays"    value="${t.estimatedDays||''}">
+    <input type="hidden" id="po_actualDays" value="${t.actualDays||''}">
+    `}
+
+    <!-- Progress Notes -->
+    <div style="margin-bottom:14px;">
+      <label style="font-size:11px;font-weight:800;color:var(--primary);text-transform:uppercase;display:block;margin-bottom:6px;">📝 Progress Notes</label>
+      <textarea id="po_notes" style="width:100%;min-height:90px;background:var(--bg-main);border:1px solid var(--border-color);border-radius:8px;padding:10px;color:var(--text-main);font-family:inherit;font-size:13px;line-height:1.6;"
+        placeholder="Update progress, blockers, feedback..." ${!canEditNotes?'disabled':''}>${t.notes||''}</textarea>
+    </div>
+
+    <!-- Version History -->
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <label style="font-size:11px;font-weight:800;color:var(--text-light);text-transform:uppercase;">📋 Version History</label>
+        ${canEditNotes ? `<button onclick="openAddVersionForm('${id}')" style="background:var(--primary);color:white;border:none;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;">+ Log Version</button>` : ''}
+      </div>
+      <div id="versionList_${id}">${versionHtml}</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      ${canEditNotes ? `<button class="nav-btn active" onclick="updatePostTask('${id}')" style="width:100%;height:45px;border-radius:10px;">💾 Simpan Pembaruan</button>` : ''}
+      ${canEditFull  ? `<button onclick="deletePostTask('${id}')" style="background:transparent;border:none;color:#EF4444;font-size:12px;font-weight:bold;cursor:pointer;margin-top:4px;">🗑️ Hapus Agenda</button>` : ''}
+    </div>
+  </div>`;
+
+  showGeneralModal(html);
 }
 
 function updatePostTask(id) {
-    const idx = POSTPRO_DATA.findIndex(x => x.id === id);
-    if (idx === -1) return;
-    POSTPRO_DATA[idx].title = document.getElementById('po_title').value;
-    POSTPRO_DATA[idx].date = document.getElementById('po_date').value;
-    POSTPRO_DATA[idx].time = document.getElementById('po_time').value;
-    POSTPRO_DATA[idx].status = document.getElementById('po_status').value;
-    POSTPRO_DATA[idx].notes = document.getElementById('po_notes').value;
+  const idx = POSTPRO_DATA.findIndex(x => x.id === id);
+  if (idx === -1) return;
 
-    syncRef.update({ postpro: JSON.stringify(POSTPRO_DATA) });
-    closeGeneralModal();
+  const progressEl = document.getElementById('po_progress');
+  const progress = progressEl ? parseInt(progressEl.value) : POSTPRO_DATA[idx].progress || 0;
+
+  POSTPRO_DATA[idx].status         = document.getElementById('po_status').value;
+  POSTPRO_DATA[idx].approvalStatus = document.getElementById('po_approval').value;
+  POSTPRO_DATA[idx].notes          = document.getElementById('po_notes').value;
+  POSTPRO_DATA[idx].progress       = progress;
+  POSTPRO_DATA[idx].estimatedDays  = parseInt(document.getElementById('po_estDays')?.value || '0');
+  POSTPRO_DATA[idx].actualDays     = parseInt(document.getElementById('po_actualDays')?.value || '0');
+
+  // Auto-set progress to 100 if status is Done
+  if (POSTPRO_DATA[idx].status === 'Done') POSTPRO_DATA[idx].progress = 100;
+
+  syncRef.update({ postpro: JSON.stringify(POSTPRO_DATA) });
+  closeGeneralModal();
+  renderPostProCalendar();
 }
 
 function deletePostTask(id) {
@@ -2262,6 +2815,876 @@ function deletePostTask(id) {
     POSTPRO_DATA = POSTPRO_DATA.filter(x => x.id !== id);
     syncRef.update({ postpro: JSON.stringify(POSTPRO_DATA) });
     closeGeneralModal();
+}
+
+// NEW FUNCTION POST //
+
+function openAddVersionForm(taskId) {
+  const html = `
+  <div style="font-family:'Inter',sans-serif;padding:10px;">
+    <h3 style="margin-bottom:16px;">📋 Log New Version</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">VERSION LABEL</label>
+        <input id="ver_label" class="v-btn" style="width:100%;margin-top:4px;" placeholder="e.g. Offline Cut v1, Director's Cut, Final v3"></div>
+      <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">DATE</label>
+        <input type="date" id="ver_date" class="v-btn" style="width:100%;margin-top:4px;" value="${new Date().toISOString().split('T')[0]}"></div>
+      <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">LOGGED BY</label>
+        <input id="ver_author" class="v-btn" style="width:100%;margin-top:4px;" placeholder="e.g. Editor, Director"></div>
+      <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">NOTES / CHANGES</label>
+        <textarea id="ver_notes" rows="3" style="width:100%;padding:8px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-main);color:var(--text-main);font-family:inherit;resize:vertical;" placeholder="What changed in this version?"></textarea></div>
+      <button class="nav-btn active" onclick="saveVersion('${taskId}')" style="width:100%;padding:12px;">💾 Log Version</button>
+    </div>
+  </div>`;
+  showGeneralModal(html);
+}
+
+function saveVersion(taskId) {
+  const label  = document.getElementById('ver_label').value.trim();
+  const date   = document.getElementById('ver_date').value;
+  const author = document.getElementById('ver_author').value;
+  const notes  = document.getElementById('ver_notes').value;
+  if (!label || !date) { alert('Label and date required.'); return; }
+
+  const idx = POSTPRO_DATA.findIndex(x => x.id === taskId);
+  if (idx === -1) return;
+
+  if (!POSTPRO_DATA[idx].versions) POSTPRO_DATA[idx].versions = [];
+  POSTPRO_DATA[idx].versions.push({ label, date, author, notes, createdAt: new Date().toISOString() });
+
+  syncRef.update({ postpro: JSON.stringify(POSTPRO_DATA) }).then(() => {
+    closeGeneralModal();
+    editPostTask(taskId); // reopen the edit modal with updated versions
+  });
+}
+
+// --- DEPT LANES VIEW ---
+function setPostProView(view) {
+  // Update button states
+  document.querySelectorAll('#sectionPostPro .v-btn[id^="ppv"]').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('ppv' + view.charAt(0).toUpperCase() + view.slice(1));
+  if (btn) btn.classList.add('active');
+
+  if (view === 'dept') {
+    // Hide calendar grid, show dept lanes
+    document.querySelector('#sectionPostPro .calendar-section').style.display = 'none';
+    let laneContainer = document.getElementById('postproDeptLanes');
+    if (!laneContainer) {
+      laneContainer = document.createElement('div');
+      laneContainer.id = 'postproDeptLanes';
+      document.querySelector('#sectionPostPro .calendar-section').insertAdjacentElement('afterend', laneContainer);
+    }
+    laneContainer.style.display = 'block';
+    renderPostProDeptView(laneContainer);
+  } else {
+    document.querySelector('#sectionPostPro .calendar-section').style.display = '';
+    const laneContainer = document.getElementById('postproDeptLanes');
+    if (laneContainer) laneContainer.style.display = 'none';
+    renderPostProCalendar();
+  }
+}
+
+function renderPostProDeptView(container) {
+  const DEPTS = ['Editing','Color Grading','VFX','Sound Post','Music','DCP / Deliverable','Other'];
+  const role = getCurrentRole();
+  const canAdd = role && ['director','producer','postpro_manager'].includes(role.type);
+
+  const STATUS_COLOR = {
+    'To-Do': '#3B82F6',
+    'In Progress': '#F59E0B',
+    'Waiting for Revision': '#EF4444',
+    'Done': '#10B981'
+  };
+  const APPROVAL_ICON = {
+    'Not Submitted': '', 'Submitted for Review': '🔍',
+    'Revision Requested': '🔁', 'Approved': '✅'
+  };
+
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  let html = `
+  <div style="padding:20px 0;">
+    <div style="max-width:1100px;margin:0 auto;padding:0 20px;">
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+        <div style="display:flex;gap:16px;min-width:${DEPTS.length * 220}px;padding-bottom:20px;">`;
+
+  DEPTS.forEach(dept => {
+    const tasks = POSTPRO_DATA.filter(t => (t.department||'Other') === dept);
+    const doneCount = tasks.filter(t => t.status === 'Done' || t.approvalStatus === 'Approved').length;
+    const pctDone = tasks.length > 0 ? Math.round(doneCount/tasks.length*100) : 0;
+
+    html += `
+    <div style="min-width:200px;flex:1;background:var(--bg-main);border-radius:10px;overflow:hidden;border:1px solid var(--border-color);">
+      <div style="background:var(--text-main);padding:12px 14px;">
+        <div style="color:white;font-weight:800;font-size:13px;margin-bottom:4px;">${dept}</div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="flex:1;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;overflow:hidden;">
+            <div style="height:100%;background:#10B981;width:${pctDone}%;"></div>
+          </div>
+          <span style="color:rgba(255,255,255,0.7);font-size:10px;font-weight:700;">${pctDone}%</span>
+        </div>
+      </div>
+      <div style="padding:10px;display:flex;flex-direction:column;gap:8px;min-height:200px;">`;
+
+    if (tasks.length === 0) {
+      html += `<div style="text-align:center;padding:24px 0;color:var(--text-light);font-size:12px;">No tasks yet.</div>`;
+    } else {
+      tasks.sort((a,b) => (a.date||'').localeCompare(b.date||'')).forEach(t => {
+        const color = STATUS_COLOR[t.status] || '#64748B';
+        const isOverdueT = t.date && new Date(t.date) < today && t.status !== 'Done' && t.approvalStatus !== 'Approved';
+        const appIcon = APPROVAL_ICON[t.approvalStatus] || '';
+        const progressWidth = t.progress || 0;
+
+        html += `
+        <div onclick="editPostTask('${t.id}')" style="background:var(--bg-card);border:1px solid var(--border-color);border-left:4px solid ${isOverdueT?'#EF4444':color};border-radius:6px;padding:10px;cursor:pointer;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:4px;margin-bottom:4px;">
+            <div style="font-size:12px;font-weight:700;color:var(--text-main);line-height:1.3;">${t.isMilestone?'🚩 ':''}${t.title}</div>
+            <span style="font-size:14px;flex-shrink:0;">${appIcon}</span>
+          </div>
+          <div style="font-size:10px;color:var(--text-light);margin-bottom:6px;">📅 ${t.date||'—'} ${isOverdueT?'<span style="color:#EF4444;font-weight:800;">⏰</span>':''}</div>
+          <div style="height:4px;background:var(--border-color);border-radius:2px;overflow:hidden;margin-bottom:4px;">
+            <div style="height:100%;background:${color};width:${progressWidth}%;"></div>
+          </div>
+          <div style="font-size:10px;font-weight:700;color:${color};">${t.status} · ${progressWidth}%</div>
+        </div>`;
+      });
+    }
+
+    html += `</div></div>`;
+  });
+
+  html += `</div></div></div></div>`;
+  container.innerHTML = html;
+}
+
+
+// =========================================================================
+//  FEATURE 1: DOOD — DAY-OUT-OF-DAYS REPORT
+// =========================================================================
+function openDOOD() {
+  const body = document.getElementById('doodBody');
+
+  // Gather all shoot days sorted
+  const sortedKeys = Object.keys(shootDays).filter(k => k !== 'parkiran').sort();
+  if (sortedKeys.length === 0) {
+    body.innerHTML = '<p style="color:var(--text-light);text-align:center;padding:40px;">No schedule data yet.</p>';
+    document.getElementById('doodPopup').classList.add('open');
+    return;
+  }
+
+  // Gather all cast IDs across all days
+  const allCastIds = new Set();
+  sortedKeys.forEach(key => {
+    shootDays[key].scenes.forEach(sc => {
+      parseCastIds(sc.main_cast).forEach(id => allCastIds.add(id));
+      parseCastIds(sc.supporting).forEach(id => allCastIds.add(id));
+    });
+  });
+  const castList = [...allCastIds].sort((a, b) => a - b);
+
+  // Legend colors
+  const STATUS = {
+    W:  { label: 'W',  bg: '#2563EB', color: '#fff', title: 'Work' },
+    SW: { label: 'SW', bg: '#10B981', color: '#fff', title: 'Start Work' },
+    FW: { label: 'FW', bg: '#F59E0B', color: '#fff', title: 'Finish Work' },
+    H:  { label: 'H',  bg: '#94A3B8', color: '#fff', title: 'Hold' },
+    F:  { label: 'F',  bg: '#E2E8F0', color: '#64748B', title: 'Free' },
+  };
+
+  // Build per-cast appearance map
+  const castAppearDays = {};
+  castList.forEach(id => { castAppearDays[id] = {}; });
+
+  sortedKeys.forEach(key => {
+    const sd = shootDays[key];
+    const castOnDay = new Set();
+    sd.scenes.forEach(sc => {
+      parseCastIds(sc.main_cast).forEach(id => castOnDay.add(id));
+      parseCastIds(sc.supporting).forEach(id => castOnDay.add(id));
+    });
+    castOnDay.forEach(id => { castAppearDays[id][key] = 'W'; });
+  });
+
+  // Determine SW / FW (first and last appearance)
+  castList.forEach(id => {
+    const activeDays = Object.keys(castAppearDays[id]).filter(k => castAppearDays[id][k] === 'W').sort();
+    if (activeDays.length > 0) {
+      castAppearDays[id][activeDays[0]] = 'SW';
+      if (activeDays.length > 1) castAppearDays[id][activeDays[activeDays.length - 1]] = 'FW';
+      // Fill HOLD days between first and last
+      const firstIdx = sortedKeys.indexOf(activeDays[0]);
+      const lastIdx  = sortedKeys.indexOf(activeDays[activeDays.length - 1]);
+      for (let i = firstIdx + 1; i < lastIdx; i++) {
+        const k = sortedKeys[i];
+        if (!castAppearDays[id][k]) castAppearDays[id][k] = 'H';
+      }
+    }
+  });
+
+  // Count work days per cast
+  const totalStyles = `font-size:11px;font-weight:800;text-align:center;padding:6px 4px;`;
+
+  let html = `
+  <div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    <strong style="font-size:13px;">Legend:</strong>
+    ${Object.values(STATUS).map(s => `<span style="background:${s.bg};color:${s.color};padding:3px 8px;border-radius:3px;font-size:11px;font-weight:700;">${s.label} = ${s.title}</span>`).join('')}
+    <span style="background:#E2E8F0;color:#64748B;padding:3px 8px;border-radius:3px;font-size:11px;font-weight:700;">blank = Free</span>
+  </div>
+  <div style="overflow-x:auto;">
+  <table style="border-collapse:collapse;width:100%;font-family:'Inter',sans-serif;font-size:12px;">
+    <thead>
+      <tr style="background:var(--text-main);color:white;">
+        <th style="padding:10px 12px;text-align:left;min-width:140px;position:sticky;left:0;background:var(--text-main);z-index:2;">CHARACTER</th>
+        <th style="padding:10px 12px;text-align:left;min-width:100px;position:sticky;left:140px;background:var(--text-main);z-index:2;">ACTOR</th>`;
+
+  sortedKeys.forEach(key => {
+    const sd = shootDays[key];
+    html += `<th style="padding:6px 4px;text-align:center;min-width:50px;border-left:1px solid rgba(255,255,255,0.1);">
+      <div style="font-size:10px;opacity:0.7;">Day</div>
+      <div style="font-size:13px;font-weight:800;">${sd.day}</div>
+      <div style="font-size:9px;opacity:0.7;">${sd.date.split(' ').slice(0,2).join(' ')}</div>
+    </th>`;
+  });
+
+  html += `<th style="padding:10px 8px;text-align:center;min-width:50px;border-left:2px solid rgba(255,255,255,0.3);">TOTAL<br>DAYS</th></tr></thead><tbody>`;
+
+  castList.forEach((id, idx) => {
+    const charName = CAST_NAMES[id] || `ID ${id}`;
+    const actorName = ACTOR_NAMES[id] || '—';
+    const workCount = sortedKeys.filter(k => ['W','SW','FW'].includes(castAppearDays[id][k])).length;
+    const rowBg = idx % 2 === 0 ? 'background:var(--bg-card);' : 'background:var(--bg-main);';
+
+    html += `<tr style="${rowBg}">
+      <td style="padding:8px 12px;font-weight:700;font-size:13px;color:var(--text-main);border-right:1px solid var(--border-color);position:sticky;left:0;${rowBg}z-index:1;">${id}. ${charName}</td>
+      <td style="padding:8px 12px;font-size:12px;color:var(--text-light);border-right:1px solid var(--border-color);position:sticky;left:140px;${rowBg}z-index:1;">${actorName}</td>`;
+
+    sortedKeys.forEach(key => {
+      const status = castAppearDays[id][key];
+      if (status && STATUS[status]) {
+        const s = STATUS[status];
+        html += `<td style="text-align:center;border-left:1px solid var(--border-color);padding:4px;"><span style="display:inline-block;background:${s.bg};color:${s.color};padding:4px 6px;border-radius:3px;font-size:10px;font-weight:800;min-width:24px;">${s.label}</span></td>`;
+      } else {
+        html += `<td style="text-align:center;border-left:1px solid var(--border-color);"></td>`;
+      }
+    });
+
+    html += `<td style="text-align:center;border-left:2px solid var(--border-color);font-weight:800;font-size:14px;color:var(--primary);">${workCount}</td></tr>`;
+  });
+
+  // Footer: scenes per day
+  html += `<tr style="background:var(--border-color);font-weight:800;">
+    <td colspan="2" style="padding:8px 12px;font-size:11px;text-transform:uppercase;position:sticky;left:0;background:var(--border-color);">SCENES / DAY</td>`;
+  sortedKeys.forEach(key => {
+    html += `<td style="text-align:center;border-left:1px solid var(--bg-card);font-size:12px;padding:6px 4px;">${shootDays[key].scenes.length}</td>`;
+  });
+  html += `<td></td></tr></tbody></table></div>`;
+
+  body.innerHTML = html;
+  document.getElementById('doodPopup').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+
+// =========================================================================
+//  FEATURE 2: STRIPBOARD — ONE-LINER VIEW
+// =========================================================================
+function openStripboard() {
+  renderStripboard();
+  document.getElementById('stripboardPopup').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderStripboard() {
+  const sortBy = document.getElementById('stripSortBy')?.value || 'day';
+
+  // Collect all scenes with their day info
+  let allScenes = [];
+  Object.keys(shootDays).filter(k => k !== 'parkiran').sort().forEach(key => {
+    const sd = shootDays[key];
+    sd.scenes.forEach(sc => {
+      allScenes.push({ ...sc, dayNum: sd.day, dayDate: sd.date, dayKey: key, dayWrap: sd.wrap });
+    });
+  });
+
+  // Sort
+  if (sortBy === 'scene')    allScenes.sort((a, b) => a.scene - b.scene);
+  else if (sortBy === 'location') allScenes.sort((a, b) => (a.set||'').localeCompare(b.set||''));
+  else if (sortBy === 'ie')  allScenes.sort((a, b) => (a.ie||'').localeCompare(b.ie||''));
+  else if (sortBy === 'dn')  allScenes.sort((a, b) => (a.dn||'').localeCompare(b.dn||''));
+  // else: day order (already sorted)
+
+  const ws = getWrappedScenes();
+
+  // Color scheme
+  function stripColor(ie, dn) {
+    if (ie === 'I' && dn === 'DAY')   return { bg: '#DBEAFE', border: '#3B82F6', text: '#1E3A8A' };
+    if (ie === 'I' && dn === 'NIGHT') return { bg: '#1E293B', border: '#64748B', text: '#F8FAFC' };
+    if (ie === 'E' && dn === 'DAY')   return { bg: '#D1FAE5', border: '#10B981', text: '#064E3B' };
+    if (ie === 'E' && dn === 'NIGHT') return { bg: '#0F172A', border: '#334155', text: '#94A3B8' };
+    return { bg: 'var(--bg-main)', border: 'var(--border-color)', text: 'var(--text-main)' };
+  }
+
+  let html = `
+  <div style="margin-bottom:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+    <strong style="font-size:13px;">Legend:</strong>
+    <span style="background:#DBEAFE;color:#1E3A8A;padding:3px 10px;border-radius:3px;font-size:11px;font-weight:700;border-left:4px solid #3B82F6;">INT / DAY</span>
+    <span style="background:#1E293B;color:#F8FAFC;padding:3px 10px;border-radius:3px;font-size:11px;font-weight:700;border-left:4px solid #64748B;">INT / NIGHT</span>
+    <span style="background:#D1FAE5;color:#064E3B;padding:3px 10px;border-radius:3px;font-size:11px;font-weight:700;border-left:4px solid #10B981;">EXT / DAY</span>
+    <span style="background:#0F172A;color:#94A3B8;padding:3px 10px;border-radius:3px;font-size:11px;font-weight:700;border-left:4px solid #334155;">EXT / NIGHT</span>
+    <span style="opacity:0.5;padding:3px 10px;border-radius:3px;font-size:11px;font-weight:700;border:2px dashed var(--border-color);">✅ Wrapped</span>
+    <span style="margin-left:auto;font-size:12px;color:var(--text-light);">Total: <strong style="color:var(--text-main);">${allScenes.length} scenes</strong></span>
+  </div>`;
+
+  let currentDayNum = null;
+  html += `<div style="display:flex;flex-wrap:wrap;gap:6px;">`;
+
+  allScenes.forEach(sc => {
+    const isWrapped = ws.includes(sc.scene);
+    const c = stripColor(sc.ie, sc.dn);
+    const castIds = [...parseCastIds(sc.main_cast), ...parseCastIds(sc.supporting)];
+    const castStr = castIds.map(id => `${id}`).join(', ');
+
+    // Day separator label when sorting by day
+    if (sortBy === 'day' && sc.dayNum !== currentDayNum) {
+      currentDayNum = sc.dayNum;
+      html += `</div><div style="width:100%;margin:14px 0 8px;"><span style="background:var(--text-main);color:white;padding:5px 14px;border-radius:4px;font-size:12px;font-weight:800;">📅 DAY ${sc.dayNum} — ${sc.dayDate}</span></div><div style="display:flex;flex-wrap:wrap;gap:6px;">`;
+    }
+
+    html += `
+    <div onclick="openSingleSceneCard(${sc.scene})" title="Click for full scene detail"
+      style="width:160px;min-height:120px;border-radius:6px;background:${c.bg};border:1px solid ${c.border};border-left:5px solid ${c.border};padding:10px 8px;cursor:pointer;transition:transform 0.15s;position:relative;${isWrapped ? 'opacity:0.5;' : ''}"
+      onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
+      ${isWrapped ? `<div style="position:absolute;top:4px;right:4px;background:#10B981;color:white;font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px;">✅ WRAP</div>` : ''}
+      <div style="color:${c.text};font-size:18px;font-weight:900;letter-spacing:-0.5px;margin-bottom:2px;">SC ${sc.scene}</div>
+      <div style="color:${c.text};font-size:10px;font-weight:700;opacity:0.6;margin-bottom:6px;">${sc.ie||'?'} / ${sc.dn||'?'} ${sc.pages ? '· '+sc.pages+'p' : ''}</div>
+      <div style="color:${c.text};font-size:11px;font-weight:700;line-height:1.3;margin-bottom:6px;">${(sc.set||'').substring(0,45)}${(sc.set||'').length > 45 ? '…' : ''}</div>
+      <div style="color:${c.text};font-size:10px;opacity:0.7;line-height:1.4;">${(sc.desc||'').substring(0,50)}${(sc.desc||'').length > 50 ? '…' : ''}</div>
+      ${castStr ? `<div style="margin-top:6px;font-size:10px;font-weight:700;color:${c.text};opacity:0.8;">🎭 ${castStr}</div>` : ''}
+      ${sortBy !== 'day' ? `<div style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.15);color:${c.text};font-size:9px;padding:2px 5px;border-radius:3px;font-weight:700;">D${sc.dayNum}</div>` : ''}
+    </div>`;
+  });
+
+  html += `</div>`;
+
+  if (allScenes.length === 0) html = `<p style="color:var(--text-light);text-align:center;padding:40px;">No scenes found. Import your schedule first.</p>`;
+
+  document.getElementById('stripboardBody').innerHTML = html;
+}
+
+
+// =========================================================================
+//  FEATURE 3: CONFLICT DETECTOR
+// =========================================================================
+let conflictResults = [];
+
+function runConflictDetection() {
+  conflictResults = [];
+  const sortedKeys = Object.keys(shootDays).filter(k => k !== 'parkiran').sort();
+
+  sortedKeys.forEach(key => {
+    const sd = shootDays[key];
+
+    // A. Cast double-booking: same cast, same day, overlapping or same timeslot
+    const castSceneMap = {};
+    sd.scenes.forEach(sc => {
+      [...parseCastIds(sc.main_cast), ...parseCastIds(sc.supporting)].forEach(id => {
+        if (!castSceneMap[id]) castSceneMap[id] = [];
+        castSceneMap[id].push(sc.scene);
+      });
+    });
+    Object.entries(castSceneMap).forEach(([id, scenes]) => {
+      if (scenes.length > 4) { // more than 4 scenes = flag for overwork
+        conflictResults.push({
+          type: 'overload',
+          severity: 'warning',
+          day: sd.day, date: sd.date,
+          msg: `${CAST_NAMES[id] || 'Cast '+id} appears in ${scenes.length} scenes on Day ${sd.day} (scenes: ${scenes.join(', ')}). Verify timing is realistic.`
+        });
+      }
+    });
+
+    // B. Same location, many scenes — check for location overload
+    const locCount = {};
+    sd.scenes.forEach(sc => {
+      const loc = (sc.set||'').split('-')[0].trim();
+      locCount[loc] = (locCount[loc] || 0) + 1;
+    });
+
+    // C. Missing wrap time
+    if (!sd.wrap || sd.wrap === '') {
+      conflictResults.push({
+        type: 'missing_wrap', severity: 'info',
+        day: sd.day, date: sd.date,
+        msg: `Day ${sd.day} (${sd.date}) has no wrap time set.`
+      });
+    }
+
+    // D. Scenes with no cast assigned
+    sd.scenes.forEach(sc => {
+      const castIds = [...parseCastIds(sc.main_cast), ...parseCastIds(sc.supporting)];
+      if (castIds.length === 0 && (!sc.extras || sc.extras.trim() === '')) {
+        conflictResults.push({
+          type: 'no_cast', severity: 'info',
+          day: sd.day, date: sd.date,
+          msg: `Scene ${sc.scene} on Day ${sd.day} has no cast or extras assigned.`
+        });
+      }
+    });
+
+    // E. Same cast on consecutive night then early morning — check adjacent days
+    const nextKey = sortedKeys[sortedKeys.indexOf(key) + 1];
+    if (nextKey) {
+      const nextDayCast = new Set();
+      shootDays[nextKey].scenes.forEach(sc => {
+        [...parseCastIds(sc.main_cast), ...parseCastIds(sc.supporting)].forEach(id => nextDayCast.add(id));
+      });
+
+      sd.scenes.filter(sc => sc.dn === 'NIGHT').forEach(sc => {
+        [...parseCastIds(sc.main_cast), ...parseCastIds(sc.supporting)].forEach(id => {
+          if (nextDayCast.has(id)) {
+            conflictResults.push({
+              type: 'turnaround', severity: 'error',
+              day: sd.day, date: sd.date,
+              msg: `⚠️ Turnaround risk: ${CAST_NAMES[id] || 'Cast '+id} works a NIGHT scene on Day ${sd.day} and is scheduled AGAIN on Day ${shootDays[nextKey].day}. Check rest period compliance.`
+            });
+          }
+        });
+      });
+    }
+  });
+
+  // Update badge
+  const errors = conflictResults.filter(c => c.severity === 'error').length;
+  const warnings = conflictResults.filter(c => c.severity === 'warning').length;
+  const badge = document.getElementById('conflictBadge');
+  const btn = document.getElementById('btnConflict');
+
+  if (btn) {
+    if (errors > 0) {
+      btn.style.display = 'inline-flex';
+      btn.style.background = '#DC2626';
+      if (badge) badge.textContent = ` ${errors}`;
+    } else if (warnings > 0) {
+      btn.style.display = 'inline-flex';
+      btn.style.background = '#D97706';
+      if (badge) badge.textContent = ` ${warnings}`;
+    } else {
+      btn.style.display = 'inline-flex';
+      btn.style.background = '#10B981';
+      if (badge) badge.textContent = ' ✓';
+    }
+  }
+}
+
+function openConflictPopup() {
+  runConflictDetection();
+  const body = document.getElementById('conflictBody');
+
+  if (conflictResults.length === 0) {
+    body.innerHTML = `<div style="text-align:center;padding:40px;">
+      <div style="font-size:48px;margin-bottom:12px;">✅</div>
+      <div style="font-size:18px;font-weight:800;color:var(--text-main);">No Conflicts Detected</div>
+      <div style="color:var(--text-light);margin-top:8px;">Your schedule looks clean.</div>
+    </div>`;
+    document.getElementById('conflictPopup').classList.add('open');
+    return;
+  }
+
+  const colorMap = { error: '#FEE2E2', warning: '#FEF3C7', info: '#EFF6FF' };
+  const borderMap = { error: '#EF4444', warning: '#F59E0B', info: '#3B82F6' };
+  const iconMap = { error: '🔴', warning: '🟡', info: '🔵' };
+
+  const errors = conflictResults.filter(c => c.severity === 'error');
+  const warnings = conflictResults.filter(c => c.severity === 'warning');
+  const infos = conflictResults.filter(c => c.severity === 'info');
+
+  let html = `<div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+    <div style="background:#FEE2E2;color:#991B1B;padding:10px 16px;border-radius:6px;font-weight:800;font-size:14px;">${errors.length} Critical</div>
+    <div style="background:#FEF3C7;color:#92400E;padding:10px 16px;border-radius:6px;font-weight:800;font-size:14px;">${warnings.length} Warnings</div>
+    <div style="background:#EFF6FF;color:#1E3A8A;padding:10px 16px;border-radius:6px;font-weight:800;font-size:14px;">${infos.length} Notes</div>
+  </div>`;
+
+  [...errors, ...warnings, ...infos].forEach(c => {
+    html += `<div style="background:${colorMap[c.severity]};border-left:4px solid ${borderMap[c.severity]};border-radius:4px;padding:12px 14px;margin-bottom:8px;">
+      <div style="font-size:12px;font-weight:700;color:${borderMap[c.severity]};margin-bottom:4px;">${iconMap[c.severity]} ${c.type.toUpperCase().replace('_',' ')}</div>
+      <div style="font-size:13px;color:#1E293B;line-height:1.5;">${c.msg}</div>
+    </div>`;
+  });
+
+  body.innerHTML = html;
+  document.getElementById('conflictPopup').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+
+// =========================================================================
+//  FEATURE 4: LOCATION MANAGEMENT MODULE
+// =========================================================================
+// Stores in Firebase: production_data/locationDetails/{slug}
+
+function slugify(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]/g, '_').substring(0, 40);
+}
+
+function openLocationMgmt() {
+  const role = getCurrentRole();
+  const canEdit = role && ['ad', 'line_producer', 'director', 'producer'].includes(role.type);
+  const btn = document.getElementById('btnAddLocation');
+  if (btn) btn.style.display = canEdit ? 'inline-flex' : 'none';
+
+  // Get unique locations from schedule
+  const scheduleLocs = getUniqueLocations().map(l => l.name);
+
+  db.ref('production_data/locationDetails').once('value').then(snap => {
+    const savedDetails = snap.val() || {};
+
+    let html = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">`;
+
+    scheduleLocs.forEach(locName => {
+      const key = slugify(locName);
+      const d = savedDetails[key] || {};
+      const permitBg = d.permitStatus === 'Approved' ? '#D1FAE5' : d.permitStatus === 'Pending' ? '#FEF3C7' : d.permitStatus === 'Denied' ? '#FEE2E2' : '#F1F5F9';
+      const permitColor = d.permitStatus === 'Approved' ? '#065F46' : d.permitStatus === 'Pending' ? '#92400E' : d.permitStatus === 'Denied' ? '#991B1B' : '#64748B';
+
+      html += `
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:10px;overflow:hidden;">
+        <div style="background:var(--text-main);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
+          <div style="color:white;font-weight:800;font-size:14px;">📍 ${locName}</div>
+          ${canEdit ? `<button onclick="openAddLocationForm('${locName.replace(/'/g,"\\'")}', '${key}')" style="background:rgba(255,255,255,0.15);border:none;color:white;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;">✏️ Edit</button>` : ''}
+        </div>
+        <div style="padding:14px 16px;">
+          <div style="font-size:12px;margin-bottom:6px;"><span style="font-weight:700;color:var(--text-light);">ADDRESS</span><br>${d.address || '<span style="color:#94A3B8;font-style:italic;">Not set</span>'}</div>
+          <div style="font-size:12px;margin-bottom:6px;"><span style="font-weight:700;color:var(--text-light);">CONTACT</span><br>${d.contact || '<span style="color:#94A3B8;font-style:italic;">Not set</span>'}</div>
+          <div style="font-size:12px;margin-bottom:6px;"><span style="font-weight:700;color:var(--text-light);">PARKING / BASECAMP</span><br>${d.parking || '<span style="color:#94A3B8;font-style:italic;">Not set</span>'}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;gap:8px;">
+            <span style="background:${permitBg};color:${permitColor};padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;">${d.permitStatus || 'Permit: Unknown'}</span>
+            ${d.mapsUrl ? `<a href="${d.mapsUrl}" target="_blank" style="color:var(--primary);font-size:12px;font-weight:700;text-decoration:none;">🗺️ Maps →</a>` : ''}
+          </div>
+          ${d.notes ? `<div style="margin-top:10px;background:var(--bg-main);border-radius:4px;padding:8px 10px;font-size:11px;color:var(--text-light);line-height:1.5;">${d.notes}</div>` : ''}
+        </div>
+      </div>`;
+    });
+
+    html += `</div>`;
+    if (scheduleLocs.length === 0) html = `<p style="color:var(--text-light);text-align:center;padding:40px;">No locations found. Import your schedule first.</p>`;
+
+    document.getElementById('locationMgmtBody').innerHTML = html;
+    document.getElementById('locationMgmtPopup').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+}
+
+function openAddLocationForm(locName = '', key = '') {
+  db.ref('production_data/locationDetails/' + (key || '__new__')).once('value').then(snap => {
+    const d = snap.val() || {};
+    const html = `
+    <div style="font-family:'Inter',sans-serif;padding:10px;">
+      <h3 style="margin-bottom:16px;">${locName ? '✏️ Edit: '+locName : '➕ Add New Location'}</h3>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        ${!locName ? `<div><label style="font-size:11px;font-weight:700;color:var(--text-light);">LOCATION NAME</label>
+          <input id="lf_name" class="v-btn" style="width:100%;margin-top:4px;" placeholder="e.g. Rumah Pak Haji - Ruang Tamu" value="${locName}"></div>` : `<input id="lf_name" type="hidden" value="${locName}">`}
+        <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">FULL ADDRESS</label>
+          <textarea id="lf_address" rows="2" style="width:100%;margin-top:4px;padding:8px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-main);color:var(--text-main);font-family:inherit;resize:vertical;">${d.address||''}</textarea></div>
+        <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">LOCATION OWNER / CONTACT</label>
+          <input id="lf_contact" class="v-btn" style="width:100%;margin-top:4px;" placeholder="Nama — 08xx" value="${d.contact||''}"></div>
+        <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">GOOGLE MAPS URL</label>
+          <input id="lf_maps" class="v-btn" style="width:100%;margin-top:4px;" placeholder="https://maps.google.com/..." value="${d.mapsUrl||''}"></div>
+        <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">PARKING / BASECAMP INFO</label>
+          <input id="lf_parking" class="v-btn" style="width:100%;margin-top:4px;" placeholder="e.g. Parkir di lapangan sebelah masjid" value="${d.parking||''}"></div>
+        <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">PERMIT STATUS</label>
+          <select id="lf_permit" class="v-btn" style="width:100%;margin-top:4px;height:40px;">
+            <option value="Unknown" ${!d.permitStatus||d.permitStatus==='Unknown'?'selected':''}>Unknown</option>
+            <option value="Pending" ${d.permitStatus==='Pending'?'selected':''}>⏳ Pending</option>
+            <option value="Approved" ${d.permitStatus==='Approved'?'selected':''}>✅ Approved</option>
+            <option value="Denied" ${d.permitStatus==='Denied'?'selected':''}>❌ Denied</option>
+            <option value="Not Required" ${d.permitStatus==='Not Required'?'selected':''}>🟢 Not Required</option>
+          </select></div>
+        <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">NOTES (hospital, police, restrictions...)</label>
+          <textarea id="lf_notes" rows="3" style="width:100%;margin-top:4px;padding:8px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-main);color:var(--text-main);font-family:inherit;resize:vertical;">${d.notes||''}</textarea></div>
+        <button class="nav-btn active" onclick="saveLocationDetail('${key}')" style="margin-top:8px;width:100%;padding:12px;">💾 Save Location</button>
+      </div>
+    </div>`;
+    showGeneralModal(html);
+  });
+}
+
+function saveLocationDetail(existingKey) {
+  const name = document.getElementById('lf_name').value.trim();
+  if (!name) { alert('Location name is required.'); return; }
+  const key = existingKey || slugify(name);
+  const data = {
+    name,
+    address: document.getElementById('lf_address').value,
+    contact: document.getElementById('lf_contact').value,
+    mapsUrl: document.getElementById('lf_maps').value,
+    parking: document.getElementById('lf_parking').value,
+    permitStatus: document.getElementById('lf_permit').value,
+    notes: document.getElementById('lf_notes').value,
+    updatedAt: new Date().toISOString()
+  };
+  db.ref('production_data/locationDetails/' + key).set(data).then(() => {
+    closeGeneralModal();
+    openLocationMgmt();
+  });
+}
+
+
+// =========================================================================
+//  FEATURE 5: WEATHER INTEGRATION PER SHOOT DAY
+// =========================================================================
+// Uses Open-Meteo API (free, no API key needed)
+// CONFIGURE YOUR LOCATION COORDINATES BELOW:
+const WEATHER_CONFIG = {
+  latitude: -5.1477,    // ← change to your shoot location latitude
+  longitude: 119.4327,  // ← change to your shoot location longitude
+  timezone: 'Asia/Makassar'  // ← change to your timezone
+};
+
+let weatherCache = {}; // { "YYYY-MM-DD": { max, min, code } }
+let weatherFetched = false;
+
+const WMO_ICONS = {
+  0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',
+  51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',
+  71:'❄️',73:'❄️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',
+  95:'⛈️',96:'⛈️',99:'⛈️'
+};
+
+async function fetchWeatherForSchedule() {
+  if (weatherFetched) return;
+  const keys = Object.keys(shootDays).filter(k => k !== 'parkiran' && !k.startsWith('2099')).sort();
+  if (keys.length === 0) return;
+
+  const startDate = keys[0];
+  const endDate = keys[keys.length - 1];
+
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${WEATHER_CONFIG.latitude}&longitude=${WEATHER_CONFIG.longitude}&daily=weathercode,temperature_2m_max,temperature_2m_min&start_date=${startDate}&end_date=${endDate}&timezone=${encodeURIComponent(WEATHER_CONFIG.timezone)}`;
+    const resp = await fetch(url);
+    const data = await resp.json();
+
+    if (data.daily && data.daily.time) {
+      data.daily.time.forEach((date, i) => {
+        weatherCache[date] = {
+          code: data.daily.weathercode[i],
+          max: Math.round(data.daily.temperature_2m_max[i]),
+          min: Math.round(data.daily.temperature_2m_min[i])
+        };
+      });
+      weatherFetched = true;
+      // Re-render calendar to show weather
+      if (currentPhase === 'shoot') renderCalendar();
+    }
+  } catch(e) {
+    console.warn('Weather fetch failed:', e);
+  }
+}
+
+function getWeatherHtml(dateKey) {
+  const w = weatherCache[dateKey];
+  if (!w) return '';
+  const icon = WMO_ICONS[w.code] || '🌡️';
+  return `<div style="margin-top:6px;font-size:10px;font-weight:600;color:var(--text-light);display:flex;align-items:center;gap:4px;" title="Weather forecast">
+    <span style="font-size:14px;">${icon}</span>
+    <span style="color:#EF4444;">${w.max}°</span>/<span style="color:#3B82F6;">${w.min}°C</span>
+  </div>`;
+}
+
+// Call this once after schedule loads. Add to Firebase sync listener (see STEP 4 below).
+// fetchWeatherForSchedule();
+
+
+// =========================================================================
+//  FEATURE 6: TRANSPORT & ACCOMMODATION TRACKER
+// =========================================================================
+let TRANSPO_DATA = { vehicles: [], hotels: [] };
+
+function openTranspo() {
+  const role = getCurrentRole();
+  const canEdit = role && ['ad', 'line_producer', 'director', 'producer', 'production_coordinator'].includes(role.type);
+
+  db.ref('production_data/transpo').once('value').then(snap => {
+    const d = snap.val();
+    if (d) {
+      TRANSPO_DATA.vehicles = d.vehicles ? JSON.parse(d.vehicles) : [];
+      TRANSPO_DATA.hotels   = d.hotels   ? JSON.parse(d.hotels)   : [];
+    }
+    renderTranspoBody(canEdit);
+    document.getElementById('transpoPopup').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+}
+
+function renderTranspoBody(canEdit) {
+  const v = TRANSPO_DATA.vehicles;
+  const h = TRANSPO_DATA.hotels;
+
+  let vehicleHtml = v.length === 0
+    ? `<p style="color:var(--text-light);font-style:italic;text-align:center;padding:20px;">No vehicles added yet.</p>`
+    : v.map((veh, i) => `
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:8px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div style="font-weight:800;font-size:14px;color:var(--text-main);">🚐 ${veh.vehicleType} — ${veh.plateNumber}</div>
+          <div style="font-size:12px;color:var(--text-light);margin-top:4px;">Driver: <strong>${veh.driverName}</strong> · ${veh.driverPhone}</div>
+          <div style="font-size:12px;color:var(--text-light);">Assigned: ${veh.assigned}</div>
+          <div style="font-size:12px;color:var(--text-light);">📅 ${veh.date || 'All Days'} &nbsp;🕒 Pickup: ${veh.pickupTime || 'TBA'}</div>
+          <div style="font-size:12px;color:var(--text-light);">📍 From: ${veh.pickupLocation || 'TBA'} → ${veh.destination || 'TBA'}</div>
+          ${veh.notes ? `<div style="font-size:11px;color:var(--secondary);margin-top:4px;font-style:italic;">${veh.notes}</div>` : ''}
+        </div>
+        ${canEdit ? `<button onclick="deleteTranspoItem('vehicle', ${i})" style="background:none;border:none;color:#EF4444;cursor:pointer;font-size:18px;line-height:1;padding:0;">×</button>` : ''}
+      </div>`).join('');
+
+  let hotelHtml = h.length === 0
+    ? `<p style="color:var(--text-light);font-style:italic;text-align:center;padding:20px;">No accommodation added yet.</p>`
+    : h.map((hotel, i) => `
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:8px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div style="font-weight:800;font-size:14px;color:var(--text-main);">🏨 ${hotel.hotelName}</div>
+          <div style="font-size:12px;color:var(--text-light);margin-top:4px;">📍 ${hotel.address}</div>
+          <div style="font-size:12px;color:var(--text-light);">Check-in: <strong>${hotel.checkIn}</strong> → Check-out: <strong>${hotel.checkOut}</strong></div>
+          <div style="font-size:12px;color:var(--text-light);">Room(s): ${hotel.rooms} &nbsp;|&nbsp; Assigned: ${hotel.assigned}</div>
+          <div style="font-size:12px;color:var(--text-light);">Contact: ${hotel.contact}</div>
+          ${hotel.notes ? `<div style="font-size:11px;color:var(--secondary);margin-top:4px;font-style:italic;">${hotel.notes}</div>` : ''}
+        </div>
+        ${canEdit ? `<button onclick="deleteTranspoItem('hotel', ${i})" style="background:none;border:none;color:#EF4444;cursor:pointer;font-size:18px;line-height:1;padding:0;">×</button>` : ''}
+      </div>`).join('');
+
+  const addButtons = canEdit ? `
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="nav-btn active" onclick="openAddTranspoForm('vehicle')" style="flex:1;padding:10px;">➕ Add Vehicle</button>
+      <button class="nav-btn" onclick="openAddTranspoForm('hotel')" style="flex:1;padding:10px;background:var(--bg-card);color:var(--text-main);">➕ Add Accommodation</button>
+    </div>` : '';
+
+  document.getElementById('transpoBody').innerHTML = `
+    ${addButtons}
+    <div style="margin-top:20px;">
+      <h3 style="font-size:15px;font-weight:800;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-color);">🚐 VEHICLES (${v.length})</h3>
+      ${vehicleHtml}
+      <h3 style="font-size:15px;font-weight:800;margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border-color);">🏨 ACCOMMODATION (${h.length})</h3>
+      ${hotelHtml}
+    </div>`;
+}
+
+function openAddTranspoForm(type) {
+  const sortedKeys = Object.keys(shootDays).filter(k => k !== 'parkiran').sort();
+  const dateOptions = sortedKeys.map(k => `<option value="${k}">Day ${shootDays[k].day} — ${shootDays[k].date} (${k})</option>`).join('');
+
+  let formHtml = '';
+  if (type === 'vehicle') {
+    formHtml = `
+      <h3 style="margin-bottom:16px;">🚐 Add Vehicle</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">VEHICLE TYPE</label>
+            <input id="tf_type" class="v-btn" style="width:100%;margin-top:4px;" placeholder="e.g. Minibus, SUV, Truck"></div>
+          <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">PLATE NUMBER</label>
+            <input id="tf_plate" class="v-btn" style="width:100%;margin-top:4px;" placeholder="e.g. DD 1234 AB"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">DRIVER NAME</label>
+            <input id="tf_driver" class="v-btn" style="width:100%;margin-top:4px;" placeholder="Nama Sopir"></div>
+          <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">DRIVER PHONE</label>
+            <input id="tf_phone" class="v-btn" style="width:100%;margin-top:4px;" placeholder="08xx"></div>
+        </div>
+        <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">ASSIGNED TO (crew/cast names)</label>
+          <input id="tf_assigned" class="v-btn" style="width:100%;margin-top:4px;" placeholder="e.g. DOP, Gaffer, Cast 1"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">SHOOT DAY</label>
+            <select id="tf_date" class="v-btn" style="width:100%;margin-top:4px;height:40px;"><option value="">All Days</option>${dateOptions}</select></div>
+          <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">PICKUP TIME</label>
+            <input type="time" id="tf_time" class="v-btn" style="width:100%;margin-top:4px;"></div>
+        </div>
+        <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">PICKUP LOCATION</label>
+          <input id="tf_pickup" class="v-btn" style="width:100%;margin-top:4px;" placeholder="e.g. Hotel Arya, Lobby"></div>
+        <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">DESTINATION</label>
+          <input id="tf_dest" class="v-btn" style="width:100%;margin-top:4px;" placeholder="e.g. Set Lokasi A"></div>
+        <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">NOTES</label>
+          <input id="tf_notes" class="v-btn" style="width:100%;margin-top:4px;" placeholder="Additional info..."></div>
+        <button class="nav-btn active" onclick="saveTranspoItem('vehicle')" style="margin-top:8px;width:100%;padding:12px;">💾 Save Vehicle</button>
+      </div>`;
+  } else {
+    formHtml = `
+      <h3 style="margin-bottom:16px;">🏨 Add Accommodation</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">HOTEL / ACCOMMODATION NAME</label>
+          <input id="hf_name" class="v-btn" style="width:100%;margin-top:4px;" placeholder="e.g. Hotel Arya Duta"></div>
+        <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">ADDRESS</label>
+          <input id="hf_address" class="v-btn" style="width:100%;margin-top:4px;" placeholder="Full address"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">CHECK-IN DATE</label>
+            <input type="date" id="hf_in" class="v-btn" style="width:100%;margin-top:4px;"></div>
+          <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">CHECK-OUT DATE</label>
+            <input type="date" id="hf_out" class="v-btn" style="width:100%;margin-top:4px;"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">ROOM(S)</label>
+            <input id="hf_rooms" class="v-btn" style="width:100%;margin-top:4px;" placeholder="e.g. 3x Standard, 1x Suite"></div>
+          <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">CONTACT / BOOKING REF</label>
+            <input id="hf_contact" class="v-btn" style="width:100%;margin-top:4px;" placeholder="Phone or booking#"></div>
+        </div>
+        <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">ASSIGNED TO</label>
+          <input id="hf_assigned" class="v-btn" style="width:100%;margin-top:4px;" placeholder="e.g. Director, DOP, Cast 1, Cast 2"></div>
+        <div><label style="font-size:11px;font-weight:700;color:var(--text-light);">NOTES</label>
+          <input id="hf_notes" class="v-btn" style="width:100%;margin-top:4px;" placeholder="Breakfast included? Early check-in? etc."></div>
+        <button class="nav-btn active" onclick="saveTranspoItem('hotel')" style="margin-top:8px;width:100%;padding:12px;">💾 Save Accommodation</button>
+      </div>`;
+  }
+  showGeneralModal(`<div style="font-family:'Inter',sans-serif;padding:10px;">${formHtml}</div>`);
+}
+
+function saveTranspoItem(type) {
+  let item = {};
+  if (type === 'vehicle') {
+    item = {
+      vehicleType: document.getElementById('tf_type').value,
+      plateNumber: document.getElementById('tf_plate').value,
+      driverName: document.getElementById('tf_driver').value,
+      driverPhone: document.getElementById('tf_phone').value,
+      assigned: document.getElementById('tf_assigned').value,
+      date: document.getElementById('tf_date').value,
+      pickupTime: document.getElementById('tf_time').value,
+      pickupLocation: document.getElementById('tf_pickup').value,
+      destination: document.getElementById('tf_dest').value,
+      notes: document.getElementById('tf_notes').value,
+    };
+    if (!item.vehicleType || !item.driverName) { alert('Vehicle type and driver name are required.'); return; }
+    TRANSPO_DATA.vehicles.push(item);
+  } else {
+    item = {
+      hotelName: document.getElementById('hf_name').value,
+      address: document.getElementById('hf_address').value,
+      checkIn: document.getElementById('hf_in').value,
+      checkOut: document.getElementById('hf_out').value,
+      rooms: document.getElementById('hf_rooms').value,
+      contact: document.getElementById('hf_contact').value,
+      assigned: document.getElementById('hf_assigned').value,
+      notes: document.getElementById('hf_notes').value,
+    };
+    if (!item.hotelName) { alert('Hotel name is required.'); return; }
+    TRANSPO_DATA.hotels.push(item);
+  }
+  db.ref('production_data/transpo').update({
+    vehicles: JSON.stringify(TRANSPO_DATA.vehicles),
+    hotels: JSON.stringify(TRANSPO_DATA.hotels)
+  }).then(() => {
+    closeGeneralModal();
+    const role = getCurrentRole();
+    const canEdit = role && ['ad', 'line_producer', 'director', 'producer', 'production_coordinator'].includes(role.type);
+    renderTranspoBody(canEdit);
+  });
+}
+
+function deleteTranspoItem(type, index) {
+  if (!confirm('Delete this entry?')) return;
+  if (type === 'vehicle') TRANSPO_DATA.vehicles.splice(index, 1);
+  else TRANSPO_DATA.hotels.splice(index, 1);
+  db.ref('production_data/transpo').update({
+    vehicles: JSON.stringify(TRANSPO_DATA.vehicles),
+    hotels: JSON.stringify(TRANSPO_DATA.hotels)
+  }).then(() => {
+    const role = getCurrentRole();
+    const canEdit = role && ['ad', 'line_producer', 'director', 'producer', 'production_coordinator'].includes(role.type);
+    renderTranspoBody(canEdit);
+  });
 }
   
 initLogin();
